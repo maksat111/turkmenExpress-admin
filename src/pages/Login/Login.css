@@ -21,13 +21,13 @@ input {
     border: none;
 }
 
-input::placeholder {
+.login-container input::placeholder {
     color: #7d91ad;
 }
 
-input:active,
-input:focus,
-input:hover {
+.login-container>input:active,
+.login-container input:focus,
+.login-container input:hover {
     outline: none;
 }
 
@@ -42,7 +42,7 @@ input:hover {
     transition: 0.3s;
 }
 
-.login_button:hover{
+.login_button:hover {
     background-color: rgb(64, 64, 219);
 }
 
@@ -58,7 +58,7 @@ input:hover {
     border-radius: 20px;
     border: rgb(221, 220, 220) 1px solid;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 15px 25px, rgba(0, 0, 0, 0.05) 0px 5px 10px;
-    height: 280px;
+    height: 300px;
     width: 520px;
     margin: auto;
 }
@@ -73,15 +73,7 @@ input:hover {
     box-shadow: 0px 0px 1px #549bff;
 }
 
-/* .logo_container{
-    width: 50vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-} */
-
-.form_container{
+.form_container {
     width: 50vw;
     height: 100vh;
     display: flex;
@@ -93,7 +85,7 @@ input:hover {
     height: 400px;
 }
 
-.login_page{
+.login_page {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -102,6 +94,12 @@ input:hover {
     height: 100vh;
 }
 
-.login_page{
+.login_page {
     height: 90vh;
+}
+
+.login-container img {
+    height: 60px;
+    margin-top: -20px;
+    margin-bottom: -10px;
 }

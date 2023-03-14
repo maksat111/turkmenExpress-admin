@@ -1,0 +1,59 @@
+.sidebar_container {
+    width: 250px;
+    height: calc(100vh - 84px);
+    padding: 10px;
+    overflow: auto;
+    overflow-x: hidden;
+    box-shadow: 0 2px 5px -1px rgba(41, 41, 77, 0.02), 0 1px 3px -1px rgba(0, 0, 0, .1);
+}
+
+.sidebar_container::-webkit-scrollbar-track {
+    border-radius: 0.125rem;
+    background-color: rgb(221, 220, 220);
+}
+
+.sidebar_container::-webkit-scrollbar {
+    width: 0.25rem;
+    border-radius: 0.125rem;
+}
+
+.sidebar_container::-webkit-scrollbar-thumb {
+    border-radius: 0.125rem;
+    background-color: gray;
+}
+
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    border-radius: 7px;
+    color: #4f5868;
+    font-size: 18px;
+    padding-left: 25px;
+    gap: 15px;
+    cursor: pointer;
+}
+
+.sidebar-item:hover {
+    background-color: rgb(8, 8, 224);
+    color: white;
+}
+
+.sidebar-group {
+    display: block !;
+}
+
+.sidebar-group {
+    margin-left: 10px;
+    margin-bottom: 5px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #4f5868;
+}
+
+.active-sidebar {
+    background-color: rgb(8, 8, 224);
+    color: white;
+}

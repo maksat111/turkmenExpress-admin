@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 // import { useHistory } from 'react-router-dom';
 import { LoadingOutlined, UserOutlined, EyeOutlined, EyeInvisibleOutlined, LockOutlined } from '@ant-design/icons'
 import './Login.css'
-import { loginPost } from '../../config/axios';
-import { message } from 'antd';
+// import { loginPost } from '../../config/axios';
+// import { message } from 'antd';
+import Logo from '../../images/logo.png';
 
 const Login = () => {
     // const history = useHistory();
@@ -14,22 +15,23 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const res = await loginPost(username, password);
-        console.log(res)
-        if (res.success == 1) {
-            localStorage.setItem('nyzam_profile_info', JSON.stringify(res.data));
-            message.success('Successfully!');
-            window.location.href = "/gatnasyk"
-            setLoading(false);
-        } else {
-            message.error(res.msg);
-            setLoading(false);
-        }
+        // const res = await loginPost(username, password);
+        // console.log(res)
+        // if (res.success == 1) {
+        //     localStorage.setItem('nyzam_profile_info', JSON.stringify(res.data));
+        //     message.success('Successfully!');
+        //     window.location.href = "/gatnasyk"
+        //     setLoading(false);
+        // } else {
+        //     message.error(res.msg);
+        //     setLoading(false);
+        // }
 
     }
     return (
         <div className='login_page'>
             <form className="login-container" onSubmit={handleSubmit}>
+                <img src={Logo} alt='logo' />
                 <h2>Hoş geldiňiz!</h2>
                 <p>Programmany ulanmak üçin açar sözüňizi giriziň!</p>
 
