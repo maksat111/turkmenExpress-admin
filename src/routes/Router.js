@@ -101,6 +101,10 @@ function Router() {
                     element: <Suspense fallback={<Loading size='60px' />}><SubCategorySetting /></Suspense>,
                     path: '/subcategorySettings'
                 },
+                {
+                    element: <Suspense fallback={<Loading size='60px' />}><DeliveryType /></Suspense>,
+                    path: '/deliveryType'
+                },
             ]
         }
     ]);
