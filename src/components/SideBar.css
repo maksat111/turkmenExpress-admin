@@ -33,6 +33,7 @@
     padding-left: 25px;
     gap: 15px;
     cursor: pointer;
+    margin-bottom: 2px;
 }
 
 .sidebar-item:hover {

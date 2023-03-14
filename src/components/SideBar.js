@@ -41,7 +41,7 @@ function SideBar() {
         {
             icon: <RiCoupon2Line style={iconStyle} />,
             title: 'Виды купонов',
-            href: '/coupenType'
+            href: '/couponType'
         },
         {
             icon: <MdMapsHomeWork style={iconStyle} />,
@@ -118,12 +118,11 @@ function SideBar() {
 
     return (
         <div className='sidebar_container'>
-            {items.map((item, index) => <div className='sidebar-items'>
+            {items.map((item, index) => <div className='sidebar-items' key={index}>
                 {item.group && <p className='sidebar-group'>{item.group}</p>}
                 <div
                     className={`sidebar-item ${window.location.pathname === item.href ? 'active-sidebar' : ''}`}
                     onClick={() => handleSidebarClick(item.href)}
-                    key={index}
                 >
                     {item.icon}
                     <p>{item.title}</p>
