@@ -1,7 +1,7 @@
 .sidebar_container {
     width: 250px;
-    height: calc(100vh - 84px);
-    padding: 10px;
+    height: calc(100vh - 74px);
+    padding: 0 10px 10px;
     overflow: auto;
     overflow-x: hidden;
     box-shadow: 0 2px 5px -1px rgba(41, 41, 77, 0.02), 0 1px 3px -1px rgba(0, 0, 0, .1);

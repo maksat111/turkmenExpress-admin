@@ -1,11 +1,18 @@
 import React from 'react';
-import './Navbar.css';
+import { Avatar } from 'antd';
 import logo from '../images/logo3.png';
-import { Link } from 'react-router-dom';
+import './Navbar.css';
+import { AiOutlineUser } from 'react-icons/ai';
+
 function Navbar() {
     return (
         <div className='navbar-container'>
             <img src={logo} alt='turkmenExpress' />
+            <div className='navbar-items'>
+                <div className='navbar-user-item'>
+                    <Avatar icon={<AiOutlineUser />} />
+                </div>
+            </div>
         </div>
     );
 }

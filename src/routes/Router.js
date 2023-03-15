@@ -1,6 +1,7 @@
 import { React, lazy, Suspense } from 'react';
 import { useRoutes } from "react-router-dom";
 import Loading from '../components/Loading';
+import PageLoading from '../components/PageLoading';
 
 const Login = lazy(() => import('../pages/Login/Login'));
 const Banners = lazy(() => import('../pages/Banners/Banners'));
@@ -27,11 +28,15 @@ const SideBarNavbar = lazy(() => import('./SidebarNavbar'));
 function Router() {
     let routes = useRoutes([
         {
-            element: <Suspense fallback={<Loading size='60px' />}><Login /></Suspense>,
+            element: <PageLoading />,
+            path: '/loading',
+        },
+        {
+            element: <Suspense fallback={<PageLoading />}><Login /></Suspense>,
             path: '/',
         },
         {
-            element: <Suspense fallback={<Loading size='60px' />}><SideBarNavbar /></Suspense>,
+            element: <Suspense fallback={<PageLoading />}><SideBarNavbar /></Suspense>,
             children: [
                 {
                     element: <Suspense fallback={<Loading size='60px' />}><Dashboard /></Suspense>,
