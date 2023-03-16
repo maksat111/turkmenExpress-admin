@@ -1,4 +1,4 @@
 .banners-container {
-    width: calc(100vw - 270px);
-    background-color: wheat;
+    display: flex;
+    flex-direction: column;
 }

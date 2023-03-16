@@ -2,7 +2,7 @@ import React from 'react';
 
 function Subcategories(props) {
     return (
-        <div>
+        <div className='page'>
 
         </div>
     );

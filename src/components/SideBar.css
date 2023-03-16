@@ -1,5 +1,5 @@
 .sidebar_container {
-    width: 250px;
+    width: 230px;
     height: calc(100vh - 74px);
     padding: 0 10px 10px;
     overflow: auto;
@@ -29,15 +29,15 @@
     border-radius: 7px;
     color: #4f5868;
     font-size: 18px;
-    padding-left: 25px;
+    padding-left: 15px;
     gap: 15px;
     cursor: pointer;
     margin-bottom: 2px;
 }
 
 .sidebar-item:hover {
-    background-color: rgb(8, 8, 224);
-    color: white;
+    background-color: rgba(8, 8, 224, 0.1);
+    color: #4f5868;
 }
 
 .sidebar-group {
@@ -45,7 +45,7 @@
 }
 
 .sidebar-group {
-    margin-left: 10px;
+    margin-left: 5px;
     margin-bottom: 5px;
     font-size: 13px;
     letter-spacing: 1px;
@@ -54,6 +54,6 @@
 }
 
 .active-sidebar {
-    background-color: rgb(8, 8, 224);
-    color: white;
+    background-color: rgba(8, 8, 224, 0.1);
+    color: #4f5868;
 }

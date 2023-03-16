@@ -2,7 +2,7 @@ import React from 'react';
 
 function DiscountList(props) {
     return (
-        <div>
+        <div className='page'>
 
         </div>
     );
