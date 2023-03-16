@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState, useEffect } from 'react';
 import { TfiDashboard } from 'react-icons/tfi';
 import { BsImages, BsInboxes } from 'react-icons/bs';
 import { AiOutlineTag, AiOutlineShoppingCart } from 'react-icons/ai';
@@ -10,10 +10,12 @@ import { BiCategory } from 'react-icons/bi';
 import { IoPricetagsOutline } from 'react-icons/io5';
 import { FiSettings } from 'react-icons/fi';
 import { VscSettings } from 'react-icons/vsc';
+import { HiOutlineChevronDoubleLeft } from 'react-icons/hi';
 import './SideBar.css';
 import { useNavigate } from 'react-router-dom';
 
 function SideBar() {
+    const [toggled, setToggled] = useState(false);
     const navigate = useNavigate();
     const iconStyle = { fontSize: '20px' };
     const items = [
@@ -116,10 +118,14 @@ function SideBar() {
         navigate(href);
     }
 
+    const hanldeToggle = () => {
+        setToggled(!toggled);
+    }
+
     return (
         <div className='sidebar_container'>
             {items.map((item, index) => <div className='sidebar-items' key={index}>
-                {item.group && <p className='sidebar-group'>{item.group}</p>}
+                {item.group && <p className={`${toggled ? 'sidebar-toggled-group' : 'sidebar-group'}`}>{item.group}</p>}
                 <div
                     className={`sidebar-item ${window.location.pathname === item.href ? 'active-sidebar' : ''}`}
                     onClick={() => handleSidebarClick(item.href)}
@@ -128,6 +134,9 @@ function SideBar() {
                     <p>{item.title}</p>
                 </div>
             </div>)}
+            <div className='navbar-toggle-button' onClick={hanldeToggle}>
+                <HiOutlineChevronDoubleLeft />
+            </div>
         </div>
     );
 }
