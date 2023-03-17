@@ -24,7 +24,7 @@ code {
 
 .page {
   padding: 15px;
-  width: calc(100vw - 280px);
+  width: 100%;
   overflow: auto;
   height: calc(100vh - 94px);
 }

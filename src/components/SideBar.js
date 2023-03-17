@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState } from 'react';
 import { TfiDashboard } from 'react-icons/tfi';
 import { BsImages, BsInboxes } from 'react-icons/bs';
 import { AiOutlineTag, AiOutlineShoppingCart } from 'react-icons/ai';
@@ -10,14 +10,14 @@ import { BiCategory } from 'react-icons/bi';
 import { IoPricetagsOutline } from 'react-icons/io5';
 import { FiSettings } from 'react-icons/fi';
 import { VscSettings } from 'react-icons/vsc';
-import { HiOutlineChevronDoubleLeft } from 'react-icons/hi';
+import { HiOutlineChevronDoubleLeft, HiOutlineChevronDoubleRight } from 'react-icons/hi';
 import './SideBar.css';
 import { useNavigate } from 'react-router-dom';
 
 function SideBar() {
     const [toggled, setToggled] = useState(false);
     const navigate = useNavigate();
-    const iconStyle = { fontSize: '20px' };
+    const iconStyle = toggled ? { fontSize: '22px', marginBottom: '-8px' } : { fontSize: '20px' };
     const items = [
         {
             group: 'БИБЛИОНТЕКА',
@@ -88,7 +88,7 @@ function SideBar() {
         },
         {
             group: 'ТОВАРЫ',
-            icon: <TbDiscount2 style={{ fontSize: '23px', marginLeft: '-2px' }} />,
+            icon: <TbDiscount2 style={toggled ? { fontSize: '26px', marginBottom: '-5px' } : { fontSize: '23px', marginLeft: '-2px' }} />,
             title: 'Виды скидок',
             href: '/discountList'
         },
@@ -98,8 +98,8 @@ function SideBar() {
             href: '/groupSettings'
         },
         {
-            icon: <RiListSettingsLine style={{ fontSize: '25px' }} />,
-            title: 'Группа опций в подактегориях',
+            icon: <RiListSettingsLine style={toggled ? { fontSize: '25px', marginBottom: "-8px" } : { fontSize: '24px' }} />,
+            title: toggled ? 'Груп. опц. в подактегориях' : 'Группа опций в подактегориях',
             href: '/subcategorySettings'
         },
         {
@@ -123,19 +123,19 @@ function SideBar() {
     }
 
     return (
-        <div className='sidebar_container'>
+        <div className={`${toggled ? 'toggled-sidebar-container' : 'sidebar_container'}`}>
             {items.map((item, index) => <div className='sidebar-items' key={index}>
                 {item.group && <p className={`${toggled ? 'sidebar-toggled-group' : 'sidebar-group'}`}>{item.group}</p>}
                 <div
-                    className={`sidebar-item ${window.location.pathname === item.href ? 'active-sidebar' : ''}`}
+                    className={`${toggled ? 'toggled-sidebar-item' : 'sidebar-item'} ${window.location.pathname === item.href ? 'active-sidebar' : ''}`}
                     onClick={() => handleSidebarClick(item.href)}
                 >
                     {item.icon}
                     <p>{item.title}</p>
                 </div>
             </div>)}
-            <div className='navbar-toggle-button' onClick={hanldeToggle}>
-                <HiOutlineChevronDoubleLeft />
+            <div className={`${toggled ? 'toggled-sidebar-button' : 'navbar-toggle-button'}`} onClick={hanldeToggle}>
+                {toggled ? <HiOutlineChevronDoubleRight /> : <HiOutlineChevronDoubleLeft />}
             </div>
         </div>
     );

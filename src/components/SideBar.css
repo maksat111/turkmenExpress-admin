@@ -5,19 +5,34 @@
     overflow: auto;
     overflow-x: hidden;
     box-shadow: 0 2px 5px -1px rgba(41, 41, 77, 0.02), 0 1px 3px -1px rgba(0, 0, 0, .1);
+    transition: 0.4s;
 }
 
-.sidebar_container::-webkit-scrollbar-track {
+.toggled-sidebar-container {
+    text-align: center;
+    transition: 0.4s;
+    width: 100px;
+    height: calc(100vh - 99px);
+    padding: 0 5px 30px;
+    overflow: auto;
+    overflow-x: hidden;
+    box-shadow: 0 2px 5px -1px rgba(41, 41, 77, 0.02), 0 1px 3px -1px rgba(0, 0, 0, .1);
+}
+
+.sidebar_container::-webkit-scrollbar-track,
+.toggled-sidebar-container::-webkit-scrollbar-track {
     border-radius: 0.125rem;
     background-color: rgb(221, 220, 220);
 }
 
-.sidebar_container::-webkit-scrollbar {
+.sidebar_container::-webkit-scrollbar,
+.toggled-sidebar-container::-webkit-scrollbar {
     width: 0.25rem;
     border-radius: 0.125rem;
 }
 
-.sidebar_container::-webkit-scrollbar-thumb {
+.sidebar_container::-webkit-scrollbar-thumb,
+.toggled-sidebar-container::-webkit-scrollbar-thumb {
     border-radius: 0.125rem;
     background-color: gray;
 }
@@ -33,9 +48,15 @@
     gap: 15px;
     cursor: pointer;
     margin-bottom: 2px;
+    transition: 0.4s;
 }
 
 .sidebar-item:hover {
+    background-color: rgba(8, 8, 224, 0.15);
+    color: #4f5868;
+}
+
+.toggled-sidebar-item:hover {
     background-color: rgba(8, 8, 224, 0.15);
     color: #4f5868;
 }
@@ -73,6 +94,42 @@
     bottom: 0;
     left: 0;
     width: 250px;
-    background-color: blue;
+    background-color: rgba(255, 255, 255, 0.7);
     height: 35px;
+    transition: 0.4s;
+}
+
+.toggled-sidebar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    border-radius: 7px;
+    color: #4f5868;
+    font-size: 14px;
+    /* padding-left: 15px; */
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: 0.4s;
+}
+
+.toggled-sidebar-item>p {
+    margin: 0;
+}
+
+.toggled-sidebar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+    color: #4f5868;
+    width: 110px;
+    background-color: rgba(255, 255, 255, 0.7);
+    height: 35px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    transition: 0.4s;
 }

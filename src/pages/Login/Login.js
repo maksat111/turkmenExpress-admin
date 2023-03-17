@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-// import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AiOutlineLoading, AiOutlineUser, AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLock } from 'react-icons/ai';
 import './Login.css'
-// import { loginPost } from '../../config/axios';
-// import { message } from 'antd';
+import { loginPost } from '../../config/axios';
+import { message } from 'antd';
 import Logo from '../../images/logo.png';
 
 const Login = () => {
-    // const history = useHistory();
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -15,18 +15,17 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        // const res = await loginPost(username, password);
-        // console.log(res)
-        // if (res.success == 1) {
-        //     localStorage.setItem('nyzam_profile_info', JSON.stringify(res.data));
-        //     message.success('Successfully!');
-        //     window.location.href = "/gatnasyk"
-        //     setLoading(false);
-        // } else {
-        //     message.error(res.msg);
-        //     setLoading(false);
-        // }
-
+        try {
+            const res = await loginPost(username, password);
+            localStorage.setItem('turkmenExpress-admin', JSON.stringify(res.data));
+            message.success('Successfully!');
+            navigate('/dashboard');
+            setLoading(false);
+        } catch (err) {
+            console.log(err);
+            message.error('Tazeden synansyn!');
+            setLoading(false);
+        }
     }
     return (
         <div className='login_page'>
