@@ -22,6 +22,7 @@ const SettingsList = lazy(() => import('../pages/SettingsList/SettingsList'));
 const SmsTable = lazy(() => import('../pages/SmsTable/SmsTable'));
 const Subcategories = lazy(() => import('../pages/Subcategories/Subcategories'));
 const SubCategorySetting = lazy(() => import('../pages/SubCategorySetting/SubCategorySetting'));
+const ProtectedRoute = lazy(() => import('./ProtectedRoute'));
 
 const SideBarNavbar = lazy(() => import('./SidebarNavbar'));
 

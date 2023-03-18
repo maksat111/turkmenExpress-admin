@@ -19,35 +19,35 @@ const Login = () => {
             const res = await loginPost(username, password);
             localStorage.setItem('turkmenExpress-admin', JSON.stringify(res.data));
             message.success('Successfully!');
-            navigate('/dashboard');
             setLoading(false);
+            window.location.pathname = '/dashboard';
         } catch (err) {
-            console.log(err);
-            message.error('Tazeden synansyn!');
+            err.response?.data?.detail ? message.error(err.response.data.detail) : message.error('ошибка, попробуйте еще раз, пожалуйста');
             setLoading(false);
         }
     }
+
     return (
         <div className='login_page'>
             <form className="login-container" onSubmit={handleSubmit}>
                 <img src={Logo} alt='logo' />
-                <h2>Hoş geldiňiz!</h2>
-                <p>Programmany ulanmak üçin açar sözüňizi giriziň!</p>
+                <h2>Добро пожаловать!</h2>
+                <p>Введите свой пароль, чтобы использовать приложение!</p>
 
                 <div className='input-container'>
                     <AiOutlineUser className='icon' />
-                    <input style={{ width: "395px" }} placeholder="Ulanyjynyň ady" onChange={(e) => setUsername(e.target.value)} required />
+                    <input style={{ width: "395px" }} placeholder="Имя пользователя" onChange={(e) => setUsername(e.target.value)} required />
                 </div>
 
                 <div className='input-container'>
                     <AiOutlineLock className='icon' />
-                    <input type={type} placeholder="Açar sözi" onChange={(e) => setPassword(e.target.value)} required />
+                    <input type={type} placeholder="Пароль" onChange={(e) => setPassword(e.target.value)} required />
                     {type == 'password' ? <AiOutlineEye className='icon' style={!password ? { color: 'white' } : { color: "rgb(73, 73, 231)" }} onClick={() => setType("text")} />
                         : <AiOutlineEyeInvisible className='icon' onClick={() => setType("password")} />
                     }
                 </div>
 
-                <button className='login_button' type="submit">{loading ? <AiOutlineLoading /> : "Log In"}</button>
+                <button className='login_button' type="submit">{loading ? <AiOutlineLoading className='loading-spin' /> : "Войти"}</button>
             </form>
         </div>
     )

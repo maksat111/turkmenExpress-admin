@@ -1,5 +1,7 @@
 import axios from 'axios';
+import { getToken } from '../utils/getToken';
 
+const token = getToken();
 const BASE_URL = 'https://turkmenexpress.com.tm/api/administrator/';
 
 const axiosInstance = axios.create({
@@ -8,12 +10,12 @@ const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Accept': "application/json",
-        // "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
     }
 });
 
-const loginPost = async (username, password) => {
-    const res = await axios.post('https://turkmenexpress.com.tm/api/users/login/', { username, password });
-    return res.data;
+const loginPost = async (phone_number, password) => {
+    const res = await axios.post('https://turkmenexpress.com.tm/api/users/login/', { phone_number, password });
+    return res;
 }
 export { axiosInstance, loginPost } 
