@@ -58,14 +58,37 @@ code {
   }
 }
 
-.delete-icon {
+.delete-icon,
+.update-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: red;
-  height: 30px;
-  width: 30px;
-  border-radius: 5px;
+  font-size: 15px;
+  padding: 5px 10px;
+  width: fit-content;
+  height: fit-content;
   color: white;
-  font-size: 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.4s;
+}
+
+.delete-icon {
+  background-color: red;
+}
+
+.delete-icon:hover {
+  background-color: rgb(255, 55, 55);
+}
+
+.update-icon {
+  background-color: rgb(8, 8, 224);
+}
+
+.update-icon:hover {
+  background-color: rgb(57, 57, 223);
+}
+
+.ant-btn-primary.ant-btn-dangerous {
+  background-color: red;
 }

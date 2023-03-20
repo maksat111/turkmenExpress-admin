@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { TiDelete } from 'react-icons/ti';
-import { HiPencilAlt } from 'react-icons/hi';
+import { Modal } from 'antd'
 import { Checkbox } from 'antd';
 import './Brands.css';
 
 function Brands() {
-    const [brandsData, setBrandsData] = useState([]);
     const [dataSource, setDataSource] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
 
     useEffect(() => {
         axiosInstance.get('brands/list').then((res) => {
             let a = [];
-            res.data?.map(item => {
+            res.data.results?.map(item => {
                 a.push({
                     key: item.id,
                     id: item.id,
@@ -57,8 +57,8 @@ function Brands() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='delete-icon'>
-                    <TiDelete />
+                <div className='delete-icon' onClick={showModal}>
+                    Удалить
                 </div>
             ),
         },
@@ -67,16 +67,50 @@ function Brands() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <HiPencilAlt />
+                <div className='update-icon'>
+                    {/* <TiDelete /> */}
+                    Изменить
+                </div>
             ),
         },
     ];
 
+    const showModal = () => {
+        setOpen(true);
+    };
+
+    const handleOk = () => {
+        setConfirmLoading(true);
+        setTimeout(() => {
+            setOpen(false);
+            setConfirmLoading(false);
+        }, 2000);
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+    };
+
     return (
-        <div className='page'>
-            <h2>Brands</h2>
-            <TableComponent columns={columns} dataSource={dataSource} />
-        </div>
+        <>
+            <Modal
+                title="Вы уверены, что хотите удалить?"
+                open={open}
+                onOk={handleOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+                cancelText={'Отмена'}
+                okText={'Да'}
+                okType={'primary'}
+                style={{
+                    top: '200px'
+                }}
+            />
+            <div className='page'>
+                <h2>Brands</h2>
+                <TableComponent columns={columns} dataSource={dataSource} />
+            </div>
+        </>
     );
 }
 

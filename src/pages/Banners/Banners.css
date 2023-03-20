@@ -7,3 +7,34 @@
     height: 150px;
     width: 300px;
 }
+
+.banner-update-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.banner-update-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.banner-image-content {
+    display: flex;
+    height: 150px;
+    align-items: center;
+    margin: 0;
+}
+
+.banner-update-activity {
+    display: flex;
+    align-items: center;
+    height: 70px;
+    margin: 0;
+}
+
+.banner-update-left {
+    font-size: 16px;
+    font-weight: 600;
+}

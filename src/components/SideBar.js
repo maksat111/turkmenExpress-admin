@@ -134,7 +134,7 @@ function SideBar() {
                     <p>{item.title}</p>
                 </div>
             </div>)}
-            <div className={`${toggled ? 'toggled-sidebar-button' : 'navbar-toggle-button'}`} onClick={hanldeToggle}>
+            <div className={`${toggled ? 'toggled-sidebar-button' : 'sidebar-toggle-button'}`} onClick={hanldeToggle}>
                 {toggled ? <HiOutlineChevronDoubleRight /> : <HiOutlineChevronDoubleLeft />}
             </div>
         </div>

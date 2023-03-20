@@ -1,5 +1,4 @@
 .sidebar_container {
-    width: 230px;
     height: calc(100vh - 99px);
     padding: 0 10px 30px;
     overflow: auto;
@@ -11,7 +10,7 @@
 .toggled-sidebar-container {
     text-align: center;
     transition: 0.4s;
-    width: 100px;
+    width: 120px;
     height: calc(100vh - 99px);
     padding: 0 5px 30px;
     overflow: auto;
@@ -75,28 +74,12 @@
 }
 
 .active-sidebar {
-    background-color: rgba(8, 8, 224, 0.15);
+    background-color: rgb(205, 205, 236);
     color: #4f5868;
 }
 
 .sidebar-toggled-group {
     display: none;
-}
-
-.navbar-toggle-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 23px;
-    color: #4f5868;
-    position: fixed;
-    z-index: 10;
-    bottom: 0;
-    left: 0;
-    width: 250px;
-    background-color: rgba(255, 255, 255, 0.7);
-    height: 35px;
-    transition: 0.4s;
 }
 
 .toggled-sidebar-item {
@@ -119,17 +102,27 @@
     margin: 0;
 }
 
+.sidebar-toggle-button,
 .toggled-sidebar-button {
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 23px;
     color: #4f5868;
-    width: 110px;
-    background-color: rgba(255, 255, 255, 0.7);
-    height: 35px;
     position: fixed;
-    left: 0;
+    z-index: 10;
+    border-radius: 5px;
     bottom: 0;
+    left: 0;
+    background-color: rgb(205, 205, 236);
+    height: 35px;
     transition: 0.4s;
+}
+
+.toggled-sidebar-button {
+    width: 118px;
+}
+
+.sidebar-toggle-button {
+    width: 272px;
 }

@@ -22,7 +22,6 @@ const SettingsList = lazy(() => import('../pages/SettingsList/SettingsList'));
 const SmsTable = lazy(() => import('../pages/SmsTable/SmsTable'));
 const Subcategories = lazy(() => import('../pages/Subcategories/Subcategories'));
 const SubCategorySetting = lazy(() => import('../pages/SubCategorySetting/SubCategorySetting'));
-const ProtectedRoute = lazy(() => import('./ProtectedRoute'));
 
 const SideBarNavbar = lazy(() => import('./SidebarNavbar'));
 
@@ -40,75 +39,75 @@ function Router() {
             element: <Suspense fallback={<PageLoading />}><SideBarNavbar /></Suspense>,
             children: [
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Dashboard /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Dashboard /></Suspense>,
                     path: '/dashboard'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Banners /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Banners /></Suspense>,
                     path: '/banners'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Brands /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Brands /></Suspense>,
                     path: '/brands'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Categories /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Categories /></Suspense>,
                     path: '/categories'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><City /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><City /></Suspense>,
                     path: '/city'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Clients /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Clients /></Suspense>,
                     path: '/clients'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><ClientType /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><ClientType /></Suspense>,
                     path: '/clientType'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><CouponList /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><CouponList /></Suspense>,
                     path: '/couponList'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><CouponType /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><CouponType /></Suspense>,
                     path: '/couponType'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><DiscountList /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><DiscountList /></Suspense>,
                     path: '/discountList'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><GroupSettings /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><GroupSettings /></Suspense>,
                     path: '/groupSettings'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Products /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Products /></Suspense>,
                     path: '/products'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Regions /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Regions /></Suspense>,
                     path: '/regions'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><SettingsList /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><SettingsList /></Suspense>,
                     path: '/settingsList'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><SmsTable /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><SmsTable /></Suspense>,
                     path: '/smsTable'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><Subcategories /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><Subcategories /></Suspense>,
                     path: '/subcategories'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><SubCategorySetting /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><SubCategorySetting /></Suspense>,
                     path: '/subcategorySettings'
                 },
                 {
-                    element: <Suspense fallback={<Loading size='60px' />}><DeliveryType /></Suspense>,
+                    element: <Suspense fallback={<Loading />}><DeliveryType /></Suspense>,
                     path: '/deliveryType'
                 },
             ]
