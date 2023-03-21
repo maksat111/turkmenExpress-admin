@@ -2,18 +2,19 @@ import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { Modal } from 'antd'
-import { Checkbox } from 'antd';
+import { message } from 'antd';
 import './Categories.css';
 
 function Categories() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
         axiosInstance.get('categories/list').then((res) => {
             let a = [];
-            res.data?.map(item => {
+            res.data?.forEach(item => {
                 a.push({
                     key: item.id,
                     id: item.id,
@@ -55,7 +56,7 @@ function Categories() {
             dataIndex: 'image',
             key: 'image',
             render: (_, record) => (
-                <img className='category-image' src={record.image} alt='Image' />
+                <img className='category-image' src={record.image} alt={record.name_ru} />
             ),
         },
         {
@@ -63,7 +64,7 @@ function Categories() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='delete-icon' onClick={showModal}>
+                <div className='delete-icon' onClick={() => showModal(record)}>
                     Удалить
                 </div>
             ),
@@ -81,16 +82,25 @@ function Categories() {
         },
     ];
 
-    const showModal = () => {
+    const showModal = (item) => {
+        setSelectedItem(item)
         setOpen(true);
     };
 
-    const handleOk = () => {
-        setConfirmLoading(true);
-        setTimeout(() => {
+    const handleOk = async () => {
+        try {
+            setConfirmLoading(true);
+            await axiosInstance.delete(`categories/delete/${selectedItem.id}`);
+            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+            setDataSource(newDataSource);
+            message.success('Успешно удалено')
             setOpen(false);
             setConfirmLoading(false);
-        }, 2000);
+        } catch (err) {
+            setConfirmLoading(false);
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
     };
 
     const handleCancel = () => {
@@ -105,6 +115,7 @@ function Categories() {
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
+                okButtonProps={{ danger: true }}
                 cancelText={'Отмена'}
                 okText={'Да'}
                 okType={'primary'}

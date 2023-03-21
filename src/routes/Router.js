@@ -2,6 +2,7 @@ import { React, lazy, Suspense } from 'react';
 import { Navigate, useRoutes } from "react-router-dom";
 import Loading from '../components/Loading';
 import PageLoading from '../components/PageLoading';
+import Test from './Test';
 // import App from './test';
 
 const Login = lazy(() => import('../pages/Login/Login'));
@@ -113,10 +114,10 @@ function Router() {
                 },
             ]
         },
-        // {
-        //     element: <App />,
-        //     path: '/test'
-        // },
+        {
+            element: <Test />,
+            path: '/test'
+        },
         {
             element: <Navigate to='/' />,
             path: '*'

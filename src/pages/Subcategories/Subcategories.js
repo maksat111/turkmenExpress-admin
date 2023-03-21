@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { AiOutlineLoading } from 'react-icons/ai';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { Modal } from 'antd'
@@ -8,6 +9,9 @@ function Subcategories() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [paginateLoading, setPaginateLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(2);
+
 
     useEffect(() => {
         axiosInstance.get('subcategories/list').then((res) => {
@@ -101,6 +105,26 @@ function Subcategories() {
         setOpen(false);
     };
 
+    const handlePagitanation = async () => {
+        setPaginateLoading(true);
+        const data = await axiosInstance.get(`subcategories/list/?page=${currentPage}`);
+        data.data.next ? setCurrentPage(currentPage + 1) : setCurrentPage(null);
+        let a = [];
+        data.data.results?.forEach(item => {
+            a.push({
+                key: item.id,
+                id: item.id,
+                name_ru: item.name_ru,
+                name_tk: item.name_tk,
+                name_en: item.name_en,
+                category: item.category.name_ru,
+                image: item.image
+            })
+        });
+        setDataSource([...dataSource, ...a]);
+        setPaginateLoading(false);
+    }
+
     return (
         <>
             <Modal
@@ -119,6 +143,7 @@ function Subcategories() {
             <div className='page'>
                 <h2>Города и этрапы</h2>
                 <TableComponent columns={columns} dataSource={dataSource} />
+                {currentPage && (<div className='pagination-button' onClick={handlePagitanation}>{paginateLoading ? <AiOutlineLoading className='loading-spin' /> : 'Продолжать'}</div>)}
             </div>
         </>
     );

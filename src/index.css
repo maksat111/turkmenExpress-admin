@@ -112,5 +112,12 @@ code {
 
 .pagination-button:hover {
   background-color: rgb(55, 55, 238);
-  color: white;
+}
+
+.add-button {
+  background-color: rgb(8, 8, 224);
+  cursor: pointer;
+  color: #ffffff;
+  padding: 7px 10px;
+  border-radius: 7px;
 }

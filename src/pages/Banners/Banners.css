@@ -40,3 +40,29 @@
     font-size: 16px;
     font-weight: 600;
 }
+
+.banners-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.banner-add-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    font-weight: 450;
+}
+
+.add-picture {
+    display: flex;
+    align-items: center;
+    height: 150px;
+    width: 120px;
+}
+
+.add-column {
+    display: flex;
+    align-items: center;
+    height: 40px;
+}
