@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, message } from 'antd';
+import { Checkbox, message, Progress } from 'antd';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { PlusOutlined } from '@ant-design/icons';
@@ -25,6 +25,7 @@ function Banners(props) {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
+    const [progress, setProgress] = useState(0);
 
     const handlePreviewCancel = () => setPreviewOpen(false);
 
@@ -111,6 +112,7 @@ function Banners(props) {
             const res = await axiosInstance.delete(`banners/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
+            message.success('Успешно удалено')
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
@@ -129,30 +131,41 @@ function Banners(props) {
         setOpenUpdate(true);
     };
 
-    const handleUpdateOk = () => {
-        setConfirmUpdateLoading(true);
-        setTimeout(() => {
-            setOpenUpdate(false);
-            setConfirmUpdateLoading(false);
-        }, 2000);
+    const handleUpdateOk = async (options) => {
+        const { onSuccess, onError, file, onProgress } = options;
+        const fmData = new FormData();
+
+        const config = {
+            headers: { "content-type": "multipart/form-data" },
+            onUploadProgress: event => {
+                const percent = Math.floor((event.loaded / event.total) * 100);
+                setProgress(percent);
+                if (percent === 100) {
+                    setTimeout(() => setProgress(0), 1000);
+                }
+                onProgress({ percent: (event.loaded / event.total) * 100 });
+            }
+        };
+        console.log(file)
+        fmData.append("image", file);
+        try {
+            const res = await axiosInstance.post(
+                `banners/update/${selectedItem.id}`,
+                fmData,
+                config
+            );
+
+            onSuccess("Ok");
+            console.log("server res: ", res);
+        } catch (err) {
+            console.log("Eroor: ", err.response.data);
+            onError({ err });
+        }
     };
 
     const handleUpdateCancel = () => {
         setOpenUpdate(false);
     };
-
-    // const handleUploadCancel = () => setPreviewOpen(false);
-
-    // const handlePreview = async (file) => {
-    //     if (!file.url && !file.preview) {
-    //         file.preview = await getBase64(file.originFileObj);
-    //     }
-    //     setPreviewImage(file.url || file.preview);
-    //     setPreviewOpen(true);
-    //     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
-    // };
-
-    // const handleUploadChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
     const uploadButton = (
         <div>
@@ -166,12 +179,6 @@ function Banners(props) {
           </div>
         </div>
     );
-
-    const updateActiveChange = () => {
-        let a = selectedItem;
-        a.active = (!a.active);
-        setSelectedItem(a)
-    }
 
     return (
         <>
@@ -191,7 +198,7 @@ function Banners(props) {
             />
             <Modal
                 title="Изменить"
-                width='600px'
+                width='750px'
                 open={openUpdate}
                 onOk={handleUpdateOk}
                 confirmLoading={confirmUpdateLoading}
@@ -211,7 +218,7 @@ function Banners(props) {
                     <div className='banner-update-right'>
                         <img className='banner-image' src={selectedItem?.image} />
                         <Upload
-                            // customRequest={handleFileUpload}
+                            customRequest={handleUpdateOk}
                             listType="picture-card"
                             fileList={fileList}
                             onPreview={handlePreview}

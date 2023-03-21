@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal } from 'antd'
-import { Checkbox } from 'antd';
+import { Modal, message } from 'antd'
 import './Brands.css';
 
 function Brands() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [currentPage, setCurrentPage] = useState(2);
+
 
     useEffect(() => {
         axiosInstance.get('brands/list').then((res) => {
             let a = [];
-            res.data.results?.map(item => {
+            res.data.results?.forEach(item => {
                 a.push({
                     key: item.id,
                     id: item.id,
@@ -57,7 +59,7 @@ function Brands() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='delete-icon' onClick={showModal}>
+                <div className='delete-icon' onClick={() => showModal(record)}>
                     Удалить
                 </div>
             ),
@@ -75,21 +77,46 @@ function Brands() {
         },
     ];
 
-    const showModal = () => {
+    const showModal = (item) => {
+        setSelectedItem(item);
         setOpen(true);
     };
 
-    const handleOk = () => {
-        setConfirmLoading(true);
-        setTimeout(() => {
+    const handleOk = async () => {
+        try {
+            setConfirmLoading(true);
+            await axiosInstance.delete(`brands/delete/${selectedItem.id}`);
+            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+            setDataSource(newDataSource);
+            message.success('Успешно удалено')
             setOpen(false);
             setConfirmLoading(false);
-        }, 2000);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
     };
 
     const handleCancel = () => {
         setOpen(false);
     };
+
+    const handlePagitanation = async () => {
+        const data = await axiosInstance.get(`brands/list/?page=${currentPage}`);
+        data.data.next ? setCurrentPage(currentPage + 1) : setCurrentPage(null);
+        let a = [];
+        data.data.results?.forEach(item => {
+            a.push({
+                key: item.id,
+                id: item.id,
+                name: item.name,
+                logo: item.logo,
+                category: item.category ? item.category.name_ru : 'null'
+            })
+        });
+        setDataSource([...dataSource, ...a]);
+    }
 
     return (
         <>
@@ -109,6 +136,7 @@ function Brands() {
             <div className='page'>
                 <h2>Brands</h2>
                 <TableComponent columns={columns} dataSource={dataSource} />
+                {currentPage && <div className='pagination-button' onClick={handlePagitanation}>Продолжать</div>}
             </div>
         </>
     );
