@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox } from 'antd';
+import { Checkbox, message } from 'antd';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { PlusOutlined } from '@ant-design/icons';
@@ -24,6 +24,18 @@ function Banners(props) {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
+    const [fileList, setFileList] = useState([]);
+
+    const handlePreviewCancel = () => setPreviewOpen(false);
+
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+
+    const handlePreview = async (file) => {
+        file.preview = await getBase64(file.originFileObj);
+        setPreviewImage(file.preview);
+        setPreviewOpen(true);
+        setPreviewTitle(file.name);
+    };
 
     useEffect(() => {
         axiosInstance.get('banners/list').then(res => {
@@ -61,7 +73,7 @@ function Banners(props) {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <Checkbox name='late' disabled checked={record.active} />
+                <Checkbox name='late' checked={record.active} />
             ),
         },
         {
@@ -69,7 +81,7 @@ function Banners(props) {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='delete-icon' onClick={showModal}>
+                <div className='delete-icon' onClick={() => showModal(record)}>
                     {/* <TiDelete /> */}
                     Удалить
                 </div>
@@ -88,16 +100,24 @@ function Banners(props) {
         },
     ];
 
-    const showModal = () => {
+    const showModal = (item) => {
+        setSelectedItem(item);
         setOpen(true);
     };
 
-    const handleOk = () => {
-        setConfirmLoading(true);
-        setTimeout(() => {
+    const handleOk = async () => {
+        try {
+            setConfirmLoading(true);
+            const res = await axiosInstance.delete(`banners/delete/${selectedItem.id}`);
+            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+            setDataSource(newDataSource);
             setOpen(false);
             setConfirmLoading(false);
-        }, 2000);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
     };
 
     const handleCancel = () => {
@@ -190,15 +210,24 @@ function Banners(props) {
                     </div>
                     <div className='banner-update-right'>
                         <img className='banner-image' src={selectedItem?.image} />
-                        {/* <Upload
-                            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                        <Upload
+                            // customRequest={handleFileUpload}
                             listType="picture-card"
-                            // fileList={fileList}
+                            fileList={fileList}
                             onPreview={handlePreview}
-                            onChange={handleUploadChange}
+                            onChange={handleChange}
                         >
-                            {fileList.length >= 8 ? null : uploadButton}
-                        </Upload> */}
+                            {fileList.length == 0 && uploadButton}
+                        </Upload>
+                        <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handlePreviewCancel}>
+                            <img
+                                alt="example"
+                                style={{
+                                    width: '100%',
+                                }}
+                                src={previewImage}
+                            />
+                        </Modal>
                     </div>
                 </div>
             </Modal>

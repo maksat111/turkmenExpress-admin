@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
 });
 
 const loginPost = async (phone_number, password) => {
-    const res = await axios.post('https://turkmenexpress.com.tm/api/users/login/', { phone_number, password });
+    const res = await axios.post(`${BASE_URL}login/`, { phone_number, password });
     return res;
 }
 export { axiosInstance, loginPost } 

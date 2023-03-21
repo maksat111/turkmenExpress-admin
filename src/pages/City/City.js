@@ -12,7 +12,7 @@ function City() {
     useEffect(() => {
         axiosInstance.get('cities/list').then((res) => {
             let a = [];
-            res.data?.map(item => {
+            res.data.results?.map(item => {
                 a.push({
                     key: item.id,
                     id: item.id,

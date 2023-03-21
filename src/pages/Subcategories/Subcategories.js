@@ -12,7 +12,7 @@ function Subcategories() {
     useEffect(() => {
         axiosInstance.get('subcategories/list').then((res) => {
             let a = [];
-            res.data?.map(item => {
+            res.data.results?.map(item => {
                 a.push({
                     key: item.id,
                     id: item.id,
@@ -56,11 +56,10 @@ function Subcategories() {
             key: 'region',
         },
         {
-            title: 'Delete',
-            dataIndex: 'active',
+            title: 'Image',
             key: 'active',
             render: (_, record) => (
-                <img src={record.image} alt='image' />
+                <img className='subcategory-image' src={record.image} alt='image' />
             ),
         },
         {

@@ -92,3 +92,7 @@ code {
 .ant-btn-primary.ant-btn-dangerous {
   background-color: red;
 }
+
+.ant-btn-primary.ant-btn-dangerous:hover {
+  background-color: red;
+}
