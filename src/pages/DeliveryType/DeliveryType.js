@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from 'react';
 import { Modal } from 'antd';
-import { Checkbox } from 'antd';
+import { Checkbox, message } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 
@@ -8,17 +8,27 @@ function DeliveryType() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
-    const showModal = () => {
+    const showModal = (item) => {
         setOpen(true);
+        setSelectedItem(item);
     };
 
-    const handleOk = () => {
-        setConfirmLoading(true);
-        setTimeout(() => {
+    const handleOk = async () => {
+        try {
+            setConfirmLoading(true);
+            await axiosInstance.delete(`delivery-type/delete/${selectedItem.id}`);
+            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+            setDataSource(newDataSource);
+            message.success('Успешно удалено')
             setOpen(false);
             setConfirmLoading(false);
-        }, 2000);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
     };
 
     const handleCancel = () => {
@@ -70,7 +80,7 @@ function DeliveryType() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='delete-icon' onClick={showModal}>
+                <div className='delete-icon' onClick={() => showModal(record)}>
                     Удалить
                 </div>
             ),
@@ -98,6 +108,7 @@ function DeliveryType() {
                 cancelText={'Отмена'}
                 okText={'Да'}
                 okType={'primary'}
+                okButtonProps={{ danger: true }}
                 style={{
                     top: '200px'
                 }}
