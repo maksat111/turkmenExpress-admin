@@ -169,7 +169,6 @@ function Banners(props) {
         try {
             setConfirmLoading(true);
             const formData = new FormData();
-            console.log(fileList[0].originFileObj.webkitRelativePath)
             formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
             formData.append("active", newItemActive);
             const res = await axiosInstance.post(`banners/add/`, formData);
@@ -236,6 +235,14 @@ function Banners(props) {
     };
 
     const handleUpdateOk = () => {
+        setDataSource(previousState => {
+            const a = previousState;
+            const index = a.findIndex(element => element.id === selectedItem.id);
+            a[index].image = URL.createObjectURL(fileList[0].originFileObj);
+            return a;
+        })
+        setFileList([]);
+        message.success('Успешно изменено');
         setOpenUpdate(false);
     }
 
