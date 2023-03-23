@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal, message } from 'antd'
+import { Modal, message, Upload, Checkbox } from 'antd'
+import { PlusOutlined } from '@ant-design/icons';
 import './Brands.css';
+
+const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
 
 function Brands() {
     const [dataSource, setDataSource] = useState([]);
@@ -10,6 +19,13 @@ function Brands() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [currentPage, setCurrentPage] = useState(2);
+    const [progress, setProgress] = useState(0);
+    const [fileList, setFileList] = useState([]);
+    const [addOpen, setAddOpen] = useState(false);
+    const [newItemActive, setNewItemActive] = useState(true);
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
 
 
     useEffect(() => {
@@ -36,13 +52,13 @@ function Brands() {
             width: '50px',
         },
         {
-            title: 'Brand name',
+            title: 'Название',
             dataIndex: 'name',
             key: 'name',
             width: '300px'
         },
         {
-            title: 'Brand Logo',
+            title: 'Logo',
             dataIndex: 'logo',
             key: 'logo',
             render: (_, record) => (
@@ -50,12 +66,12 @@ function Brands() {
             ),
         },
         {
-            title: 'Category',
+            title: 'Категория',
             dataIndex: 'category',
             key: 'category',
         },
         {
-            title: 'Delete',
+            title: 'Удалить',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
@@ -65,7 +81,7 @@ function Brands() {
             ),
         },
         {
-            title: 'Update',
+            title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
@@ -118,8 +134,141 @@ function Brands() {
         setDataSource([...dataSource, ...a]);
     }
 
+    //-----------------------------------------Add Modal-------------------------------------------------//
+    const showAddModal = (item) => {
+        setSelectedItem(item);
+        setAddOpen(true);
+    };
+
+    const handleAddOk = async () => {
+        try {
+            setConfirmLoading(true);
+            const formData = new FormData();
+            formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
+            formData.append("active", newItemActive);
+            const res = await axiosInstance.post(`banners/add/`, formData);
+
+            let a = {
+                key: fileList[0].originFileObj.uid,
+                id: 0,
+                image: URL.createObjectURL(fileList[0].originFileObj),
+                active: newItemActive
+            }
+            setDataSource([...dataSource, a]);
+            message.success('Успешно добавлено');
+            setOpen(false);
+            setFileList([]);
+            setNewItemActive(true);
+            setConfirmLoading(false);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
+    };
+
+    const handleAddCancel = () => {
+        setFileList([]);
+        setAddOpen(false);
+    };
+
+    const handleAddCustomRequest = async (options) => {
+        const { onSuccess, onError, file, onProgress } = options;
+        const fmData = new FormData();
+
+        const config = {
+            headers: { "content-type": "multipart/form-data" },
+            onUploadProgress: event => {
+                const percent = Math.floor((event.loaded / event.total) * 100);
+                setProgress(percent);
+                if (percent === 100) {
+                    setTimeout(() => setProgress(0), 1000);
+                }
+                // onProgress({ percent: (event.loaded / event.total) * 100 });
+                onProgress({ percent: (event.loaded / event.total) * 100 });
+            }
+        };
+        console.log(file)
+        fmData.append("image", file);
+        try {
+            // const res = await axiosInstance.patch(
+            //     `banners/update/${selectedItem.id}/`,
+            //     fmData,
+            //     config
+            // );
+
+            onSuccess("Ok");
+        } catch (err) {
+            onError('Upload error');
+        }
+    };
+
+    //----------------------------upload---------------------------------//
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+
+    const handlePreviewCancel = () => setPreviewOpen(false);
+
+    const handlePreview = async (file) => {
+        file.preview = await getBase64(file.originFileObj);
+        setPreviewImage(file.preview);
+        setPreviewOpen(true);
+        setPreviewTitle(file.name);
+    };
+
+    const uploadButton = (
+        <div>
+            <PlusOutlined />
+            <div
+                style={{
+                    marginTop: 8,
+                }}
+            >
+                Upload
+          </div>
+        </div>
+    );
+
     return (
         <>
+            <Modal
+                title="Выберите баннер и активность для добавления"
+                open={addOpen}
+                onOk={handleAddOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleAddCancel}
+                cancelText={'Отмена'}
+                okText={'Да'}
+                okType={'primary'}
+                style={{ top: '200px' }}
+            >
+                <div className='banner-add-container'>
+                    <div className='add-left'>
+                        <div className='add-picture'>
+                            Выберите баннер
+                        </div>
+                        <div className='add-column'>
+                            Активный
+                        </div>
+                    </div>
+                    <div className='add-right'>
+                        <div className='add-picture'>
+                            <Upload
+                                customRequest={handleAddCustomRequest}
+                                listType="picture-card"
+                                fileList={fileList}
+                                onPreview={handlePreview}
+                                onChange={handleChange}
+                            >
+                                {fileList.length == 0 && uploadButton}
+                            </Upload>
+                        </div>
+                        <div className='add-column'>
+                            <Checkbox checked={newItemActive} onChange={(e) => setNewItemActive(e.target.checked)} />
+                        </div>
+                    </div>
+                </div>
+
+            </Modal>
             <Modal
                 title="Вы уверены, что хотите удалить?"
                 open={open}
@@ -134,8 +283,11 @@ function Brands() {
                 }}
             />
             <div className='page'>
-                <h2>Brands</h2>
-                <TableComponent columns={columns} dataSource={dataSource} />
+                <div className='page-header-content'>
+                    <h2>Brands</h2>
+                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                </div>
+                <TableComponent rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'} columns={columns} dataSource={dataSource} />
                 {currentPage && <div className='pagination-button' onClick={handlePagitanation}>Продолжать</div>}
             </div>
         </>

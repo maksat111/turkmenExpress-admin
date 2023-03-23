@@ -121,3 +121,15 @@ code {
   padding: 7px 10px;
   border-radius: 7px;
 }
+
+.page-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.active-row {
+  border: 10px gray solid;
+  background-color: rgb(238, 236, 236);
+  border-radius: 5px;
+}

@@ -3,7 +3,7 @@ import React from 'react';
 
 function TableComponent({ dataSource, columns }) {
     return (
-        <Table dataSource={dataSource} columns={columns} pagination={false} />
+        <Table rowClassName={(record, rowIndex) => rowIndex == 2 && 'active-row'} dataSource={dataSource} columns={columns} pagination={false} />
     );
 }
 
