@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal, message, Upload, Checkbox } from 'antd'
+import { Modal, message, Upload, Checkbox, Select } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
 import './Brands.css';
+import Input from 'antd/es/input/Input';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -22,15 +23,17 @@ function Brands() {
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItemActive, setNewItemActive] = useState(true);
+    const [newItem, setNewItem] = useState({ name: '', category: null });
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
+    const [selectOptions, setSelectOptions] = useState(null);
 
 
     useEffect(() => {
-        axiosInstance.get('brands/list').then((res) => {
+        axiosInstance.get('brands/list').then(async (res) => {
             let a = [];
+            let b = [];
             res.data.results?.forEach(item => {
                 a.push({
                     key: item.id,
@@ -41,6 +44,15 @@ function Brands() {
                 })
             });
             setDataSource(a);
+            const categories = await axiosInstance.get('categories/list/');
+            categories.data?.forEach(item => {
+                b.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                })
+            });
+            setSelectOptions(b);
         }).catch(err => console.log(err))
     }, [])
 
@@ -145,20 +157,20 @@ function Brands() {
             setConfirmLoading(true);
             const formData = new FormData();
             formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
-            formData.append("active", newItemActive);
+            // formData.append("active", newItemActive);
             const res = await axiosInstance.post(`banners/add/`, formData);
 
             let a = {
-                key: fileList[0].originFileObj.uid,
-                id: 0,
-                image: URL.createObjectURL(fileList[0].originFileObj),
-                active: newItemActive
+                // key: fileList[0].originFileObj.uid,
+                // id: 0,
+                // image: URL.createObjectURL(fileList[0].originFileObj),
+                // active: newItemActive
             }
             setDataSource([...dataSource, a]);
             message.success('Успешно добавлено');
             setOpen(false);
             setFileList([]);
-            setNewItemActive(true);
+            // setNewItemActive(true);
             setConfirmLoading(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -228,6 +240,13 @@ function Brands() {
         </div>
     );
 
+    //----------------------------------select ----------------------//
+
+    const handleSelectChange = (e, a, c) => {
+        const filtered = selectOptions.filter(item => item.value == e);
+        console.log(filtered)
+    }
+
     return (
         <>
             <Modal
@@ -243,14 +262,32 @@ function Brands() {
             >
                 <div className='banner-add-container'>
                     <div className='add-left'>
-                        <div className='add-picture'>
-                            Выберите баннер
+                        <div className='add-column'>
+                            Название
                         </div>
                         <div className='add-column'>
-                            Активный
+                            Категория
+                        </div>
+                        <div className='add-picture'>
+                            Logo
                         </div>
                     </div>
                     <div className='add-right'>
+                        <div className='add-column'>
+                            <Input value={newItem.name} placeholder={'Название...'} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Выберите категорию"
+                                onChange={(e) => handleSelectChange(e)}
+                                options={selectOptions}
+                            />
+                        </div>
                         <div className='add-picture'>
                             <Upload
                                 customRequest={handleAddCustomRequest}
@@ -261,9 +298,6 @@ function Brands() {
                             >
                                 {fileList.length == 0 && uploadButton}
                             </Upload>
-                        </div>
-                        <div className='add-column'>
-                            <Checkbox checked={newItemActive} onChange={(e) => setNewItemActive(e.target.checked)} />
                         </div>
                     </div>
                 </div>
