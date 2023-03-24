@@ -23,7 +23,8 @@ function Brands() {
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItem, setNewItem] = useState({ name: '', category: null });
+    const [newItemName, setNewItemName] = useState('');
+    const [newItemCategory, setNewItemCategory] = useState([])
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -155,20 +156,27 @@ function Brands() {
     const handleAddOk = async () => {
         try {
             setConfirmLoading(true);
-            const formData = new FormData();
-            formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
-            // formData.append("active", newItemActive);
-            const res = await axiosInstance.post(`banners/add/`, formData);
 
-            let a = {
-                // key: fileList[0].originFileObj.uid,
-                // id: 0,
-                // image: URL.createObjectURL(fileList[0].originFileObj),
-                // active: newItemActive
-            }
-            setDataSource([...dataSource, a]);
+            console.log(newItemCategory)
+            // newItemCategory.forEach(async category => {
+            //     const formData = new FormData();
+            //     formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
+            //     formData.append("name", newItemName);
+            //     formData.append('category', category.id);
+            //     const res = await axiosInstance.post(`banners/add/`, formData);
+            //     let a = {};
+            //     a = {
+            //         key: fileList[0].originFileObj.uid,
+            //         id: 0,
+            //         logo: URL.createObjectURL(fileList[0].originFileObj),
+            //         name: newItemName,
+            //         category: category.name
+            //     }
+            //     setDataSource([...dataSource, a]);
+            // })
+
             message.success('Успешно добавлено');
-            setOpen(false);
+            setAddOpen(false);
             setFileList([]);
             // setNewItemActive(true);
             setConfirmLoading(false);
@@ -242,9 +250,12 @@ function Brands() {
 
     //----------------------------------select ----------------------//
 
-    const handleSelectChange = (e, a, c) => {
-        const filtered = selectOptions.filter(item => item.value == e);
-        console.log(filtered)
+    const handleSelectChange = (e) => {
+        let a = [];
+        selectOptions.forEach(item => {
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, name: selected }));
+        });
+        setNewItemCategory(a);
     }
 
     return (
@@ -274,7 +285,7 @@ function Brands() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input value={newItem.name} placeholder={'Название...'} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                            <Input value={newItemName} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
                         </div>
                         <div className='add-column'>
                             <Select
