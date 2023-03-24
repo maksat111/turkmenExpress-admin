@@ -133,3 +133,7 @@ code {
   background-color: rgb(238, 236, 236);
   border-radius: 5px;
 }
+
+.ant-pagination .ant-pagination-options {
+  display: none;
+}

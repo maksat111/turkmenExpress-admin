@@ -29,12 +29,14 @@ function Brands() {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [selectOptions, setSelectOptions] = useState(null);
+    const [total, setTotal] = useState(null);
 
 
     useEffect(() => {
         axiosInstance.get('brands/list').then(async (res) => {
             let a = [];
             let b = [];
+            setTotal(res.data.count)
             res.data.results?.forEach(item => {
                 a.push({
                     key: item.id,
@@ -156,25 +158,24 @@ function Brands() {
     const handleAddOk = async () => {
         try {
             setConfirmLoading(true);
-
-            console.log(newItemCategory)
-            // newItemCategory.forEach(async category => {
-            //     const formData = new FormData();
-            //     formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
-            //     formData.append("name", newItemName);
-            //     formData.append('category', category.id);
-            //     const res = await axiosInstance.post(`banners/add/`, formData);
-            //     let a = {};
-            //     a = {
-            //         key: fileList[0].originFileObj.uid,
-            //         id: 0,
-            //         logo: URL.createObjectURL(fileList[0].originFileObj),
-            //         name: newItemName,
-            //         category: category.name
-            //     }
-            //     setDataSource([...dataSource, a]);
-            // })
-
+            let a = [];
+            newItemCategory.forEach(async category => {
+                const formData = new FormData();
+                formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
+                formData.append("name", newItemName);
+                formData.append('category', category.id);
+                const res = await axiosInstance.post(`brands/add/`, formData);
+                a.push({
+                    key: fileList[0].originFileObj.uid,
+                    id: Math.floor(Math.random() * 1000),
+                    logo: URL.createObjectURL(fileList[0].originFileObj),
+                    name: newItemName,
+                    category: category.name
+                })
+            })
+            setNewItemCategory([]);
+            setNewItemName('');
+            setDataSource([...dataSource, ...a]);
             message.success('Успешно добавлено');
             setAddOpen(false);
             setFileList([]);
@@ -253,21 +254,38 @@ function Brands() {
     const handleSelectChange = (e) => {
         let a = [];
         selectOptions.forEach(item => {
-            e.forEach(selected => item.value == selected && a.push({ id: item.id, name: selected }));
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
         });
         setNewItemCategory(a);
+    }
+
+    //-----------------------------pagination ------------------------//
+    const onPaginationChange = async (page) => {
+        let a = [];
+        const res = await axiosInstance.get(`brands/list?page=${page}`);
+        res.data.results?.forEach(item => {
+            a.push({
+                key: item.id,
+                id: item.id,
+                name: item.name,
+                logo: item.logo,
+                category: item.category ? item.category.name_ru : 'null'
+            })
+        });
+        setDataSource(a);
     }
 
     return (
         <>
             <Modal
-                title="Выберите баннер и активность для добавления"
+                title="Дополните детали для добавления"
                 open={addOpen}
                 onOk={handleAddOk}
                 confirmLoading={confirmLoading}
                 onCancel={handleAddCancel}
                 cancelText={'Отмена'}
                 okText={'Да'}
+                width={'600px'}
                 okType={'primary'}
                 style={{ top: '200px' }}
             >
@@ -285,10 +303,11 @@ function Brands() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input value={newItemName} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
+                            <Input value={newItemName} allowClear size={'medium'} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
                         </div>
                         <div className='add-column'>
                             <Select
+                                value={newItemCategory}
                                 mode="multiple"
                                 allowClear
                                 style={{
@@ -320,6 +339,7 @@ function Brands() {
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
+                okButtonProps={{ danger: true }}
                 cancelText={'Отмена'}
                 okText={'Да'}
                 okType={'primary'}
@@ -332,8 +352,12 @@ function Brands() {
                     <h2>Brands</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'} columns={columns} dataSource={dataSource} />
-                {currentPage && <div className='pagination-button' onClick={handlePagitanation}>Продолжать</div>}
+                <TableComponent
+                    rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'}
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                />
             </div>
         </>
     );

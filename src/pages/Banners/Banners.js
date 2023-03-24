@@ -412,7 +412,7 @@ function Banners(props) {
                     <h2>Banners</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
             </div>
         </>
     );
