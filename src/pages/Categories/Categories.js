@@ -19,23 +19,13 @@ function Categories() {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    // const [currentPage, setCurrentPage] = useState(2);
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItemName, setNewItemName] = useState('');
-    const [newItemCategory, setNewItemCategory] = useState([])
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const [selectOptions, setSelectOptions] = useState(null);
-    const [updateOpen, setUpdateOpen] = useState(false);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
-
+    const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' })
 
     useEffect(() => {
         axiosInstance.get('categories/list').then(async (res) => {
@@ -99,14 +89,13 @@ function Categories() {
     ];
 
     const showModal = (item) => {
-        setSelectedItem(item);
         setOpen(true);
     };
 
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`brands/delete/${selectedItem.id}`);
+            await axiosInstance.delete(`categories/delete/${selectedItem.id}/`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
@@ -178,7 +167,6 @@ function Categories() {
 
     const handleAddCustomRequest = async (options) => {
         const { onSuccess, onError, file, onProgress } = options;
-        const fmData = new FormData();
 
         const config = {
             headers: { "content-type": "multipart/form-data" },
@@ -188,19 +176,10 @@ function Categories() {
                 if (percent === 100) {
                     setTimeout(() => setProgress(0), 1000);
                 }
-                // onProgress({ percent: (event.loaded / event.total) * 100 });
                 onProgress({ percent: (event.loaded / event.total) * 100 });
             }
         };
-        console.log(file)
-        fmData.append("image", file);
         try {
-            // const res = await axiosInstance.patch(
-            //     `banners/update/${selectedItem.id}/`,
-            //     fmData,
-            //     config
-            // );
-
             onSuccess("Ok");
         } catch (err) {
             onError('Upload error');
@@ -231,32 +210,6 @@ function Categories() {
           </div>
         </div>
     );
-
-    //----------------------------------------------------------select -----------------------------------------//
-
-    const handleSelectChange = (e) => {
-        let a = [];
-        selectOptions.forEach(item => {
-            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
-        });
-        setNewItemCategory(a);
-    }
-
-    //-------------------------------------------------------pagination -----------------------------------------//
-    const onPaginationChange = async (page) => {
-        let a = [];
-        const res = await axiosInstance.get(`brands/list?page=${page}`);
-        res.data.results?.forEach(item => {
-            a.push({
-                key: item.id,
-                id: item.id,
-                name: item.name,
-                logo: item.logo,
-                category: item.category ? item.category.name_ru : 'null'
-            })
-        });
-        setDataSource(a);
-    }
 
     const handleAddChange = (e) => {
         setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
@@ -316,59 +269,6 @@ function Categories() {
                     </div>
                 </div>
             </Modal>
-            {/* <Modal
-                title="Дополните детали для обнавления"
-                open={updateOpen}
-                onOk={handleUpdateOk}
-                confirmLoading={confirmLoading}
-                onCancel={handleUpdateCancel}
-                cancelText={'Отмена'}
-                okText={'Да'}
-                width={'700px'}
-                okType={'primary'}
-                style={{ top: '200px' }}
-            >
-                <div className='banner-add-container'>
-                    <div className='add-left'>
-                        <div className='add-column'>
-                            Название (рус.):
-                        </div>
-                        <div className='add-column'>
-                            Название (туркм.):
-                        </div>
-                        <div className='add-column'>
-                            Навзание (анг.):
-                        </div>
-                        <div className='add-picture'>
-                            Logo
-                        </div>
-                    </div>
-                    <div className='add-right'>
-                        <div className='add-column'>
-                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-picture'>
-                            <img className='brand-image' src={selectedItem?.logo} alt='selected' />
-                            <Upload
-                                customRequest={handleAddCustomRequest}
-                                listType="picture-card"
-                                fileList={fileList}
-                                onPreview={handlePreview}
-                                onChange={handleChange}
-                            >
-                                {fileList.length == 0 && uploadButton}
-                            </Upload>
-                        </div>
-                    </div>
-                </div>
-
-            </Modal> */}
             <Modal
                 title="Вы уверены, что хотите удалить?"
                 open={open}
@@ -388,12 +288,7 @@ function Categories() {
                     <h2>Brands</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent
-                    active={selectedItem?.id}
-                    columns={columns}
-                    dataSource={dataSource}
-                    pagination={false}
-                />
+                <TableComponent active={selectedItem?.id} columns={columns} dataSource={dataSource} pagination={false} />
             </div>
         </>
     );

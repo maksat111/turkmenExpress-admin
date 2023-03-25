@@ -447,7 +447,7 @@ function Brands() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Brands</h2>
+                    <h2>Бренды</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent
