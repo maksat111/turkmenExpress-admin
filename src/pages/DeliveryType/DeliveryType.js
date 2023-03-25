@@ -3,12 +3,23 @@ import { Modal } from 'antd';
 import { Checkbox, message } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
+import Input from 'antd/es/input/Input';
 
 function DeliveryType() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [addOpen, setAddOpen] = useState(false);
+    const [newItem, setNewItem] = useState({
+        name_ru: '',
+        name_en: '',
+        name_tk: '',
+        delivery_days: '',
+        delivery_amount: null,
+        active: true
+    })
+
 
     const showModal = (item) => {
         setOpen(true);
@@ -53,22 +64,22 @@ function DeliveryType() {
             style: { alignItems: "center" }
         },
         {
-            title: 'Delivery name',
+            title: 'Название',
             dataIndex: 'name_ru',
             key: 'name_ru',
         },
         {
-            title: 'Delivery days',
+            title: 'Срок доставки',
             dataIndex: 'delivery_days',
             key: 'delivery_days',
         },
         {
-            title: 'Delivery amount',
+            title: 'Стоимость доставки',
             dataIndex: 'delivery_amount',
             key: 'delivery_amount',
         },
         {
-            title: 'Delete',
+            title: 'Активный',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
@@ -76,7 +87,7 @@ function DeliveryType() {
             ),
         },
         {
-            title: 'Delete',
+            title: 'Удалить',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
@@ -86,7 +97,7 @@ function DeliveryType() {
             ),
         },
         {
-            title: 'Update',
+            title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
@@ -97,8 +108,99 @@ function DeliveryType() {
         },
     ];
 
+    //---------------------------------------------------ADD MODAL-------------------------------------------//
+    const showAddModal = (item) => {
+        setSelectedItem(item);
+        setAddOpen(true);
+    };
+
+    const handleAddOk = async () => {
+        setConfirmLoading(true);
+        const formData = new FormData();
+        const keys = Object.keys(newItem);
+        const values = Object.values(newItem);
+        keys.forEach((key, index) => {
+            formData.append(key, values[index]);
+        })
+        try {
+            const res = await axiosInstance.post('delivery-type/add/', formData);
+            setDataSource([...dataSource, newItem])
+            setConfirmLoading(false);
+            setAddOpen(false);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
+    };
+
+    const handleAddCancel = () => {
+        setAddOpen(false);
+    };
+
+    const handleAddChange = (e) => {
+        e.target.name == 'active'
+            ? setNewItem({ ...newItem, [e.target.name]: [e.target.checked] })
+            : setNewItem({ ...newItem, [e.target.name]: [e.target.value] })
+    }
+
     return (
         <>
+            <Modal
+                title="Дополните детали для добавления"
+                open={addOpen}
+                onOk={handleAddOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleAddCancel}
+                cancelText={'Отмена'}
+                okText={'Да'}
+                width={'600px'}
+                okType={'primary'}
+                style={{ top: '150px' }}
+            >
+                <div className='banner-add-container'>
+                    <div className='add-left'>
+                        <div className='add-column'>
+                            Название (рус.):
+                        </div>
+                        <div className='add-column'>
+                            Название (туркм.):
+                        </div>
+                        <div className='add-column'>
+                            Навзание (анг.):
+                        </div>
+                        <div className='add-column'>
+                            Срок доставки:
+                        </div>
+                        <div className='add-column'>
+                            Стоимость доставки:
+                        </div>
+                        <div className='add-column'>
+                            Активный:
+                        </div>
+                    </div>
+                    <div className='add-right'>
+                        <div className='add-column'>
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='delivery_days' placeholder='Срок доставки' value={newItem.delivery_days} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input type='number' name='delivery_amount' placeholder='Стоимость доставки' value={newItem.delivery_amount} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Checkbox name='active' placeholder='Активный' value={newItem.active} onChange={handleAddChange} />
+                        </div>
+                    </div>
+                </div>
+            </Modal>
             <Modal
                 title="Вы уверены, что хотите удалить?"
                 open={open}
@@ -114,8 +216,11 @@ function DeliveryType() {
                 }}
             />
             <div className='page'>
-                <h2>Delivery type</h2>
-                <TableComponent dataSource={dataSource} columns={columns} />
+                <div className='page-header-content'>
+                    <h2>Вид доставки</h2>
+                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                </div>
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
             </div>
         </>
     );

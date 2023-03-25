@@ -162,7 +162,7 @@ function Brands() {
                 const formData = new FormData();
                 fileList[0] && formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
                 formData.append("name", newItemName);
-
+                const res = await axiosInstance.post(`brands/add/`, formData);
             }
             setNewItemCategory([]);
             setNewItemName('');
@@ -373,7 +373,6 @@ function Brands() {
                         </div>
                     </div>
                 </div>
-
             </Modal>
             <Modal
                 title="Дополните детали для обнавления"
