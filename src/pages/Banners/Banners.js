@@ -312,6 +312,7 @@ function Banners(props) {
                 title="Выберите баннер и активность для добавления"
                 open={addOpen}
                 onOk={handleAddOk}
+                width={'600px'}
                 confirmLoading={confirmLoading}
                 onCancel={handleAddCancel}
                 cancelText={'Отмена'}

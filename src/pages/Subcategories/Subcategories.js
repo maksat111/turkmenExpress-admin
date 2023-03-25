@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AiOutlineLoading } from 'react-icons/ai';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal } from 'antd'
+import { message, Modal } from 'antd'
 import './Subcategories.css';
 
 function Subcategories() {
@@ -11,11 +11,14 @@ function Subcategories() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [paginateLoading, setPaginateLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(2);
+    const [total, setTotal] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
 
 
     useEffect(() => {
         axiosInstance.get('subcategories/list').then((res) => {
             let a = [];
+            setTotal(res.data.count)
             res.data.results?.map(item => {
                 a.push({
                     key: item.id,
@@ -71,7 +74,7 @@ function Subcategories() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='delete-icon' onClick={showModal}>
+                <div className='delete-icon' onClick={() => showModal(record)}>
                     Удалить
                 </div>
             ),
@@ -82,23 +85,26 @@ function Subcategories() {
             key: 'active',
             render: (_, record) => (
                 <div className='update-icon'>
-                    {/* <TiDelete /> */}
                     Изменить
                 </div>
             ),
         },
     ];
 
-    const showModal = () => {
+    const showModal = (item) => {
+        setSelectedItem(item);
         setOpen(true);
     };
 
-    const handleOk = () => {
+    const handleOk = async () => {
         setConfirmLoading(true);
-        setTimeout(() => {
-            setOpen(false);
+        try {
+            const data = await axiosInstance.delete(`subcategories/delete/${selectedItem.id}/`)
             setConfirmLoading(false);
-        }, 2000);
+        } catch (err) {
+            setConfirmLoading(false);
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!');
+        }
     };
 
     const handleCancel = () => {
@@ -125,6 +131,25 @@ function Subcategories() {
         setPaginateLoading(false);
     }
 
+    //-------------------------------------------------------pagination -----------------------------------------//
+    const onPaginationChange = async (page) => {
+        let a = [];
+        const res = await axiosInstance.get(`subcategories/list?page=${page}`);
+        res.data.results?.forEach(item => {
+            a.push({
+                key: item.id,
+                id: item.id,
+                name_ru: item.name_ru,
+                name_tk: item.name_tk,
+                name_en: item.name_en,
+                category: item.category.name_ru,
+                image: item.image
+            })
+        });
+        setDataSource(a);
+    }
+
+
     return (
         <>
             <Modal
@@ -142,8 +167,8 @@ function Subcategories() {
             />
             <div className='page'>
                 <h2>Города и этрапы</h2>
-                <TableComponent columns={columns} dataSource={dataSource} />
-                {currentPage && (<div className='pagination-button' onClick={handlePagitanation}>{paginateLoading ? <AiOutlineLoading className='loading-spin' /> : 'Продолжать'}</div>)}
+                <TableComponent columns={columns} dataSource={dataSource} pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} />
+                {/* {currentPage && (<div className='pagination-button' onClick={handlePagitanation}>{paginateLoading ? <AiOutlineLoading className='loading-spin' /> : 'Продолжать'}</div>)} */}
             </div>
         </>
     );
