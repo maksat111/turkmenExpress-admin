@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react';
-import { Modal, message } from 'antd';
+import { Modal, message, Select } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import Input from 'antd/es/input/Input';
@@ -13,6 +13,8 @@ function City() {
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [total, setTotal] = useState(null);
+    const [selectOptions, setSelectOptions] = useState(null);
+    const [selectedRegion, setSelectedRegion] = useState(null);
     const [newItem, setNewItem] = useState({
         name_ru: '',
         name_en: '',
@@ -48,8 +50,18 @@ function City() {
     };
 
     useEffect(() => {
-        axiosInstance.get('cities/list').then(res => {
+        axiosInstance.get('cities/list').then(async res => {
             let a = [];
+            let b = [];
+            const data = await axiosInstance.get('regions/list/');
+            data.data.forEach(item => {
+                b.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                })
+            })
+            setSelectOptions(b);
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
                 a.push({
@@ -125,8 +137,7 @@ function City() {
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
-        newItem.from_date = fromDate;
-        newItem.to_date = toDate;
+        newItem.region = selectedRegion.id;
         const keys = Object.keys(newItem);
         const values = Object.values(newItem);
         keys.forEach((key, index) => {
@@ -134,24 +145,23 @@ function City() {
         })
         try {
             if (newItem.id) {
-                const res = await axiosInstance.put(`coupon-type/update/${newItem.id}/`, formData);
+                const res = await axiosInstance.put(`cities/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
                     a[index].name_ru = newItem.name_ru;
                     a[index].name_en = newItem.name_en;
                     a[index].name_tk = newItem.name_tk;
-                    a[index].number = newItem.number;
-                    a[index].from_date = fromDate;
-                    a[index].toDate = toDate;
+                    a[index].region = selectedRegion.value;
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('coupon-type/add/', formData);
+                const res = await axiosInstance.post('cities/add/', formData);
                 setDataSource([...dataSource, newItem])
             }
             setConfirmLoading(false);
             setSelectedItem(null);
+            setSelectedRegion(null);
             message.success('Успешно')
             setAddOpen(false);
         } catch (err) {
@@ -163,8 +173,7 @@ function City() {
 
     const handleAddCancel = () => {
         setAddOpen(false);
-        setToDate(null);
-        setFromDate(null);
+        setSelectedRegion(null);
     };
 
     const handleAddChange = (e) => {
@@ -188,6 +197,11 @@ function City() {
         setDataSource(a);
     }
 
+    const handleSelectChange = (value) => {
+        const filtered = selectOptions.filter(item => item.value == value);
+        setSelectedRegion(filtered[0]);
+    }
+
     return (
         <>
             <Modal
@@ -205,9 +219,6 @@ function City() {
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
-                            Номер:
-                        </div>
-                        <div className='add-column'>
                             Название (рус.):
                         </div>
                         <div className='add-column'>
@@ -217,16 +228,10 @@ function City() {
                             Навзание (анг.):
                         </div>
                         <div className='add-column'>
-                            От числа:
-                        </div>
-                        <div className='add-column'>
-                            До числв:
+                            Регион:
                         </div>
                     </div>
                     <div className='add-right'>
-                        <div className='add-column'>
-                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
-                        </div>
                         <div className='add-column'>
                             <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
                         </div>
@@ -234,7 +239,18 @@ function City() {
                             <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Навзание (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                style={{
+                                    width: '100%',
+                                }}
+                                value={selectedRegion}
+                                placeholder={'Регион'}
+                                onChange={handleSelectChange}
+                                options={selectOptions}
+                            />
                         </div>
                     </div>
                 </div>
