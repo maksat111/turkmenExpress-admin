@@ -200,7 +200,7 @@ function Regions() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Вид доставки</h2>
+                    <h2>Регионы</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} />

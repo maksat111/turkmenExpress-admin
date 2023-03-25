@@ -111,26 +111,6 @@ function Subcategories() {
         setOpen(false);
     };
 
-    const handlePagitanation = async () => {
-        setPaginateLoading(true);
-        const data = await axiosInstance.get(`subcategories/list/?page=${currentPage}`);
-        data.data.next ? setCurrentPage(currentPage + 1) : setCurrentPage(null);
-        let a = [];
-        data.data.results?.forEach(item => {
-            a.push({
-                key: item.id,
-                id: item.id,
-                name_ru: item.name_ru,
-                name_tk: item.name_tk,
-                name_en: item.name_en,
-                category: item.category.name_ru,
-                image: item.image
-            })
-        });
-        setDataSource([...dataSource, ...a]);
-        setPaginateLoading(false);
-    }
-
     //-------------------------------------------------------pagination -----------------------------------------//
     const onPaginationChange = async (page) => {
         let a = [];
@@ -166,9 +146,8 @@ function Subcategories() {
                 }}
             />
             <div className='page'>
-                <h2>Города и этрапы</h2>
+                <h2>Подкатегории</h2>
                 <TableComponent columns={columns} dataSource={dataSource} pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} />
-                {/* {currentPage && (<div className='pagination-button' onClick={handlePagitanation}>{paginateLoading ? <AiOutlineLoading className='loading-spin' /> : 'Продолжать'}</div>)} */}
             </div>
         </>
     );

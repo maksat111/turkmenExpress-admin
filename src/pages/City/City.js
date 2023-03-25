@@ -271,7 +271,7 @@ function City() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Вид доставки</h2>
+                    <h2>Города и этрапы</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} />
