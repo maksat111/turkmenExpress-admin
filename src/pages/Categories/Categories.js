@@ -3,7 +3,7 @@ import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { Modal, message, Upload, Checkbox, Select } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
-import './Brands.css';
+import './Categories.css';
 import Input from 'antd/es/input/Input';
 
 const getBase64 = (file) =>
@@ -14,7 +14,7 @@ const getBase64 = (file) =>
         reader.onerror = (error) => reject(error);
     });
 
-function Brands() {
+function Categories() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
@@ -462,4 +462,4 @@ function Brands() {
     );
 }
 
-export default Brands;
+export default Categories;
