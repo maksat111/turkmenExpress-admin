@@ -1,30 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal } from 'antd'
-import { message } from 'antd';
-import './Categories.css';
+import { Modal, message, Upload, Checkbox, Select } from 'antd'
+import { PlusOutlined } from '@ant-design/icons';
+import './Brands.css';
+import Input from 'antd/es/input/Input';
 
-function Categories() {
+const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
+
+function Brands() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    // const [currentPage, setCurrentPage] = useState(2);
+    const [progress, setProgress] = useState(0);
+    const [fileList, setFileList] = useState([]);
+    const [addOpen, setAddOpen] = useState(false);
+    const [newItemName, setNewItemName] = useState('');
+    const [newItemCategory, setNewItemCategory] = useState([])
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [selectOptions, setSelectOptions] = useState(null);
+    const [total, setTotal] = useState(null);
+    const [updateOpen, setUpdateOpen] = useState(false);
+
 
     useEffect(() => {
-        axiosInstance.get('categories/list').then((res) => {
+        axiosInstance.get('brands/list').then(async (res) => {
             let a = [];
-            res.data?.forEach(item => {
+            let b = [];
+            setTotal(res.data.count)
+            res.data.results?.forEach(item => {
                 a.push({
                     key: item.id,
                     id: item.id,
-                    name_ru: item.name_ru,
-                    name_tk: item.name_tk,
-                    name_en: item.name_en,
-                    image: item.image
+                    name: item.name,
+                    logo: item.logo,
+                    category: item.category ? item.category.name_ru : 'null'
                 })
             });
             setDataSource(a);
+            const categories = await axiosInstance.get('categories/list/');
+            categories.data?.forEach(item => {
+                b.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                })
+            });
+            setSelectOptions(b);
         }).catch(err => console.log(err))
     }, [])
 
@@ -36,31 +68,26 @@ function Categories() {
             width: '50px',
         },
         {
-            title: 'Название(Рус)',
-            dataIndex: 'name_ru',
-            key: 'name_ru',
+            title: 'Название',
+            dataIndex: 'name',
+            key: 'name',
             width: '300px'
         },
         {
-            title: 'Название(Туркмен)',
-            dataIndex: 'name_tk',
-            key: 'name_tk',
-        },
-        {
-            title: 'Название(Анг)',
-            dataIndex: 'name_en',
-            key: 'name_en',
-        },
-        {
-            title: 'Image',
-            dataIndex: 'image',
-            key: 'image',
+            title: 'Logo',
+            dataIndex: 'logo',
+            key: 'logo',
             render: (_, record) => (
-                <img className='category-image' src={record.image} alt={record.name_ru} />
+                <img className='brand-image' src={record.logo} alt='banner' />
             ),
         },
         {
-            title: 'Delete',
+            title: 'Категория',
+            dataIndex: 'category',
+            key: 'category',
+        },
+        {
+            title: 'Удалить',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
@@ -70,12 +97,11 @@ function Categories() {
             ),
         },
         {
-            title: 'Update',
+            title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='update-icon'>
-                    {/* <TiDelete /> */}
+                <div className='update-icon' onClick={() => showUpdateModal(record)} >
                     Изменить
                 </div>
             ),
@@ -83,21 +109,21 @@ function Categories() {
     ];
 
     const showModal = (item) => {
-        setSelectedItem(item)
+        setSelectedItem(item);
         setOpen(true);
     };
 
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`categories/delete/${selectedItem.id}`);
+            await axiosInstance.delete(`brands/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
-            setConfirmLoading(false);
+            setConfirmLoading(false)
             message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
             console.log(err)
         }
@@ -107,8 +133,304 @@ function Categories() {
         setOpen(false);
     };
 
+    //-----------------------------------------Add Modal-------------------------------------------------//
+    const showAddModal = (item) => {
+        setSelectedItem(item);
+        setAddOpen(true);
+    };
+
+    const handleAddOk = async () => {
+        try {
+            setConfirmLoading(true);
+            let a = [];
+            if (newItemCategory.length > 0) {
+                newItemCategory.forEach(async category => {
+                    const formData = new FormData();
+                    formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
+                    formData.append("name", newItemName);
+                    formData.append('category', category.id);
+                    const res = await axiosInstance.post(`brands/add/`, formData);
+                    a.push({
+                        key: fileList[0].originFileObj.uid,
+                        id: Math.floor(Math.random() * 1000),
+                        logo: URL.createObjectURL(fileList[0].originFileObj),
+                        name: newItemName,
+                        category: category.name
+                    })
+                })
+            } else {
+                const formData = new FormData();
+                fileList[0] && formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
+                formData.append("name", newItemName);
+                const res = await axiosInstance.post(`brands/add/`, formData);
+            }
+            setNewItemCategory([]);
+            setNewItemName('');
+            setDataSource([...dataSource, ...a]);
+            message.success('Успешно добавлено');
+            setAddOpen(false);
+            setFileList([]);
+            // setNewItemActive(true);
+            setConfirmLoading(false);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
+    };
+
+    const handleAddCancel = () => {
+        setFileList([]);
+        setAddOpen(false);
+    };
+
+    const handleAddCustomRequest = async (options) => {
+        const { onSuccess, onError, file, onProgress } = options;
+        const fmData = new FormData();
+
+        const config = {
+            headers: { "content-type": "multipart/form-data" },
+            onUploadProgress: event => {
+                const percent = Math.floor((event.loaded / event.total) * 100);
+                setProgress(percent);
+                if (percent === 100) {
+                    setTimeout(() => setProgress(0), 1000);
+                }
+                // onProgress({ percent: (event.loaded / event.total) * 100 });
+                onProgress({ percent: (event.loaded / event.total) * 100 });
+            }
+        };
+        console.log(file)
+        fmData.append("image", file);
+        try {
+            // const res = await axiosInstance.patch(
+            //     `banners/update/${selectedItem.id}/`,
+            //     fmData,
+            //     config
+            // );
+
+            onSuccess("Ok");
+        } catch (err) {
+            onError('Upload error');
+        }
+    };
+
+    //------------------------------------------------update modal--------------------------------------------//
+    const showUpdateModal = (item) => {
+        setSelectedItem(item);
+        const filtered = selectOptions.filter(category => category.label == item.category);
+        setNewItemCategory([{ id: filtered[0]?.id, label: item.category, value: item.category }])
+        setNewItemName(item.name)
+        setUpdateOpen(true);
+    };
+
+    const handleUpdateOk = async () => {
+        try {
+            setConfirmLoading(true);
+            newItemCategory.forEach(async category => {
+                const formData = new FormData();
+                fileList[0] && formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
+                formData.append("name", newItemName);
+                category.id && formData.append('category', category.id);
+                const res = await axiosInstance.put(`brands/update/${selectedItem.id}/`, formData);
+            })
+            setDataSource(previousState => {
+                const a = previousState;
+                const index = a.findIndex(element => element.id === selectedItem.id);
+                if (fileList[0]) a[index].logo = URL.createObjectURL(fileList[0].originFileObj);
+                a[index].name = newItemName;
+                if (newItemCategory[0]) a[index].category = newItemCategory[0].value;
+                return a;
+            })
+            setFileList([]);
+            setNewItemCategory([]);
+            setNewItemName('');
+            setConfirmLoading(false);
+            message.success('Успешно изменено');
+            setUpdateOpen(false);
+        } catch (err) {
+            setConfirmLoading(false);
+            message.error(err.message)
+        }
+    }
+
+    const handleUpdateCancel = () => {
+        setUpdateOpen(false);
+    };
+
+    const handleUpdateSelectChange = (e) => {
+        let a = [];
+        selectOptions.forEach(item => {
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
+        });
+        setNewItemCategory(a);
+    }
+
+    //-----------------------------------------upload--------------------------------------------//
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+
+    const handlePreviewCancel = () => setPreviewOpen(false);
+
+    const handlePreview = async (file) => {
+        file.preview = await getBase64(file.originFileObj);
+        setPreviewImage(file.preview);
+        setPreviewOpen(true);
+        setPreviewTitle(file.name);
+    };
+
+    const uploadButton = (
+        <div>
+            <PlusOutlined />
+            <div
+                style={{
+                    marginTop: 8,
+                }}
+            >
+                Upload
+          </div>
+        </div>
+    );
+
+    //----------------------------------------------------------select -----------------------------------------//
+
+    const handleSelectChange = (e) => {
+        let a = [];
+        selectOptions.forEach(item => {
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
+        });
+        setNewItemCategory(a);
+    }
+
+    //-------------------------------------------------------pagination -----------------------------------------//
+    const onPaginationChange = async (page) => {
+        let a = [];
+        const res = await axiosInstance.get(`brands/list?page=${page}`);
+        res.data.results?.forEach(item => {
+            a.push({
+                key: item.id,
+                id: item.id,
+                name: item.name,
+                logo: item.logo,
+                category: item.category ? item.category.name_ru : 'null'
+            })
+        });
+        setDataSource(a);
+    }
+
     return (
         <>
+            <Modal
+                title="Дополните детали для добавления"
+                open={addOpen}
+                onOk={handleAddOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleAddCancel}
+                cancelText={'Отмена'}
+                okText={'Да'}
+                width={'600px'}
+                okType={'primary'}
+                style={{ top: '200px' }}
+            >
+                <div className='banner-add-container'>
+                    <div className='add-left'>
+                        <div className='add-column'>
+                            Название
+                        </div>
+                        <div className='add-column'>
+                            Категория
+                        </div>
+                        <div className='add-picture'>
+                            Logo
+                        </div>
+                    </div>
+                    <div className='add-right'>
+                        <div className='add-column'>
+                            <Input value={newItemName} allowClear size={'medium'} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                value={newItemCategory}
+                                mode="multiple"
+                                allowClear
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Выберите категорию"
+                                onChange={(e) => handleSelectChange(e)}
+                                options={selectOptions}
+                            />
+                        </div>
+                        <div className='add-picture'>
+                            <Upload
+                                customRequest={handleAddCustomRequest}
+                                listType="picture-card"
+                                fileList={fileList}
+                                onPreview={handlePreview}
+                                onChange={handleChange}
+                            >
+                                {fileList.length == 0 && uploadButton}
+                            </Upload>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+            <Modal
+                title="Дополните детали для обнавления"
+                open={updateOpen}
+                onOk={handleUpdateOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleUpdateCancel}
+                cancelText={'Отмена'}
+                okText={'Да'}
+                width={'700px'}
+                okType={'primary'}
+                style={{ top: '200px' }}
+            >
+                <div className='banner-add-container'>
+                    <div className='add-left'>
+                        <div className='add-column'>
+                            Название
+                        </div>
+                        <div className='add-column'>
+                            Категория
+                        </div>
+                        <div className='add-picture'>
+                            Logo
+                        </div>
+                    </div>
+                    <div className='add-right'>
+                        <div className='add-column'>
+                            <Input value={newItemName} allowClear size={'medium'} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                value={newItemCategory}
+                                mode="multiple"
+                                allowClear
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Выберите категорию"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={selectOptions}
+                            />
+                        </div>
+                        <div className='add-picture'>
+                            <img className='brand-image' src={selectedItem?.logo} alt='selected' />
+                            <Upload
+                                customRequest={handleAddCustomRequest}
+                                listType="picture-card"
+                                fileList={fileList}
+                                onPreview={handlePreview}
+                                onChange={handleChange}
+                            >
+                                {fileList.length == 0 && uploadButton}
+                            </Upload>
+                        </div>
+                    </div>
+                </div>
+
+            </Modal>
             <Modal
                 title="Вы уверены, что хотите удалить?"
                 open={open}
@@ -124,11 +446,20 @@ function Categories() {
                 }}
             />
             <div className='page'>
-                <h2>Категории</h2>
-                <TableComponent columns={columns} dataSource={dataSource} />
+                <div className='page-header-content'>
+                    <h2>Brands</h2>
+                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                </div>
+                <TableComponent
+                    rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'}
+                    active={selectedItem?.id}
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                />
             </div>
         </>
     );
 }
 
-export default Categories;
+export default Brands;
