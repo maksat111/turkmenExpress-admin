@@ -1,16 +1,23 @@
 import { React, useEffect, useState } from 'react';
-import { Modal } from 'antd';
-import { Checkbox, message } from 'antd';
+import { DatePicker, Modal, message } from 'antd';
+import dayjs from 'dayjs';
+import date from 'date-and-time';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import Input from 'antd/es/input/Input';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
-function DeliveryType() {
+function CouponType() {
+    const dateFormat = 'YYYY-MM-DD';
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
+    const today = date.format(new Date(), 'YYYY-MM-DD');
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
     const [newItem, setNewItem] = useState({
         name_ru: '',
         name_en: '',
@@ -29,7 +36,8 @@ function DeliveryType() {
             await axiosInstance.delete(`coupon-type/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
-            message.success('Успешно удалено')
+            message.success('Успешно удалено');
+            setSelectedItem(null);
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
@@ -41,10 +49,11 @@ function DeliveryType() {
 
     const handleCancel = () => {
         setOpen(false);
+        setSelectedItem(null);
     };
 
     useEffect(() => {
-        axiosInstance.get('regions/list').then(res => {
+        axiosInstance.get('coupon-type/list').then(res => {
             res.data?.forEach(element => {
                 element.key = element.id
             });
@@ -53,13 +62,6 @@ function DeliveryType() {
     }, []);
 
     const columns = [
-        {
-            title: 'id',
-            dataIndex: 'id',
-            key: 'id',
-            width: '50px',
-            style: { alignItems: "center" }
-        },
         {
             title: 'Номер',
             dataIndex: 'number',
@@ -82,8 +84,8 @@ function DeliveryType() {
         },
         {
             title: 'От числа',
-            dataIndex: 'date_from',
-            key: 'date_from',
+            dataIndex: 'from_date',
+            key: 'from_date',
         },
         {
             title: 'До числа',
@@ -115,13 +117,19 @@ function DeliveryType() {
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
         // setSelectedItem(item);
-        item.id && setNewItem(item);
+        if (item.id) {
+            setFromDate(date.format(new Date(item.from_date), 'YYYY-MM-DD'))
+            setToDate(date.format(new Date(item.to_date), 'YYYY-MM-DD'))
+            setNewItem(item);
+        };
         setAddOpen(true);
     };
 
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
+        newItem.from_date = fromDate;
+        newItem.to_date = toDate;
         const keys = Object.keys(newItem);
         const values = Object.values(newItem);
         keys.forEach((key, index) => {
@@ -129,20 +137,24 @@ function DeliveryType() {
         })
         try {
             if (newItem.id) {
-                const res = await axiosInstance.put(`regions/update/${newItem.id}/`, formData);
+                const res = await axiosInstance.put(`coupon-type/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
                     a[index].name_ru = newItem.name_ru;
                     a[index].name_en = newItem.name_en;
                     a[index].name_tk = newItem.name_tk;
+                    a[index].number = newItem.number;
+                    a[index].from_date = fromDate;
+                    a[index].toDate = toDate;
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('regions/add/', formData);
+                const res = await axiosInstance.post('coupon-type/add/', formData);
                 setDataSource([...dataSource, newItem])
             }
             setConfirmLoading(false);
+            setSelectedItem(null);
             message.success('Успешно')
             setAddOpen(false);
         } catch (err) {
@@ -154,6 +166,8 @@ function DeliveryType() {
 
     const handleAddCancel = () => {
         setAddOpen(false);
+        setToDate(null);
+        setFromDate(null);
     };
 
     const handleAddChange = (e) => {
@@ -177,6 +191,9 @@ function DeliveryType() {
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
+                            Номер:
+                        </div>
+                        <div className='add-column'>
                             Название (рус.):
                         </div>
                         <div className='add-column'>
@@ -185,8 +202,17 @@ function DeliveryType() {
                         <div className='add-column'>
                             Навзание (анг.):
                         </div>
+                        <div className='add-column'>
+                            От числа:
+                        </div>
+                        <div className='add-column'>
+                            До числв:
+                        </div>
                     </div>
                     <div className='add-right'>
+                        <div className='add-column'>
+                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
+                        </div>
                         <div className='add-column'>
                             <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
                         </div>
@@ -195,6 +221,12 @@ function DeliveryType() {
                         </div>
                         <div className='add-column'>
                             <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <DatePicker value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d, datestring) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                        </div>
+                        <div className='add-column'>
+                            <DatePicker value={toDate && dayjs(toDate, dateFormat)} onChange={(d, datestring) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
                         </div>
                     </div>
                 </div>
@@ -224,4 +256,4 @@ function DeliveryType() {
     );
 }
 
-export default DeliveryType;
+export default CouponType;

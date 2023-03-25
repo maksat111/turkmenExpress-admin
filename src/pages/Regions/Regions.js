@@ -5,7 +5,7 @@ import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import Input from 'antd/es/input/Input';
 
-function DeliveryType() {
+function Regions() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
@@ -209,4 +209,4 @@ function DeliveryType() {
     );
 }
 
-export default DeliveryType;
+export default Regions;
