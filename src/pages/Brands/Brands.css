@@ -6,6 +6,7 @@
 .add-picture {
     display: flex;
     align-items: center;
+    gap: 25px;
     height: 150px;
     width: 120px;
 }
@@ -22,4 +23,8 @@
     flex-direction: row;
     justify-content: space-around;
     font-weight: 450;
+}
+
+.add-right {
+    min-width: 370px;
 }
