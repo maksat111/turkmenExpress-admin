@@ -101,7 +101,7 @@ function DeliveryType() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='update-icon'>
+                <div className='update-icon' onClick={() => showAddModal(record)}>
                     Изменить
                 </div>
             ),
@@ -110,7 +110,8 @@ function DeliveryType() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        setSelectedItem(item);
+        // setSelectedItem(item);
+        item.id && setNewItem(item);
         setAddOpen(true);
     };
 
@@ -123,9 +124,23 @@ function DeliveryType() {
             formData.append(key, values[index]);
         })
         try {
-            const res = await axiosInstance.post('delivery-type/add/', formData);
-            setDataSource([...dataSource, newItem])
+            if (newItem.id) {
+                const res = await axiosInstance.put(`delivery-type/update/${newItem.id}/`, formData);
+                const index = dataSource.findIndex(item => item.id == newItem.id);
+                setDataSource(previousState => {
+                    const a = previousState;
+                    a[index].name_ru = newItem.name_ru;
+                    a[index].active = newItem.active;
+                    a[index].delivery_days = newItem.delivery_days;
+                    a[index].delivery_amount = newItem.delivery_amount;
+                    return a;
+                })
+            } else {
+                const res = await axiosInstance.post('delivery-type/add/', formData);
+                setDataSource([...dataSource, newItem])
+            }
             setConfirmLoading(false);
+            message.success('Успешно')
             setAddOpen(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -139,7 +154,8 @@ function DeliveryType() {
     };
 
     const handleAddChange = (e) => {
-        e.target.name == 'active'
+        console.log(e.target);
+        e.target.name === 'active'
             ? setNewItem({ ...newItem, [e.target.name]: [e.target.checked] })
             : setNewItem({ ...newItem, [e.target.name]: [e.target.value] })
     }
@@ -147,7 +163,7 @@ function DeliveryType() {
     return (
         <>
             <Modal
-                title="Дополните детали для добавления"
+                title="Дополните детали"
                 open={addOpen}
                 onOk={handleAddOk}
                 confirmLoading={confirmLoading}
@@ -196,7 +212,7 @@ function DeliveryType() {
                             <Input type='number' name='delivery_amount' placeholder='Стоимость доставки' value={newItem.delivery_amount} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Checkbox name='active' placeholder='Активный' value={newItem.active} onChange={handleAddChange} />
+                            <Checkbox name='active' placeholder='Активный' checked={newItem.active} onChange={(e) => setNewItem({ ...newItem, active: e.target.checked })} />
                         </div>
                     </div>
                 </div>
