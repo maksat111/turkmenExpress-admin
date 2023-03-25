@@ -29,34 +29,20 @@ function Categories() {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [selectOptions, setSelectOptions] = useState(null);
-    const [total, setTotal] = useState(null);
     const [updateOpen, setUpdateOpen] = useState(false);
+    const [newItem, setNewItem] = useState({
+        name_ru: '',
+        name_en: '',
+        name_tk: '',
+    })
 
 
     useEffect(() => {
-        axiosInstance.get('brands/list').then(async (res) => {
-            let a = [];
-            let b = [];
-            setTotal(res.data.count)
-            res.data.results?.forEach(item => {
-                a.push({
-                    key: item.id,
-                    id: item.id,
-                    name: item.name,
-                    logo: item.logo,
-                    category: item.category ? item.category.name_ru : 'null'
-                })
+        axiosInstance.get('categories/list').then(async (res) => {
+            res.data?.forEach(element => {
+                element.key = element.id
             });
-            setDataSource(a);
-            const categories = await axiosInstance.get('categories/list/');
-            categories.data?.forEach(item => {
-                b.push({
-                    label: item.name_ru,
-                    value: item.name_ru,
-                    id: item.id
-                })
-            });
-            setSelectOptions(b);
+            setDataSource(res?.data);
         }).catch(err => console.log(err))
     }, [])
 
@@ -68,23 +54,27 @@ function Categories() {
             width: '50px',
         },
         {
-            title: 'Название',
-            dataIndex: 'name',
-            key: 'name',
-            width: '300px'
+            title: 'Название (рус.)',
+            dataIndex: 'name_ru',
+            key: 'name_ru',
+        },
+        {
+            title: 'Название (туркм.)',
+            dataIndex: 'name_tk',
+            key: 'name_tk',
+        },
+        {
+            title: 'Навзание (анг.)',
+            dataIndex: 'name_en',
+            key: 'name_en',
         },
         {
             title: 'Logo',
-            dataIndex: 'logo',
-            key: 'logo',
+            dataIndex: 'image',
+            key: 'image',
             render: (_, record) => (
-                <img className='brand-image' src={record.logo} alt='banner' />
+                <img className='brand-image' src={record.image} alt={record.name_ru} />
             ),
-        },
-        {
-            title: 'Категория',
-            dataIndex: 'category',
-            key: 'category',
         },
         {
             title: 'Удалить',
@@ -101,7 +91,7 @@ function Categories() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <div className='update-icon' onClick={() => showUpdateModal(record)} >
+                <div className='update-icon' onClick={() => showAddModal(record)} >
                     Изменить
                 </div>
             ),
@@ -135,42 +125,43 @@ function Categories() {
 
     //-----------------------------------------Add Modal-------------------------------------------------//
     const showAddModal = (item) => {
-        setSelectedItem(item);
+        if (item.id) {
+            setSelectedItem(item);
+            setNewItem(item);
+        }
         setAddOpen(true);
     };
 
     const handleAddOk = async () => {
+        setConfirmLoading(true);
+        const formData = new FormData();
+        formData.append('name_ru', newItem.name_ru);
+        formData.append('name_en', newItem.name_en);
+        formData.append('name_tk', newItem.name_tk);
+        if (fileList.length !== 0) {
+            newItem.image = URL.createObjectURL(fileList[0]?.originFileObj);
+            formData.append("image", fileList[0]?.originFileObj, fileList[0]?.originFileObj.name);
+        }
         try {
-            setConfirmLoading(true);
-            let a = [];
-            if (newItemCategory.length > 0) {
-                newItemCategory.forEach(async category => {
-                    const formData = new FormData();
-                    formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
-                    formData.append("name", newItemName);
-                    formData.append('category', category.id);
-                    const res = await axiosInstance.post(`brands/add/`, formData);
-                    a.push({
-                        key: fileList[0].originFileObj.uid,
-                        id: Math.floor(Math.random() * 1000),
-                        logo: URL.createObjectURL(fileList[0].originFileObj),
-                        name: newItemName,
-                        category: category.name
-                    })
+            if (newItem.id) {
+                const res = await axiosInstance.patch(`categoris/update/${newItem.id}/`, formData);
+                const index = dataSource.findIndex(item => item.id == newItem.id);
+                setDataSource(previousState => {
+                    const a = previousState;
+                    a[index].name_ru = newItem.name_ru;
+                    a[index].name_en = newItem.name_en;
+                    a[index].name_tk = newItem.name_tk;
+                    a[index].image = newItem.image;
+                    return a;
                 })
             } else {
-                const formData = new FormData();
-                fileList[0] && formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
-                formData.append("name", newItemName);
-                const res = await axiosInstance.post(`brands/add/`, formData);
+                const res = await axiosInstance.post('categories/add/', formData);
+                setDataSource([...dataSource, newItem])
             }
-            setNewItemCategory([]);
-            setNewItemName('');
-            setDataSource([...dataSource, ...a]);
-            message.success('Успешно добавлено');
+            setNewItem(null);
+            message.success('Успешно!')
             setAddOpen(false);
             setFileList([]);
-            // setNewItemActive(true);
             setConfirmLoading(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -181,6 +172,7 @@ function Categories() {
 
     const handleAddCancel = () => {
         setFileList([]);
+        setNewItem(null);
         setAddOpen(false);
     };
 
@@ -214,57 +206,6 @@ function Categories() {
             onError('Upload error');
         }
     };
-
-    //------------------------------------------------update modal--------------------------------------------//
-    const showUpdateModal = (item) => {
-        setSelectedItem(item);
-        const filtered = selectOptions.filter(category => category.label == item.category);
-        setNewItemCategory([{ id: filtered[0]?.id, label: item.category, value: item.category }])
-        setNewItemName(item.name)
-        setUpdateOpen(true);
-    };
-
-    const handleUpdateOk = async () => {
-        try {
-            setConfirmLoading(true);
-            newItemCategory.forEach(async category => {
-                const formData = new FormData();
-                fileList[0] && formData.append("logo", fileList[0].originFileObj, fileList[0].originFileObj.name);
-                formData.append("name", newItemName);
-                category.id && formData.append('category', category.id);
-                const res = await axiosInstance.put(`brands/update/${selectedItem.id}/`, formData);
-            })
-            setDataSource(previousState => {
-                const a = previousState;
-                const index = a.findIndex(element => element.id === selectedItem.id);
-                if (fileList[0]) a[index].logo = URL.createObjectURL(fileList[0].originFileObj);
-                a[index].name = newItemName;
-                if (newItemCategory[0]) a[index].category = newItemCategory[0].value;
-                return a;
-            })
-            setFileList([]);
-            setNewItemCategory([]);
-            setNewItemName('');
-            setConfirmLoading(false);
-            message.success('Успешно изменено');
-            setUpdateOpen(false);
-        } catch (err) {
-            setConfirmLoading(false);
-            message.error(err.message)
-        }
-    }
-
-    const handleUpdateCancel = () => {
-        setUpdateOpen(false);
-    };
-
-    const handleUpdateSelectChange = (e) => {
-        let a = [];
-        selectOptions.forEach(item => {
-            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
-        });
-        setNewItemCategory(a);
-    }
 
     //-----------------------------------------upload--------------------------------------------//
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
@@ -317,6 +258,10 @@ function Categories() {
         setDataSource(a);
     }
 
+    const handleAddChange = (e) => {
+        setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+    }
+
     return (
         <>
             <Modal
@@ -329,15 +274,18 @@ function Categories() {
                 okText={'Да'}
                 width={'600px'}
                 okType={'primary'}
-                style={{ top: '200px' }}
+                style={{ top: '100px' }}
             >
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
-                            Название
+                            Название (рус.):
                         </div>
                         <div className='add-column'>
-                            Категория
+                            Название (туркм.):
+                        </div>
+                        <div className='add-column'>
+                            Навзание (анг.):
                         </div>
                         <div className='add-picture'>
                             Logo
@@ -345,22 +293,16 @@ function Categories() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input value={newItemName} allowClear size={'medium'} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Select
-                                value={newItemCategory}
-                                mode="multiple"
-                                allowClear
-                                style={{
-                                    width: '100%',
-                                }}
-                                placeholder="Выберите категорию"
-                                onChange={(e) => handleSelectChange(e)}
-                                options={selectOptions}
-                            />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-picture'>
+                            {newItem?.id && <img className='brand-image' src={newItem?.image} alt={newItem?.name_ru} />}
                             <Upload
                                 customRequest={handleAddCustomRequest}
                                 listType="picture-card"
@@ -374,7 +316,7 @@ function Categories() {
                     </div>
                 </div>
             </Modal>
-            <Modal
+            {/* <Modal
                 title="Дополните детали для обнавления"
                 open={updateOpen}
                 onOk={handleUpdateOk}
@@ -389,10 +331,13 @@ function Categories() {
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
-                            Название
+                            Название (рус.):
                         </div>
                         <div className='add-column'>
-                            Категория
+                            Название (туркм.):
+                        </div>
+                        <div className='add-column'>
+                            Навзание (анг.):
                         </div>
                         <div className='add-picture'>
                             Logo
@@ -400,20 +345,13 @@ function Categories() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input value={newItemName} allowClear size={'medium'} placeholder={'Название...'} onChange={(e) => setNewItemName(e.target.value)} />
+                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Select
-                                value={newItemCategory}
-                                mode="multiple"
-                                allowClear
-                                style={{
-                                    width: '100%',
-                                }}
-                                placeholder="Выберите категорию"
-                                onChange={(e) => handleUpdateSelectChange(e)}
-                                options={selectOptions}
-                            />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-picture'>
                             <img className='brand-image' src={selectedItem?.logo} alt='selected' />
@@ -430,7 +368,7 @@ function Categories() {
                     </div>
                 </div>
 
-            </Modal>
+            </Modal> */}
             <Modal
                 title="Вы уверены, что хотите удалить?"
                 open={open}
@@ -451,11 +389,10 @@ function Categories() {
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent
-                    rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'}
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    pagination={false}
                 />
             </div>
         </>
