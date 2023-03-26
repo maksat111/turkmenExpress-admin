@@ -98,7 +98,7 @@ function Subcategories() {
     const handleOk = async () => {
         setConfirmLoading(true);
         try {
-            const data = await axiosInstance.delete(`subcategories/delete/${selectedItem.id}/`)
+            const data = await axiosInstance.delete(`subcategoris/delete/${selectedItem.id}/`)
             setConfirmLoading(false);
         } catch (err) {
             setConfirmLoading(false);
