@@ -285,7 +285,7 @@ function Categories() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Brands</h2>
+                    <h2>Категории</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent active={selectedItem?.id} columns={columns} dataSource={dataSource} pagination={false} />

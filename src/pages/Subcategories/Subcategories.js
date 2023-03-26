@@ -45,7 +45,6 @@ function Subcategories() {
             title: 'Название(Рус)',
             dataIndex: 'name_ru',
             key: 'name_ru',
-            width: '300px'
         },
         {
             title: 'Название(Туркмен)',
@@ -59,8 +58,8 @@ function Subcategories() {
         },
         {
             title: 'Категория',
-            dataIndex: 'region',
-            key: 'region',
+            dataIndex: 'category',
+            key: 'category',
         },
         {
             title: 'Image',
