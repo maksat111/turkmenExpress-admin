@@ -17,24 +17,37 @@ function SmsTable() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [newItem, setNewItem] = useState(null);
 
 
-    const showModal = (item) => {
-        setOpen(true);
+    const showModal = (item, item2) => {
+        if (item2) {
+            setNewItem(item2);
+        }
         setSelectedItem(item);
+        setOpen(true);
     };
 
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`sms-table/delete/${selectedItem.id}`);
-            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-            setDataSource(newDataSource);
+            if (newItem) {
+                const res = await axiosInstance.patch(`sms-table/update/${newItem.id}/`, { sended: !newItem.sended });
+                setDataSource(previousState => {
+                    let a = previousState;
+                    const index = a.findIndex(element => element.id === newItem.id);
+                    a[index].sended = !a[index].sended
+                    return a
+                });
+            } else {
+                await axiosInstance.delete(`sms-table/delete/${selectedItem.id}`);
+                const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+                setDataSource(newDataSource);
+            }
             message.success('Успешно удалено');
             setSelectedItem(null);
+            setNewItem(null);
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
@@ -46,6 +59,7 @@ function SmsTable() {
 
     const handleCancel = () => {
         setOpen(false);
+        setNewItem(null);
         setSelectedItem(null);
     };
 
@@ -78,9 +92,9 @@ function SmsTable() {
             title: 'Статус отправки',
             dataIndex: 'sended',
             key: 'sended',
-            render: (_, record) => (
-                <Checkbox checked={record.sended} />
-            ),
+            render: (_, record) => {
+                return <Checkbox checked={record.sended} onChange={() => showModal(_, record)} />
+            },
         },
         {
             title: 'Время отправки',
@@ -225,7 +239,7 @@ function SmsTable() {
                 </div>
             </Modal>
             <Modal
-                title="Вы уверены, что хотите удалить?"
+                title={!newItem ? "Вы уверены, что хотите удалить?" : 'Вы уверены, что хотите изменить статус отправки?'}
                 open={open}
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
@@ -233,7 +247,7 @@ function SmsTable() {
                 cancelText={'Отмена'}
                 okText={'Да'}
                 okType={'primary'}
-                okButtonProps={{ danger: true }}
+                okButtonProps={!newItem && { danger: true }}
                 style={{
                     top: '200px'
                 }}
