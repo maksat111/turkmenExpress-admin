@@ -19,6 +19,7 @@ function Subcategories() {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [total, setTotal] = useState(null);
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
@@ -29,10 +30,20 @@ function Subcategories() {
 
     useEffect(() => {
         axiosInstance.get('subcategories/list').then(async (res) => {
-            res.data?.forEach(element => {
-                element.key = element.id
+            let a = [];
+            setTotal(res.data.count);
+            res.data?.results.forEach(element => {
+                a.push({
+                    id: element.id,
+                    key: element.id,
+                    name_ru: element.name_ru,
+                    name_en: element.name_en,
+                    name_tk: element.name_tk,
+                    image: element.image,
+                    category: element.category.name_ru
+                })
             });
-            setDataSource(res?.data);
+            setDataSource(a);
         }).catch(err => console.log(err))
     }, [])
 
@@ -59,11 +70,16 @@ function Subcategories() {
             key: 'name_en',
         },
         {
+            title: 'Категория',
+            dataIndex: 'category',
+            key: 'category',
+        },
+        {
             title: 'Logo',
             dataIndex: 'image',
             key: 'image',
             render: (_, record) => (
-                <img className='brand-image' src={record.image} alt={record.name_ru} />
+                <img className='subcategory-image' src={record.image} alt={record.name_ru} />
             ),
         },
         {
@@ -216,6 +232,24 @@ function Subcategories() {
         setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
     }
 
+    //-------------------------------------------------------pagination -----------------------------------------//
+    const onPaginationChange = async (page) => {
+        let a = [];
+        const res = await axiosInstance.get(`subcategories/list?page=${page}`);
+        res.data.results?.forEach(element => {
+            a.push({
+                id: element.id,
+                key: element.id,
+                name_ru: element.name_ru,
+                name_en: element.name_en,
+                name_tk: element.name_tk,
+                image: element.image,
+                category: element.category.name_ru
+            })
+        });
+        setDataSource(a);
+    }
+
     return (
         <>
             <Modal
@@ -289,7 +323,11 @@ function Subcategories() {
                     <h2>Категории</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent active={selectedItem?.id} columns={columns} dataSource={dataSource} pagination={false} />
+                <TableComponent
+                    active={selectedItem?.id}
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} />
             </div>
         </>
     );
