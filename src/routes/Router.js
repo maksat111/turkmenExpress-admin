@@ -12,7 +12,6 @@ const Categories = lazy(() => import('../pages/Categories/Categories'));
 const City = lazy(() => import('../pages/City/City'));
 const Clients = lazy(() => import('../pages/Clients/Clients'));
 const ClientType = lazy(() => import('../pages/ClientType/ClientType'));
-const CouponList = lazy(() => import('../pages/CouponList/CouponList'));
 const CouponType = lazy(() => import('../pages/CouponType/CouponType'));
 const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
 const DeliveryType = lazy(() => import('../pages/DeliveryType/DeliveryType'));
@@ -67,10 +66,6 @@ function Router() {
                 {
                     element: <Suspense fallback={<Loading />}><ClientType /></Suspense>,
                     path: '/clientType'
-                },
-                {
-                    element: <Suspense fallback={<Loading />}><CouponList /></Suspense>,
-                    path: '/couponList'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><CouponType /></Suspense>,

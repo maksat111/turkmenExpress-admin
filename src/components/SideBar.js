@@ -71,11 +71,6 @@ function SideBar() {
             href: '/smsTable'
         },
         {
-            icon: <IoPricetagsOutline style={iconStyle} />,
-            title: 'Список купонов',
-            href: '/couponList'
-        },
-        {
             group: 'КЛИЕНТЫ',
             icon: <TbUsers style={iconStyle} />,
             title: 'Клиенты',
