@@ -139,6 +139,7 @@ function Subcategories() {
                 onCancel={handleCancel}
                 cancelText={'Отмена'}
                 okText={'Да'}
+                okButtonProps={{ danger: true }}
                 okType={'primary'}
                 style={{
                     top: '200px'

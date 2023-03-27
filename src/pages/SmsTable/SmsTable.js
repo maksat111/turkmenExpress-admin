@@ -1,28 +1,25 @@
 import { React, useEffect, useState } from 'react';
-import { DatePicker, Modal, message } from 'antd';
+import { DatePicker, Modal, message, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import date from 'date-and-time';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import Input from 'antd/es/input/Input';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import Checkbox from 'antd/es/checkbox/Checkbox';
 dayjs.extend(customParseFormat);
 
 function SmsTable() {
-    const dateFormat = 'YYYY-MM-DD';
+    const dateFormat = 'YYYY-MM-DD HH:mm:ss';
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
-    const today = date.format(new Date(), 'YYYY-MM-DD');
+    const today = date.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
+    const [newItem, setNewItem] = useState(null);
 
 
     const showModal = (item) => {
@@ -33,7 +30,7 @@ function SmsTable() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`coupon-type/delete/${selectedItem.id}`);
+            await axiosInstance.delete(`sms-table/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
             message.success('Успешно удалено');
@@ -53,7 +50,7 @@ function SmsTable() {
     };
 
     useEffect(() => {
-        axiosInstance.get('coupon-type/list').then(res => {
+        axiosInstance.get('sms-table/list').then(res => {
             res.data?.forEach(element => {
                 element.key = element.id
             });
@@ -63,34 +60,43 @@ function SmsTable() {
 
     const columns = [
         {
-            title: 'Номер',
-            dataIndex: 'number',
-            key: 'number',
+            title: 'id',
+            dataIndex: 'id',
+            key: 'id',
         },
         {
-            title: 'Название (рус.)',
-            dataIndex: 'name_ru',
-            key: 'name_ru',
+            title: 'Код',
+            dataIndex: 'code',
+            key: 'code',
         },
         {
-            title: 'Название (туркм.)',
-            dataIndex: 'name_tk',
-            key: 'name_tk',
+            title: 'Номер абонента',
+            dataIndex: 'phone_number',
+            key: 'phone_number',
         },
         {
-            title: 'Навзание (анг.)',
-            dataIndex: 'name_en',
-            key: 'name_en',
+            title: 'Статус отправки',
+            dataIndex: 'sended',
+            key: 'sended',
+            render: (_, record) => (
+                <Checkbox checked={record.sended} />
+            ),
         },
         {
-            title: 'От числа',
-            dataIndex: 'from_date',
-            key: 'from_date',
+            title: 'Время отправки',
+            dataIndex: 'sended_time',
+            key: 'sended_time',
+            render: (_, record) => (
+                <p>{date.format(new Date(record.sended_time), 'YYYY-MM-DD / HH:MM:SS')}</p>
+            ),
         },
         {
-            title: 'До числа',
-            dataIndex: 'to_date',
-            key: 'to_date',
+            title: 'Истекает время',
+            dataIndex: 'expire_time',
+            key: 'expire_time',
+            render: (_, record) => (
+                <p>{date.format(new Date(record.expire_time), 'YYYY-MM-DD / HH:MM:SS')}</p>
+            ),
         },
         {
             title: 'Удалить',
@@ -116,10 +122,8 @@ function SmsTable() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
-        if (item.id) {
-            setFromDate(date.format(new Date(item.from_date), 'YYYY-MM-DD'))
-            setToDate(date.format(new Date(item.to_date), 'YYYY-MM-DD'))
+        if (item.type !== 'click') {
+            setToDate(date.format(new Date(item.expire_time), 'YYYY-MM-DD HH:mm:ss'))
             setNewItem(item);
         };
         setAddOpen(true);
@@ -128,50 +132,51 @@ function SmsTable() {
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
-        newItem.from_date = fromDate;
-        newItem.to_date = toDate;
+        newItem.expire_time = toDate;
         const keys = Object.keys(newItem);
         const values = Object.values(newItem);
         keys.forEach((key, index) => {
             formData.append(key, values[index]);
         })
         try {
-            if (newItem.id) {
-                const res = await axiosInstance.put(`coupon-type/update/${newItem.id}/`, formData);
+            if (newItem?.id) {
+                const res = await axiosInstance.put(`sms-table/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
-                    a[index].name_ru = newItem.name_ru;
-                    a[index].name_en = newItem.name_en;
-                    a[index].name_tk = newItem.name_tk;
-                    a[index].number = newItem.number;
-                    a[index].from_date = fromDate;
-                    a[index].toDate = toDate;
+                    a[index].phone_number = newItem.phone_number;
+                    a[index].code = newItem.code;
+                    a[index].sended = newItem.sended;
+                    a[index].expire_time = toDate;
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('coupon-type/add/', formData);
-                setDataSource([...dataSource, newItem])
+                const res = await axiosInstance.post('sms-table/add/', formData);
+                res.data.key = res.data.id;
+                setDataSource([...dataSource, res.data])
             }
-            setConfirmLoading(false);
-            setSelectedItem(null);
+            setNewItem(null);
             message.success('Успешно')
             setAddOpen(false);
+            setConfirmLoading(false);
         } catch (err) {
-            setConfirmLoading(false)
             message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
-            console.log(err)
+            setConfirmLoading(false)
         }
     };
 
     const handleAddCancel = () => {
         setAddOpen(false);
         setToDate(null);
-        setFromDate(null);
+        setNewItem(null);
     };
 
     const handleAddChange = (e) => {
-        setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+        if (e.target.name == 'sended') {
+            setNewItem({ ...newItem, [e.target.name]: [e.target.checked] });
+        } else {
+            setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+        }
     }
 
     return (
@@ -191,42 +196,30 @@ function SmsTable() {
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
-                            Номер:
+                            Код:
                         </div>
                         <div className='add-column'>
-                            Название (рус.):
+                            Номер абонента:
                         </div>
+                        {!newItem?.id && <div className='add-column'>
+                            Статус отправки:
+                        </div>}
                         <div className='add-column'>
-                            Название (туркм.):
-                        </div>
-                        <div className='add-column'>
-                            Навзание (анг.):
-                        </div>
-                        <div className='add-column'>
-                            От числа:
-                        </div>
-                        <div className='add-column'>
-                            До числв:
+                            Истекает время:
                         </div>
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
+                            <Input name='code' placeholder='Код' value={newItem?.code} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='phone_number' placeholder='Номер абонента' value={newItem?.phone_number} onChange={handleAddChange} />
                         </div>
+                        {!newItem?.id && <div className='add-column'>
+                            <Checkbox name='sended' value={newItem?.sended} onChange={handleAddChange} />
+                        </div>}
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-column'>
-                            <DatePicker value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d, datestring) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
-                        </div>
-                        <div className='add-column'>
-                            <DatePicker value={toDate && dayjs(toDate, dateFormat)} onChange={(d, datestring) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <DatePicker showTime value={toDate && dayjs(toDate, dateFormat)} onChange={(d, s) => setToDate(date.format(new Date(d), 'YYYY-MM-DD HH:mm:ss'))} />
                         </div>
                     </div>
                 </div>
@@ -247,7 +240,7 @@ function SmsTable() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Виды купонов</h2>
+                    <h2>СМС таблица</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
