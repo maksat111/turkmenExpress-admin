@@ -89,13 +89,14 @@ function Categories() {
     ];
 
     const showModal = (item) => {
+        setSelectedItem(item);
         setOpen(true);
     };
 
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`categories/delete/${selectedItem.id}/`);
+            await axiosInstance.delete(`categoris/delete/${selectedItem.id}/`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
