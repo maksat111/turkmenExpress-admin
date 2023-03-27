@@ -28,7 +28,7 @@ function Subcategories() {
     const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' })
 
     useEffect(() => {
-        axiosInstance.get('categories/list').then(async (res) => {
+        axiosInstance.get('subcategories/list').then(async (res) => {
             res.data?.forEach(element => {
                 element.key = element.id
             });
