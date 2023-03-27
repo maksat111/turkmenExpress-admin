@@ -96,8 +96,8 @@ function Categories() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`categoris/delete/${selectedItem.id}/`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+            await axiosInstance.delete(`categoris/delete/${selectedItem.id}/`);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
             setOpen(false);
