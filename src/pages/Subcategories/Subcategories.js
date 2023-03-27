@@ -24,13 +24,16 @@ function Subcategories() {
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
+    const [selectOptions, setSelectOptions] = useState(null);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
+    const [newItemCategory, setNewItemCategory] = useState([])
     const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' })
 
     useEffect(() => {
         axiosInstance.get('subcategories/list').then(async (res) => {
             let a = [];
+            let b = [];
             setTotal(res.data.count);
             res.data?.results.forEach(element => {
                 a.push({
@@ -44,6 +47,15 @@ function Subcategories() {
                 })
             });
             setDataSource(a);
+            const categories = await axiosInstance.get('categories/list/');
+            categories.data?.forEach(item => {
+                b.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                })
+            });
+            setSelectOptions(b);
         }).catch(err => console.log(err))
     }, [])
 
@@ -113,7 +125,7 @@ function Subcategories() {
         try {
             setConfirmLoading(true);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-            await axiosInstance.delete(`categoris/delete/${selectedItem.id}/`);
+            await axiosInstance.delete(`subcategoris/delete/${selectedItem.id}/`);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
             setOpen(false);
@@ -250,6 +262,14 @@ function Subcategories() {
         setDataSource(a);
     }
 
+    const handleUpdateSelectChange = (e) => {
+        let a = [];
+        selectOptions.forEach(item => {
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
+        });
+        setNewItemCategory(a);
+    }
+
     return (
         <>
             <Modal
@@ -275,6 +295,9 @@ function Subcategories() {
                         <div className='add-column'>
                             Навзание (анг.):
                         </div>
+                        <div className='add-column'>
+                            Категория:
+                        </div>
                         <div className='add-picture'>
                             Logo
                         </div>
@@ -288,6 +311,19 @@ function Subcategories() {
                         </div>
                         <div className='add-column'>
                             <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                value={newItemCategory}
+                                mode="multiple"
+                                allowClear
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Выберите категорию"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={selectOptions}
+                            />
                         </div>
                         <div className='add-picture'>
                             {newItem?.id && <img className='brand-image' src={newItem?.image} alt={newItem?.name_ru} />}
