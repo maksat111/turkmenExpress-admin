@@ -11,11 +11,7 @@ function GroupSettings() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
+    const [newItem, setNewItem] = useState();
 
 
     const showModal = (item) => {
@@ -99,8 +95,10 @@ function GroupSettings() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
-        item.id && setNewItem(item);
+        if (item.id) {
+            setNewItem(item);
+            setSelectedItem(item);
+        }
         setAddOpen(true);
     };
 
@@ -125,8 +123,10 @@ function GroupSettings() {
                 })
             } else {
                 const res = await axiosInstance.post('options-group/add/', formData);
-                setDataSource([...dataSource, newItem])
+                res.data.key = res.data.id;
+                setDataSource([...dataSource, res.data])
             }
+            setNewItem(null);
             setConfirmLoading(false);
             message.success('Успешно')
             setAddOpen(false);
@@ -138,6 +138,7 @@ function GroupSettings() {
     };
 
     const handleAddCancel = () => {
+        setNewItem(null);
         setAddOpen(false);
     };
 
@@ -173,13 +174,13 @@ function GroupSettings() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>
@@ -203,7 +204,7 @@ function GroupSettings() {
                     <h2>Типы покупателей</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>
         </>
     );
