@@ -50,7 +50,7 @@ function SettingsList() {
             title: 'id',
             dataIndex: 'id',
             key: 'id',
-            width: '50px',
+            width: '65px',
         },
         {
             title: 'Название (рус.)',
@@ -61,13 +61,11 @@ function SettingsList() {
             title: 'Название (туркм.)',
             dataIndex: 'name_tk',
             key: 'name_tk',
-            width: '20%'
         },
         {
             title: 'Навзание (анг.)',
             dataIndex: 'name_en',
             key: 'name_en',
-            width: '20%'
         },
         {
             title: 'Группа опций',
@@ -106,8 +104,8 @@ function SettingsList() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
+            await axiosInstance.delete(`options/delete/${selectedItem.id}/`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-            await axiosInstance.delete(`subcategoris/delete/${selectedItem.id}/`);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
             setOpen(false);
@@ -127,8 +125,8 @@ function SettingsList() {
     const showAddModal = (item) => {
         if (item.id) {
             setSelectedItem(item);
-            const filtered = selectOptions.filter(category => category.label == item.category);
-            setSelectedGroupOption([{ id: filtered[0]?.id, label: item.category, value: item.category }])
+            const filtered = selectOptions.filter(groupOption => groupOption.name_ru == item.option_group);
+            setSelectedGroupOption([{ id: filtered[0]?.id, label: item.option_group, value: item.option_group }])
             setNewItem(item);
         }
         setAddOpen(true);
@@ -141,42 +139,37 @@ function SettingsList() {
                 formData.append("name_ru", newItem.name_ru);
                 formData.append("name_en", newItem.name_en);
                 formData.append("name_tk", newItem.name_tk);
-                formData.append('category', selectedGroupOption[0].id);
-                const res = await axiosInstance.patch(`subcategoris/update/${newItem.id}/`, formData);
+                formData.append('option_group', selectedGroupOption[0].id);
+                const res = await axiosInstance.patch(`options/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
                     a[index].name_ru = newItem.name_ru;
                     a[index].name_en = newItem.name_en;
                     a[index].name_tk = newItem.name_tk;
-                    a[index].category = selectedGroupOption[0].value;
+                    a[index].option_group = selectedGroupOption[0].value;
                     return a;
                 })
             } else {
                 let a = [];
                 setConfirmLoading(true);
-                selectedGroupOption.forEach(async category => {
+                selectedGroupOption.forEach(async groupOption => {
                     const formData = new FormData();
                     formData.append("name_ru", newItem.name_ru);
                     formData.append("name_en", newItem.name_en);
                     formData.append("name_tk", newItem.name_tk);
-                    formData.append('category', category.id);
-                    const res = await axiosInstance.post(`subcategories/add/`, formData);
-                    a.push({
-                        id: Math.floor(Math.random() * 1000),
-                        name_ru: newItem.name_ru,
-                        name_en: newItem.name_en,
-                        name_tk: newItem.name_tk,
-                        category: category.name
-                    })
+                    formData.append('option_group', groupOption.id);
+                    const res = await axiosInstance.post(`options/add/`, formData);
+                    res.data.key = res.data.id;
+                    a.push(res.data);
                 })
                 setDataSource([...dataSource, ...a]);
             }
             setSelectedGroupOption([]);
             setNewItem(null);
             message.success('Успешно добавлено');
-            setAddOpen(false);
             setConfirmLoading(false);
+            setAddOpen(false);
         } catch (err) {
             setConfirmLoading(false)
             message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
@@ -267,7 +260,7 @@ function SettingsList() {
                                 style={{
                                     width: '100%',
                                 }}
-                                placeholder="Выберите категорию"
+                                placeholder="Выберите группа опцию"
                                 onChange={(e) => handleUpdateSelectChange(e)}
                                 options={selectOptions}
                             />
