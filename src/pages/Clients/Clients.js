@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react';
-import { DatePicker, Modal, message } from 'antd';
+import { DatePicker, Modal, message, Select } from 'antd';
 import dayjs from 'dayjs';
 import date from 'date-and-time';
 import { axiosInstance } from '../../config/axios';
@@ -17,17 +17,42 @@ function Clients() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [fromDate, setFromDate] = useState(null);
+    const [birthday, setBirthday] = useState(null);
     const [toDate, setToDate] = useState(null);
-    const [newItem, setNewItem] = useState(null)
+    const [newItem, setNewItem] = useState(null);
+    const [userTypeOption, setUserTypeOption] = useState(null);
+    const [regionOption, setRegionOption] = useState(null);
+    const [newItemUserType, setNewItemUserType] = useState(null);
+    const [newItemRegion, setNewItemRegion] = useState(null);
 
     useEffect(() => {
-        axiosInstance.get('users/list').then(res => {
-            res.data?.forEach(element => {
-                element.key = element.id;
+        axiosInstance.get('users/list').then(async res => {
+            let a = [];
+            let b = [];
+            res.data?.forEach((element, index) => {
+                element.key = index;
+                element.id = index;
                 element.clients_type = element.clients_type.name_ru;
                 element.region = element.region.name_ru;
             });
+            const userType = await axiosInstance.get('users/types/list/');
+            userType.data.forEach(element => {
+                a.push({
+                    id: element.id,
+                    label: element.name_ru,
+                    value: element.name_ru,
+                })
+            });
+            const regions = await axiosInstance.get('regions/list/');
+            regions.data.forEach(element => {
+                b.push({
+                    id: element.id,
+                    label: element.name_ru,
+                    value: element.name_ru,
+                });
+            })
+            setRegionOption(b);
+            setUserTypeOption(a);
             setDataSource(res?.data);
         }).catch(err => console.log(err));
     }, []);
@@ -134,7 +159,7 @@ function Clients() {
         try {
             setConfirmLoading(true);
             if (newItem) {
-                const res = await axiosInstance.patch(`discounts/update/${newItem.id}/`, { active: !newItem.active });
+                const res = await axiosInstance.patch(`users/update/${newItem.id}/`, { active: !newItem.active });
                 setDataSource(previousState => {
                     let a = previousState;
                     const index = a.findIndex(element => element.id === newItem.id);
@@ -165,10 +190,10 @@ function Clients() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
         if (item.id) {
-            setFromDate(date.format(new Date(item.from_date), 'YYYY-MM-DD'))
+            setBirthday(date.format(new Date(item.from_date), 'YYYY-MM-DD'))
             setToDate(date.format(new Date(item.to_date), 'YYYY-MM-DD'))
+            setSelectedItem(item);
             setNewItem(item);
         };
         setAddOpen(true);
@@ -177,8 +202,9 @@ function Clients() {
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
-        newItem.from_date = fromDate;
-        newItem.to_date = toDate;
+        newItem.birthday = birthday;
+        newItem.region = newItemRegion?.id;
+        newItem.clients_type = newItemUserType?.id;
         const keys = Object.keys(newItem);
         const values = Object.values(newItem);
         keys.forEach((key, index) => {
@@ -186,7 +212,7 @@ function Clients() {
         })
         try {
             if (newItem.id) {
-                const res = await axiosInstance.put(`discounts/update/${newItem.id}/`, formData);
+                const res = await axiosInstance.put(`users/update/${newItem.id}/`, formData);
                 const foundedIndex = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
@@ -196,11 +222,14 @@ function Clients() {
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('discounts/add/', formData);
+                const res = await axiosInstance.post('users/add/', formData);
                 res.data.key = res.data.id;
                 setDataSource([...dataSource, res.data])
             }
             setNewItem(null);
+            setNewItemRegion(null);
+            setNewItemUserType(null);
+            setBirthday(null);
             message.success('Успешно')
             setConfirmLoading(false);
             setAddOpen(false);
@@ -213,15 +242,26 @@ function Clients() {
 
     const handleAddCancel = () => {
         setNewItem(null)
+        setNewItemRegion(null);
+        setNewItemUserType(null);
+        setBirthday(null);
         setAddOpen(false);
-        setToDate(null);
-        setFromDate(null);
     };
 
     const handleAddChange = (e) => {
-        e.target.name == 'active'
+        e.target.name == 'is_admin' || e.target.name == 'is_staff'
             ? setNewItem({ ...newItem, [e.target.name]: [e.target.checked] })
             : setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+    }
+
+    const handleUpdateSelectChange = (e) => {
+        const filtered = userTypeOption.filter(item => item.value == e);
+        setNewItemUserType(filtered[0]);
+    }
+
+    const handleRegionSelect = (e) => {
+        const filtered = regionOption.filter(item => item.value == e);
+        setNewItemRegion(filtered[0]);
     }
 
     return (
@@ -241,60 +281,78 @@ function Clients() {
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
-                            Название (рус.):
+                            Имя:
                         </div>
                         <div className='add-column'>
-                            Название (туркм.):
+                            Фамилия:
                         </div>
                         <div className='add-column'>
-                            Навзание (анг.):
+                            Электронная почта:
                         </div>
                         <div className='add-column'>
-                            Старая цена:
+                            Номер телефона:
                         </div>
                         <div className='add-column'>
-                            Процент скидки:
+                            День рождения:
+                        </div>
+                        <div className='add-column'>
+                            Тип клиентов:
+                        </div>
+                        <div className='add-column'>
+                            Регион:
                         </div>
                         {!newItem?.id && <div className='add-column'>
-                            Активная
+                            Staff
                         </div>}
-                        <div className='add-column'>
-                            Описание:
-                        </div>
-                        <div className='add-column'>
-                            От числа:
-                        </div>
-                        <div className='add-column'>
-                            До числв:
-                        </div>
+                        {!newItem?.id && <div className='add-column'>
+                            Admin
+                        </div>}
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
+                            <Input name='name' placeholder='Имя' value={newItem?.name} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
+                            <Input name='surname' placeholder='Фамилия' value={newItem?.surname} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Input name='email' type='email' placeholder='Электронная почта' value={newItem?.email} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='price' type='number' placeholder='Старая цена' value={newItem?.price} onChange={handleAddChange} />
+                            <Input name='phone_number' type='number' placeholder='Номер телефона' value={newItem?.phone_number} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='discount_percent' type='number' placeholder='Процент скидки' value={newItem?.discount_percent} onChange={handleAddChange} />
-                        </div>
-                        {!newItem?.id && <div className='add-column'>
-                            <Checkbox name='active' value={newItem?.active} onChange={handleAddChange} />
-                        </div>}
-                        <div className='add-column'>
-                            <Input name='desc' placeholder='Описание' value={newItem?.desc} onChange={handleAddChange} />
+                            <DatePicker allowClear value={birthday && dayjs(birthday, dateFormat)} onChange={(d) => setBirthday(date.format(new Date(d), 'YYYY-MM-DD'))} />
                         </div>
                         <div className='add-column'>
-                            <DatePicker allowClear value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <Select
+                                showSearch
+                                value={newItemUserType}
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Тип клиентов"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={userTypeOption}
+                            />
                         </div>
                         <div className='add-column'>
-                            <DatePicker allowClear value={toDate && dayjs(toDate, dateFormat)} onChange={(d) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <Select
+                                showSearch
+                                value={newItemRegion}
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Регион"
+                                onChange={(e) => handleRegionSelect(e)}
+                                options={regionOption}
+                            />
+                        </div>
+                        <div className='add-column'>
+                            <Checkbox value={newItem?.is_staff} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Checkbox value={newItem?.is_admin} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>
