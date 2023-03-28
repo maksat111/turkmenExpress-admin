@@ -61,7 +61,8 @@ function Clients() {
             title: 'id',
             dataIndex: 'id',
             key: 'id',
-            display: 'none'
+            display: 'none',
+            width: '65px',
         },
         {
             title: 'Имя',

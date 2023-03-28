@@ -76,6 +76,7 @@ function DiscountList() {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
+            width: '65px',
         },
         {
             title: 'Название (рус.)',

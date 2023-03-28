@@ -64,7 +64,7 @@ function Subcategories() {
             title: 'id',
             dataIndex: 'id',
             key: 'id',
-            width: '50px',
+            width: '65px',
         },
         {
             title: 'Название (рус.)',

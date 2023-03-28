@@ -66,6 +66,7 @@ function CouponType() {
             title: 'Номер',
             dataIndex: 'number',
             key: 'number',
+            width: '65px',
         },
         {
             title: 'Название (рус.)',

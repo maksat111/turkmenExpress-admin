@@ -57,7 +57,7 @@ function ClientType() {
             title: 'id',
             dataIndex: 'id',
             key: 'id',
-            width: '50px',
+            width: '65px',
             style: { alignItems: "center" }
         },
         {

@@ -77,6 +77,7 @@ function SmsTable() {
             title: 'id',
             dataIndex: 'id',
             key: 'id',
+            width: '65px',
         },
         {
             title: 'Код',
