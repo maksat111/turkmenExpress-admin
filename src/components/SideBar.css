@@ -1,6 +1,6 @@
 .sidebar_container {
-    height: calc(100vh - 99px);
-    padding: 0 10px 30px;
+    height: calc(100vh - 69px);
+    padding: 0 10px 0;
     overflow: auto;
     overflow-x: hidden;
     box-shadow: 0 2px 5px -1px rgba(41, 41, 77, 0.02), 0 1px 3px -1px rgba(0, 0, 0, .1);
@@ -11,8 +11,8 @@
     text-align: center;
     transition: 0.4s;
     width: 120px;
-    height: calc(100vh - 99px);
-    padding: 0 5px 30px;
+    height: calc(100vh - 69px);
+    padding: 0 5px 0;
     overflow: auto;
     overflow-x: hidden;
     box-shadow: 0 2px 5px -1px rgba(41, 41, 77, 0.02), 0 1px 3px -1px rgba(0, 0, 0, .1);
@@ -109,7 +109,7 @@
     justify-content: center;
     font-size: 23px;
     color: #4f5868;
-    position: fixed;
+    position: sticky;
     z-index: 10;
     border-radius: 5px;
     bottom: 0;
@@ -117,12 +117,5 @@
     background-color: rgb(205, 205, 236);
     height: 35px;
     transition: 0.4s;
-}
-
-.toggled-sidebar-button {
-    width: 118px;
-}
-
-.sidebar-toggle-button {
-    width: 272px;
+    width: 100%;
 }
