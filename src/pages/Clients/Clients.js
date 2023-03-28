@@ -276,7 +276,7 @@ function Clients() {
                 okText={'Да'}
                 width={'600px'}
                 okType={'primary'}
-                style={{ top: '50px' }}
+                centered
             >
                 <div className='banner-add-container'>
                     <div className='add-left'>
@@ -307,6 +307,12 @@ function Clients() {
                         {!newItem?.id && <div className='add-column'>
                             Admin
                         </div>}
+                        <div className='add-column'>
+                            Новый пароль 1:
+                        </div>
+                        <div className='add-column'>
+                            Новый пароль 2:
+                        </div>
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
@@ -353,6 +359,12 @@ function Clients() {
                         </div>
                         <div className='add-column'>
                             <Checkbox value={newItem?.is_admin} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='new_password1' placeholder='Новый пароль 1' value={newItem?.new_password1} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='new_password1' placeholder='Новый пароль 2' value={newItem?.new_password1} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>
