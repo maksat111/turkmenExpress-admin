@@ -97,7 +97,7 @@ function ClientType() {
         },
     ];
 
-    //---------------------------------------------------ADD MODAL-------------------------------------------//
+    //---------------------------------------------------ADD && UPDATE MODAL-------------------------------------------//
     const showAddModal = (item) => {
         // setSelectedItem(item);
         item.id && setNewItem(item);
@@ -125,8 +125,10 @@ function ClientType() {
                 })
             } else {
                 const res = await axiosInstance.post('users/types/add/', formData);
-                setDataSource([...dataSource, newItem])
+                res.data.key = res.data.id;
+                setDataSource([...dataSource, res.data]);
             }
+            setNewItem(null);
             setConfirmLoading(false);
             message.success('Успешно')
             setAddOpen(false);
@@ -138,6 +140,7 @@ function ClientType() {
     };
 
     const handleAddCancel = () => {
+        setNewItem(null);
         setAddOpen(false);
     };
 
@@ -173,13 +176,13 @@ function ClientType() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>
