@@ -33,7 +33,7 @@ function DiscountList() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`coupon-type/delete/${selectedItem.id}`);
+            await axiosInstance.delete(`discounts/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
             message.success('Успешно удалено');
@@ -53,7 +53,7 @@ function DiscountList() {
     };
 
     useEffect(() => {
-        axiosInstance.get('coupon-type/list').then(res => {
+        axiosInstance.get('discounts/list').then(res => {
             res.data?.forEach(element => {
                 element.key = element.id
             });
@@ -63,9 +63,9 @@ function DiscountList() {
 
     const columns = [
         {
-            title: 'Номер',
-            dataIndex: 'number',
-            key: 'number',
+            title: 'Id',
+            dataIndex: 'id',
+            key: 'id',
         },
         {
             title: 'Название (рус.)',
@@ -73,24 +73,43 @@ function DiscountList() {
             key: 'name_ru',
         },
         {
-            title: 'Название (туркм.)',
-            dataIndex: 'name_tk',
-            key: 'name_tk',
+            title: 'Старая цена',
+            dataIndex: 'price',
+            key: 'price',
         },
         {
-            title: 'Навзание (анг.)',
-            dataIndex: 'name_en',
-            key: 'name_en',
+            title: 'Процент скидки',
+            dataIndex: 'discount_percent',
+            key: 'discount_percent',
+        },
+        {
+            title: 'Описание',
+            dataIndex: 'desc',
+            key: 'desc',
+        },
+        {
+            title: 'Дата создания',
+            dataIndex: 'created_date',
+            key: 'created_date',
+            render: (_, record) => (
+                <p>{date.format(new Date(record.created_date), 'YYYY-MM-DD / HH:MM:SS')}</p>
+            ),
         },
         {
             title: 'От числа',
             dataIndex: 'from_date',
             key: 'from_date',
+            render: (_, record) => (
+                <p>{date.format(new Date(record.from_date), 'YYYY-MM-DD')}</p>
+            ),
         },
         {
             title: 'До числа',
             dataIndex: 'to_date',
             key: 'to_date',
+            render: (_, record) => (
+                <p>{date.format(new Date(record.to_date), 'YYYY-MM-DD')}</p>
+            ),
         },
         {
             title: 'Удалить',
@@ -247,7 +266,7 @@ function DiscountList() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Виды купонов</h2>
+                    <h2>Виды скидок</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
