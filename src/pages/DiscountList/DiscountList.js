@@ -19,11 +19,7 @@ function DiscountList() {
     const [addOpen, setAddOpen] = useState(false);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
+    const [newItem, setNewItem] = useState(null)
 
 
     const showModal = (item, item2) => {
@@ -37,13 +33,23 @@ function DiscountList() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`discounts/delete/${selectedItem.id}`);
-            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-            setDataSource(newDataSource);
-            message.success('Успешно удалено');
-            setSelectedItem(null);
-            setOpen(false);
+            if (newItem) {
+                const res = await axiosInstance.patch(`discounts/update/${newItem.id}/`, { active: !newItem.active });
+                setDataSource(previousState => {
+                    let a = previousState;
+                    const index = a.findIndex(element => element.id === newItem.id);
+                    a[index].active = !a[index].active
+                    return a
+                });
+            } else {
+                await axiosInstance.delete(`discounts/delete/${selectedItem.id}`);
+                const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+                setDataSource(newDataSource);
+            }
+            message.success('Успешно');
+            setNewItem(null);
             setConfirmLoading(false);
+            setOpen(false);
         } catch (err) {
             setConfirmLoading(false)
             message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
@@ -53,7 +59,7 @@ function DiscountList() {
 
     const handleCancel = () => {
         setOpen(false);
-        setSelectedItem(null);
+        setNewItem(null);
     };
 
     useEffect(() => {
@@ -239,9 +245,9 @@ function DiscountList() {
                         <div className='add-column'>
                             Процент скидки:
                         </div>
-                        <div className='add-column'>
+                        {!newItem?.id && <div className='add-column'>
                             Активная
-                        </div>
+                        </div>}
                         <div className='add-column'>
                             Описание:
                         </div>
@@ -268,23 +274,23 @@ function DiscountList() {
                         <div className='add-column'>
                             <Input name='discount_percent' type='number' placeholder='Процент скидки' value={newItem?.discount_percent} onChange={handleAddChange} />
                         </div>
-                        <div className='add-column'>
+                        {!newItem?.id && <div className='add-column'>
                             <Checkbox name='active' value={newItem?.active} onChange={handleAddChange} />
-                        </div>
+                        </div>}
                         <div className='add-column'>
                             <Input name='desc' placeholder='Описание' value={newItem?.desc} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <DatePicker value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <DatePicker allowClear value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
                         </div>
                         <div className='add-column'>
-                            <DatePicker value={toDate && dayjs(toDate, dateFormat)} onChange={(d) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <DatePicker allowClear value={toDate && dayjs(toDate, dateFormat)} onChange={(d) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
                         </div>
                     </div>
                 </div>
             </Modal>
             <Modal
-                title="Вы уверены, что хотите удалить?"
+                title={!newItem ? "Вы уверены, что хотите удалить?" : 'Вы уверены, что хотите изменить активност?'}
                 open={open}
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
@@ -292,7 +298,7 @@ function DiscountList() {
                 cancelText={'Отмена'}
                 okText={'Да'}
                 okType={'primary'}
-                okButtonProps={{ danger: true }}
+                okButtonProps={!newItem && { danger: true }}
                 style={{
                     top: '200px'
                 }}
