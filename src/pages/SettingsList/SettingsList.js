@@ -15,14 +15,16 @@ function SettingsList() {
     const [addOpen, setAddOpen] = useState(false);
     const [selectOptions, setSelectOptions] = useState(null);
     const [selectedGroupOption, setSelectedGroupOption] = useState([])
-    const [newItem, setNewItem] = useState(null)
+    const [newItem, setNewItem] = useState(null);
+    const [pageSize, setPageSize] = useState(null);
 
     useEffect(() => {
         axiosInstance.get('options/list').then(async (res) => {
             let a = [];
             let b = [];
             setTotal(res.data.count);
-            res.data?.forEach(element => {
+            setPageSize(res.data.results.length);
+            res.data?.results.forEach(element => {
                 a.push({
                     id: element.id,
                     key: element.id,
@@ -190,7 +192,7 @@ function SettingsList() {
     //-------------------------------------------------------pagination -----------------------------------------//
     const onPaginationChange = async (page) => {
         let a = [];
-        const res = await axiosInstance.get(`subcategories/list?page=${page}`);
+        const res = await axiosInstance.get(`options/list?page=${page}`);
         res.data.results?.forEach(element => {
             a.push({
                 id: element.id,
@@ -198,8 +200,7 @@ function SettingsList() {
                 name_ru: element.name_ru,
                 name_en: element.name_en,
                 name_tk: element.name_tk,
-                image: element.image,
-                category: element.category.name_ru
+                option_group: element.option_group.name_ru
             })
         });
         setDataSource(a);
@@ -291,8 +292,7 @@ function SettingsList() {
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={false}
-                // pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} 
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: pageSize, showQuickJumper: true }}
                 />
             </div>
         </>

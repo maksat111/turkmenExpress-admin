@@ -84,6 +84,7 @@ function Banners(props) {
             title: 'Delete',
             dataIndex: 'active',
             key: 'active',
+            width: '110px',
             render: (_, record) => (
                 <div className='delete-icon' onClick={() => showModal(record)}>
                     {/* <TiDelete /> */}
@@ -95,6 +96,7 @@ function Banners(props) {
             title: 'Update',
             dataIndex: 'active',
             key: 'active',
+            width: '120px',
             render: (_, record) => (
                 <div className='update-icon' onClick={() => showUpdateModal(record)}>
                     {/* <TiDelete /> */}
