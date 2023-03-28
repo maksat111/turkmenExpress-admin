@@ -201,7 +201,7 @@ function GroupSettings() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Типы покупателей</h2>
+                    <h2>Группа опций</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />

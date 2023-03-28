@@ -377,7 +377,7 @@ function Subcategories() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Категории</h2>
+                    <h2>Подкатегории</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent
