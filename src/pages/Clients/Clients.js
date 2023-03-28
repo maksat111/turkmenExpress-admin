@@ -34,11 +34,6 @@ function Clients() {
 
     const columns = [
         {
-            title: 'Id',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
             title: 'Имя',
             dataIndex: 'name',
             key: 'name',
@@ -57,13 +52,15 @@ function Clients() {
             title: 'Номер телефона',
             dataIndex: 'phone_number',
             key: 'phone_number',
+            width: '100px'
         },
         {
             title: 'День рождения',
             dataIndex: 'birthday',
             key: 'birthday',
+            width: '120px',
             render: (_, record) => (
-                <p>{date.format(new Date(record.birthday), 'YYYY-MM-DD')}</p>
+                <p>{record.birthday ? date.format(new Date(record.birthday), 'YYYY-MM-DD') : 'null'}</p>
             ),
         },
         {
@@ -93,19 +90,12 @@ function Clients() {
             ),
         },
         {
-            title: 'От числа',
-            dataIndex: 'from_date',
-            key: 'from_date',
+            title: 'Дата регистрации',
+            dataIndex: 'registered_date',
+            key: 'registered_date',
+            width: '110px',
             render: (_, record) => (
-                <p>{date.format(new Date(record.from_date), 'YYYY-MM-DD')}</p>
-            ),
-        },
-        {
-            title: 'До числа',
-            dataIndex: 'to_date',
-            key: 'to_date',
-            render: (_, record) => (
-                <p>{date.format(new Date(record.to_date), 'YYYY-MM-DD')}</p>
+                <p>{date.format(new Date(record.registered_date), 'YYYY-MM-DD')}</p>
             ),
         },
         {
@@ -328,7 +318,7 @@ function Clients() {
                     <h2>Клиенты</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>
         </>
     );

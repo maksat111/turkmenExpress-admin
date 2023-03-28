@@ -70,6 +70,7 @@ function Categories() {
             title: 'Удалить',
             dataIndex: 'active',
             key: 'active',
+            width: '110px',
             render: (_, record) => (
                 <div className='delete-icon' onClick={() => showModal(record)}>
                     Удалить
@@ -80,6 +81,7 @@ function Categories() {
             title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
+            width: '120px',
             render: (_, record) => (
                 <div className='update-icon' onClick={() => showAddModal(record)} >
                     Изменить
