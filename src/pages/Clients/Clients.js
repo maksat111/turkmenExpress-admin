@@ -18,7 +18,6 @@ function Clients() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
     const [birthday, setBirthday] = useState(null);
-    const [toDate, setToDate] = useState(null);
     const [newItem, setNewItem] = useState(null);
     const [userTypeOption, setUserTypeOption] = useState(null);
     const [regionOption, setRegionOption] = useState(null);
@@ -58,6 +57,12 @@ function Clients() {
     }, []);
 
     const columns = [
+        {
+            title: 'id',
+            dataIndex: 'id',
+            key: 'id',
+            display: 'none'
+        },
         {
             title: 'Имя',
             dataIndex: 'name',
@@ -167,7 +172,7 @@ function Clients() {
                     return a
                 });
             } else {
-                await axiosInstance.delete(`discounts/delete/${selectedItem.id}`);
+                await axiosInstance.delete(`users/delete/${selectedItem.id}`);
                 const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
                 setDataSource(newDataSource);
             }
@@ -191,8 +196,9 @@ function Clients() {
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
         if (item.id) {
-            setBirthday(date.format(new Date(item.from_date), 'YYYY-MM-DD'))
-            setToDate(date.format(new Date(item.to_date), 'YYYY-MM-DD'))
+            item.birthday && setBirthday(date.format(new Date(item.birthday), 'YYYY-MM-DD'));
+            setNewItemUserType(item.clients_type);
+            setNewItemRegion(item.region);
             setSelectedItem(item);
             setNewItem(item);
         };
@@ -354,12 +360,12 @@ function Clients() {
                                 options={regionOption}
                             />
                         </div>
-                        <div className='add-column'>
+                        {!newItem?.id && <div className='add-column'>
                             <Checkbox value={newItem?.is_staff} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-column'>
+                        </div>}
+                        {!newItem?.id && <div className='add-column'>
                             <Checkbox value={newItem?.is_admin} onChange={handleAddChange} />
-                        </div>
+                        </div>}
                         <div className='add-column'>
                             <Input name='new_password1' placeholder='Новый пароль 1' value={newItem?.new_password1} onChange={handleAddChange} />
                         </div>
