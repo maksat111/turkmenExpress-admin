@@ -21,51 +21,12 @@ function Clients() {
     const [toDate, setToDate] = useState(null);
     const [newItem, setNewItem] = useState(null)
 
-
-    const showModal = (item, item2) => {
-        if (item2) {
-            setNewItem(item2);
-        }
-        setSelectedItem(item);
-        setOpen(true);
-    };
-
-    const handleOk = async () => {
-        try {
-            setConfirmLoading(true);
-            if (newItem) {
-                const res = await axiosInstance.patch(`discounts/update/${newItem.id}/`, { active: !newItem.active });
-                setDataSource(previousState => {
-                    let a = previousState;
-                    const index = a.findIndex(element => element.id === newItem.id);
-                    a[index].active = !a[index].active
-                    return a
-                });
-            } else {
-                await axiosInstance.delete(`discounts/delete/${selectedItem.id}`);
-                const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-                setDataSource(newDataSource);
-            }
-            message.success('Успешно');
-            setNewItem(null);
-            setConfirmLoading(false);
-            setOpen(false);
-        } catch (err) {
-            setConfirmLoading(false)
-            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
-            console.log(err)
-        }
-    };
-
-    const handleCancel = () => {
-        setOpen(false);
-        setNewItem(null);
-    };
-
     useEffect(() => {
-        axiosInstance.get('discounts/list').then(res => {
+        axiosInstance.get('users/list').then(res => {
             res.data?.forEach(element => {
-                element.key = element.id
+                element.key = element.id;
+                element.clients_type = element.clients_type.name_ru;
+                element.region = element.region.name_ru;
             });
             setDataSource(res?.data);
         }).catch(err => console.log(err));
@@ -78,39 +39,57 @@ function Clients() {
             key: 'id',
         },
         {
-            title: 'Название (рус.)',
-            dataIndex: 'name_ru',
-            key: 'name_ru',
+            title: 'Имя',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            title: 'Старая цена',
-            dataIndex: 'price',
-            key: 'price',
+            title: 'Фамилия',
+            dataIndex: 'surname',
+            key: 'surname',
         },
         {
-            title: 'Процент скидки',
-            dataIndex: 'discount_percent',
-            key: 'discount_percent',
+            title: 'Электронная почта',
+            dataIndex: 'email',
+            key: 'email',
         },
         {
-            title: 'Описание',
-            dataIndex: 'desc',
-            key: 'desc',
+            title: 'Номер телефона',
+            dataIndex: 'phone_number',
+            key: 'phone_number',
         },
         {
-            title: 'Активная',
-            dataIndex: 'active',
-            key: 'active',
+            title: 'День рождения',
+            dataIndex: 'birthday',
+            key: 'birthday',
             render: (_, record) => (
-                <Checkbox checked={record.active} onChange={() => showModal(_, record)} />
+                <p>{date.format(new Date(record.birthday), 'YYYY-MM-DD')}</p>
             ),
         },
         {
-            title: 'Дата создания',
-            dataIndex: 'created_date',
-            key: 'created_date',
+            title: 'Тип клиентов',
+            dataIndex: 'clients_type',
+            key: 'clients_type',
+        },
+        {
+            title: 'Регион',
+            dataIndex: 'region',
+            key: 'region',
+        },
+        {
+            title: 'Staff',
+            dataIndex: 'is_staff',
+            key: 'is_staff',
             render: (_, record) => (
-                <p>{date.format(new Date(record.created_date), 'YYYY-MM-DD / HH:MM:SS')}</p>
+                <Checkbox checked={record.is_staff} onChange={() => showModal(_, record)} />
+            ),
+        },
+        {
+            title: 'Admin',
+            dataIndex: 'is_admin',
+            key: 'is_admin',
+            render: (_, record) => (
+                <Checkbox checked={record.is_admin} onChange={() => showModal(_, record)} />
             ),
         },
         {
@@ -152,6 +131,47 @@ function Clients() {
             ),
         },
     ];
+
+    const showModal = (item, item2) => {
+        if (item2) {
+            setNewItem(item2);
+        }
+        setSelectedItem(item);
+        setOpen(true);
+    };
+
+    const handleOk = async () => {
+        try {
+            setConfirmLoading(true);
+            if (newItem) {
+                const res = await axiosInstance.patch(`discounts/update/${newItem.id}/`, { active: !newItem.active });
+                setDataSource(previousState => {
+                    let a = previousState;
+                    const index = a.findIndex(element => element.id === newItem.id);
+                    a[index].active = !a[index].active
+                    return a
+                });
+            } else {
+                await axiosInstance.delete(`discounts/delete/${selectedItem.id}`);
+                const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+                setDataSource(newDataSource);
+            }
+            message.success('Успешно');
+            setNewItem(null);
+            setConfirmLoading(false);
+            setOpen(false);
+        } catch (err) {
+            setConfirmLoading(false)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            console.log(err)
+        }
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+        setNewItem(null);
+    };
+
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
@@ -305,7 +325,7 @@ function Clients() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Виды скидок</h2>
+                    <h2>Клиенты</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
