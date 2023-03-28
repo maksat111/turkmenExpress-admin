@@ -26,7 +26,7 @@ function GroupSettings() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`users/types/delete/${selectedItem.id}/`);
+            await axiosInstance.delete(`options-group/delete/${selectedItem.id}/`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
             message.success('Успешно удалено')
@@ -44,7 +44,7 @@ function GroupSettings() {
     };
 
     useEffect(() => {
-        axiosInstance.get('users/types/list/').then(res => {
+        axiosInstance.get('options-group/list/').then(res => {
             res.data?.forEach(element => {
                 element.key = element.id
             });
@@ -114,7 +114,7 @@ function GroupSettings() {
         })
         try {
             if (newItem.id) {
-                const res = await axiosInstance.put(`users/types/update/${newItem.id}/`, formData);
+                const res = await axiosInstance.put(`options-group/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
@@ -124,7 +124,7 @@ function GroupSettings() {
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('users/types/add/', formData);
+                const res = await axiosInstance.post('options-group/add/', formData);
                 setDataSource([...dataSource, newItem])
             }
             setConfirmLoading(false);
