@@ -6,6 +6,7 @@ import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import Input from 'antd/es/input/Input';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import Checkbox from 'antd/es/checkbox/Checkbox';
 dayjs.extend(customParseFormat);
 
 function DiscountList() {
@@ -25,9 +26,12 @@ function DiscountList() {
     })
 
 
-    const showModal = (item) => {
-        setOpen(true);
+    const showModal = (item, item2) => {
+        if (item2) {
+            setNewItem(item2);
+        }
         setSelectedItem(item);
+        setOpen(true);
     };
 
     const handleOk = async () => {
@@ -88,6 +92,14 @@ function DiscountList() {
             key: 'desc',
         },
         {
+            title: 'Активная',
+            dataIndex: 'active',
+            key: 'active',
+            render: (_, record) => (
+                <Checkbox checked={record.active} onChange={() => showModal(_, record)} />
+            ),
+        },
+        {
             title: 'Дата создания',
             dataIndex: 'created_date',
             key: 'created_date',
@@ -115,6 +127,7 @@ function DiscountList() {
             title: 'Удалить',
             dataIndex: 'active',
             key: 'active',
+            width: '110px',
             render: (_, record) => (
                 <div className='delete-icon' onClick={() => showModal(record)}>
                     Удалить
@@ -125,6 +138,7 @@ function DiscountList() {
             title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
+            width: '120px',
             render: (_, record) => (
                 <div className='update-icon' onClick={() => showAddModal(record)}>
                     Изменить
@@ -156,25 +170,23 @@ function DiscountList() {
         })
         try {
             if (newItem.id) {
-                const res = await axiosInstance.put(`coupon-type/update/${newItem.id}/`, formData);
-                const index = dataSource.findIndex(item => item.id == newItem.id);
+                const res = await axiosInstance.put(`discounts/update/${newItem.id}/`, formData);
+                const foundedIndex = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
-                    a[index].name_ru = newItem.name_ru;
-                    a[index].name_en = newItem.name_en;
-                    a[index].name_tk = newItem.name_tk;
-                    a[index].number = newItem.number;
-                    a[index].from_date = fromDate;
-                    a[index].toDate = toDate;
+                    keys.forEach((key, index) => {
+                        a[foundedIndex][key] = values[index];
+                    });
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('coupon-type/add/', formData);
-                setDataSource([...dataSource, newItem])
+                const res = await axiosInstance.post('discounts/add/', formData);
+                res.data.key = res.data.id;
+                setDataSource([...dataSource, res.data])
             }
-            setConfirmLoading(false);
-            setSelectedItem(null);
+            setNewItem(null);
             message.success('Успешно')
+            setConfirmLoading(false);
             setAddOpen(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -184,13 +196,16 @@ function DiscountList() {
     };
 
     const handleAddCancel = () => {
+        setNewItem(null)
         setAddOpen(false);
         setToDate(null);
         setFromDate(null);
     };
 
     const handleAddChange = (e) => {
-        setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+        e.target.name == 'active'
+            ? setNewItem({ ...newItem, [e.target.name]: [e.target.checked] })
+            : setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
     }
 
     return (
@@ -205,13 +220,10 @@ function DiscountList() {
                 okText={'Да'}
                 width={'600px'}
                 okType={'primary'}
-                style={{ top: '150px' }}
+                style={{ top: '50px' }}
             >
                 <div className='banner-add-container'>
                     <div className='add-left'>
-                        <div className='add-column'>
-                            Номер:
-                        </div>
                         <div className='add-column'>
                             Название (рус.):
                         </div>
@@ -222,6 +234,18 @@ function DiscountList() {
                             Навзание (анг.):
                         </div>
                         <div className='add-column'>
+                            Старая цена:
+                        </div>
+                        <div className='add-column'>
+                            Процент скидки:
+                        </div>
+                        <div className='add-column'>
+                            Активная
+                        </div>
+                        <div className='add-column'>
+                            Описание:
+                        </div>
+                        <div className='add-column'>
                             От числа:
                         </div>
                         <div className='add-column'>
@@ -230,22 +254,31 @@ function DiscountList() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='price' type='number' placeholder='Старая цена' value={newItem?.price} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <DatePicker value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d, datestring) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <Input name='discount_percent' type='number' placeholder='Процент скидки' value={newItem?.discount_percent} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <DatePicker value={toDate && dayjs(toDate, dateFormat)} onChange={(d, datestring) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <Checkbox name='active' value={newItem?.active} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='desc' placeholder='Описание' value={newItem?.desc} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <DatePicker value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                        </div>
+                        <div className='add-column'>
+                            <DatePicker value={toDate && dayjs(toDate, dateFormat)} onChange={(d) => setToDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
                         </div>
                     </div>
                 </div>
