@@ -28,7 +28,7 @@ function Subcategories() {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [newItemCategory, setNewItemCategory] = useState([])
-    const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' })
+    const [newItem, setNewItem] = useState(null)
 
     useEffect(() => {
         axiosInstance.get('subcategories/list').then(async (res) => {
@@ -145,39 +145,59 @@ function Subcategories() {
     const showAddModal = (item) => {
         if (item.id) {
             setSelectedItem(item);
+            const filtered = selectOptions.filter(category => category.label == item.category);
+            setNewItemCategory([{ id: filtered[0]?.id, label: item.category, value: item.category }])
             setNewItem(item);
         }
         setAddOpen(true);
     };
 
     const handleAddOk = async () => {
-        setConfirmLoading(true);
-        const formData = new FormData();
-        formData.append('name_ru', newItem.name_ru);
-        formData.append('name_en', newItem.name_en);
-        formData.append('name_tk', newItem.name_tk);
-        if (fileList.length !== 0) {
-            newItem.image = URL.createObjectURL(fileList[0]?.originFileObj);
-            formData.append("image", fileList[0]?.originFileObj, fileList[0]?.originFileObj.name);
-        }
         try {
             if (newItem.id) {
-                const res = await axiosInstance.patch(`categoris/update/${newItem.id}/`, formData);
+                const formData = new FormData();
+                fileList[0] && formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
+                formData.append("name_ru", newItem.name_ru);
+                formData.append("name_en", newItem.name_en);
+                formData.append("name_tk", newItem.name_tk);
+                formData.append('category', newItemCategory[0].id);
+                const res = await axiosInstance.patch(`subcategoris/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
                     a[index].name_ru = newItem.name_ru;
                     a[index].name_en = newItem.name_en;
                     a[index].name_tk = newItem.name_tk;
-                    a[index].image = newItem.image;
+                    a[index].image = fileList[0] ? URL.createObjectURL(fileList[0].originFileObj) : newItem.image;
+                    a[index].category = newItemCategory[0].value;
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('categories/add/', formData);
-                setDataSource([...dataSource, newItem])
+                let a = [];
+                setConfirmLoading(true);
+                newItemCategory.forEach(async category => {
+                    const formData = new FormData();
+                    formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
+                    formData.append("name_ru", newItem.name_ru);
+                    formData.append("name_en", newItem.name_en);
+                    formData.append("name_tk", newItem.name_tk);
+                    formData.append('category', category.id);
+                    const res = await axiosInstance.post(`subcategories/add/`, formData);
+                    a.push({
+                        key: fileList[0].originFileObj.uid,
+                        id: Math.floor(Math.random() * 1000),
+                        image: URL.createObjectURL(fileList[0].originFileObj),
+                        name_ru: newItem.name_ru,
+                        name_en: newItem.name_en,
+                        name_tk: newItem.name_tk,
+                        category: category.name
+                    })
+                })
+                setDataSource([...dataSource, ...a]);
             }
+            setNewItemCategory([]);
             setNewItem(null);
-            message.success('Успешно!')
+            message.success('Успешно добавлено');
             setAddOpen(false);
             setFileList([]);
             setConfirmLoading(false);
@@ -189,6 +209,7 @@ function Subcategories() {
     };
 
     const handleAddCancel = () => {
+        setNewItemCategory([]);
         setFileList([]);
         setNewItem(null);
         setAddOpen(false);
@@ -326,7 +347,7 @@ function Subcategories() {
                             />
                         </div>
                         <div className='add-picture'>
-                            {newItem?.id && <img className='brand-image' src={newItem?.image} alt={newItem?.name_ru} />}
+                            {newItem?.id && <img className='subcategory-image' src={newItem?.image} alt={newItem?.name_ru} />}
                             <Upload
                                 customRequest={handleAddCustomRequest}
                                 listType="picture-card"
