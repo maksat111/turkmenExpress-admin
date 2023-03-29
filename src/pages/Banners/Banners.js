@@ -236,53 +236,47 @@ function Banners(props) {
         setOpenUpdate(true);
     };
 
-    const handleUpdateOk = () => {
-        setDataSource(previousState => {
-            const a = previousState;
-            const index = a.findIndex(element => element.id === selectedItem.id);
-            a[index].image = URL.createObjectURL(fileList[0].originFileObj);
-            return a;
-        })
-        setFileList([]);
-        message.success('Успешно изменено');
-        setOpenUpdate(false);
+    const handleUpdateOk = async () => {
+        try {
+            await axiosInstance.put(`banners/update/${selectedItem.id}/`)
+            setDataSource(previousState => {
+                const a = previousState;
+                const index = a.findIndex(element => element.id === selectedItem.id);
+                a[index].image = URL.createObjectURL(fileList[0].originFileObj);
+                return a;
+            })
+            setFileList([]);
+            message.success('Успешно изменено');
+            setOpenUpdate(false);
+        } catch (err) {
+            message.error('Успешно изменено');
+            setOpenUpdate(false);
+            console.log(err)
+        }
     }
 
     const handleCustomRequest = async (options) => {
         const { onSuccess, onError, file, onProgress } = options;
-        const fmData = new FormData();
-
         const config = {
-            headers: { "content-type": "multipart/form-data" },
             onUploadProgress: event => {
                 const percent = Math.floor((event.loaded / event.total) * 100);
                 setProgress(percent);
                 if (percent === 100) {
                     setTimeout(() => setProgress(0), 1000);
                 }
-                // onProgress({ percent: (event.loaded / event.total) * 100 });
                 onProgress({ percent: (event.loaded / event.total) * 100 });
             }
         };
-        console.log(file)
-        fmData.append("image", file);
         try {
-            const res = await axiosInstance.patch(
-                `banners/update/${selectedItem.id}/`,
-                fmData,
-                config
-            );
-
             onSuccess("Ok");
-            console.log("server res: ", res);
         } catch (err) {
-            console.log("Eroor: ", err.response.data);
             onError({ err });
         }
     };
 
 
     const handleUpdateCancel = () => {
+        setFileList([])
         setOpenUpdate(false);
     };
 
