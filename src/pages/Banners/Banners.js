@@ -174,7 +174,6 @@ function Banners(props) {
             formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
             formData.append("active", newItemActive);
             const res = await axiosInstance.post(`banners/add/`, formData);
-
             let a = {
                 key: fileList[0].originFileObj.uid,
                 id: 0,
@@ -183,7 +182,7 @@ function Banners(props) {
             }
             setDataSource([...dataSource, a]);
             message.success('Успешно добавлено');
-            setOpen(false);
+            setAddOpen(false);
             setFileList([]);
             setNewItemActive(true);
             setConfirmLoading(false);
@@ -201,29 +200,17 @@ function Banners(props) {
 
     const handleAddCustomRequest = async (options) => {
         const { onSuccess, onError, file, onProgress } = options;
-        const fmData = new FormData();
-
         const config = {
-            headers: { "content-type": "multipart/form-data" },
             onUploadProgress: event => {
                 const percent = Math.floor((event.loaded / event.total) * 100);
                 setProgress(percent);
                 if (percent === 100) {
                     setTimeout(() => setProgress(0), 1000);
                 }
-                // onProgress({ percent: (event.loaded / event.total) * 100 });
                 onProgress({ percent: (event.loaded / event.total) * 100 });
             }
         };
-        console.log(file)
-        fmData.append("image", file);
         try {
-            // const res = await axiosInstance.patch(
-            //     `banners/update/${selectedItem.id}/`,
-            //     fmData,
-            //     config
-            // );
-
             onSuccess("Ok");
         } catch (err) {
             onError('Upload error');
@@ -246,10 +233,10 @@ function Banners(props) {
                 return a;
             })
             setFileList([]);
-            message.success('Успешно изменено');
+            message.success('Успешно изменено!');
             setOpenUpdate(false);
         } catch (err) {
-            message.error('Успешно изменено');
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!');
             setOpenUpdate(false);
             console.log(err)
         }
