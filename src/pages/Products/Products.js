@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal, message, Upload, Checkbox, Select } from 'antd'
+import { Modal, message, Upload, Checkbox, Select, Input } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
-import './Categories.css';
-import Input from 'antd/es/input/Input';
+import './Products.css';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -25,14 +24,19 @@ function Products() {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' })
+    const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' });
+    const [total, setTotal] = useState(null);
+
 
     useEffect(() => {
-        axiosInstance.get('categories/list').then(async (res) => {
-            res.data?.forEach(element => {
-                element.key = element.id
+        axiosInstance.get('products/list').then(async (res) => {
+            setTotal(res.data.count)
+            res.data?.results.forEach(element => {
+                element.key = element.id;
+                element.category = element.subcategory.category.name_ru;
+                element.subcategory = element.subcategory.name_ru;
             });
-            setDataSource(res?.data);
+            setDataSource(res?.data.results);
         }).catch(err => console.log(err))
     }, [])
 
@@ -49,21 +53,21 @@ function Products() {
             key: 'name_ru',
         },
         {
-            title: 'Название (туркм.)',
-            dataIndex: 'name_tk',
-            key: 'name_tk',
+            title: 'Категория',
+            dataIndex: 'category',
+            key: 'category',
         },
         {
-            title: 'Навзание (анг.)',
-            dataIndex: 'name_en',
-            key: 'name_en',
+            title: 'Подкатегория',
+            dataIndex: 'subcategory',
+            key: 'subcategory',
         },
         {
-            title: 'Logo',
-            dataIndex: 'image',
-            key: 'image',
+            title: 'Главная картинка',
+            dataIndex: 'main_image',
+            key: 'main_image',
             render: (_, record) => (
-                <img className='brand-image' src={record.image} alt={record.name_ru} />
+                <img className='brand-image' src={record.main_image} alt={record.name_ru} />
             ),
         },
         {
@@ -218,6 +222,16 @@ function Products() {
         setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
     }
 
+    const onPaginationChange = async (page) => {
+        const res = await axiosInstance.get(`products/list?page=${page}`);
+        res.data.results?.forEach(element => {
+            element.key = element.id;
+            element.category = element.subcategory.category.name_ru;
+            element.subcategory = element.subcategory.name_ru;
+        });
+        setDataSource(res.data.results);
+    }
+
     return (
         <>
             <Modal
@@ -288,10 +302,15 @@ function Products() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Категории</h2>
+                    <h2>Товары</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent active={selectedItem?.id} columns={columns} dataSource={dataSource} pagination={false} />
+                <TableComponent
+                    active={selectedItem?.id}
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                />
             </div>
         </>
     );
