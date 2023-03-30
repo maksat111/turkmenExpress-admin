@@ -272,7 +272,7 @@ function Products() {
                             <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-picture'>
-                            {newItem?.id && <img className='brand-image' src={newItem?.image} alt={newItem?.name_ru} />}
+                            {newItem?.id && <img className='brand-image' src={newItem?.main_image} alt={newItem?.name_ru} />}
                             <Upload
                                 customRequest={handleAddCustomRequest}
                                 listType="picture-card"
