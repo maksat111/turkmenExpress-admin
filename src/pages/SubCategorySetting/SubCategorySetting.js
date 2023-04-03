@@ -1,9 +1,7 @@
 import { React, useEffect, useState } from 'react';
-import { Modal } from 'antd';
-import { Checkbox, message } from 'antd';
+import { Modal, message, Select } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
-import Input from 'antd/es/input/Input';
 
 function SubCategorySetting() {
     const [dataSource, setDataSource] = useState([]);
@@ -11,11 +9,11 @@ function SubCategorySetting() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
+    const [total, setTotal] = useState(null);
+    const [newItemSubCategory, setNewItemSubCategory] = useState(null);
+    const [newItemOption, setNewItemOption] = useState(null);
+    const [subcategoryOptions, setSubcategoryOptions] = useState(null);
+    const [optionOptions, setOptionOptions] = useState(null);
 
 
     const showModal = (item) => {
@@ -44,11 +42,19 @@ function SubCategorySetting() {
     };
 
     useEffect(() => {
+        const a = [];
         axiosInstance.get('subcategory-options-group/list').then(res => {
-            res.data?.forEach(element => {
-                element.key = element.id
+            setTotal(res.data.count)
+            res.data?.results.forEach(element => {
+                a.push({
+                    key: element.id,
+                    id: element.id,
+                    category: element.subcategory.category.name_ru,
+                    subcategory: element.subcategory.name_ru,
+                    option: element.option.name_ru
+                })
             });
-            setDataSource(res?.data);
+            setDataSource(a);
         }).catch(err => console.log(err));
     }, []);
 
@@ -71,9 +77,9 @@ function SubCategorySetting() {
             key: 'subcategory',
         },
         {
-            title: 'Навзание (анг.)',
-            dataIndex: 'name_en',
-            key: 'name_en',
+            title: 'Опция',
+            dataIndex: 'option',
+            key: 'option',
         },
         {
             title: 'Удалить',
@@ -102,33 +108,14 @@ function SubCategorySetting() {
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
         // setSelectedItem(item);
-        item.id && setNewItem(item);
         setAddOpen(true);
     };
 
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
-        const keys = Object.keys(newItem);
-        const values = Object.values(newItem);
-        keys.forEach((key, index) => {
-            formData.append(key, values[index]);
-        })
         try {
-            if (newItem.id) {
-                const res = await axiosInstance.put(`regions/update/${newItem.id}/`, formData);
-                const index = dataSource.findIndex(item => item.id == newItem.id);
-                setDataSource(previousState => {
-                    const a = previousState;
-                    a[index].name_ru = newItem.name_ru;
-                    a[index].name_en = newItem.name_en;
-                    a[index].name_tk = newItem.name_tk;
-                    return a;
-                })
-            } else {
-                const res = await axiosInstance.post('regions/add/', formData);
-                setDataSource([...dataSource, newItem])
-            }
+
             setConfirmLoading(false);
             message.success('Успешно')
             setAddOpen(false);
@@ -143,8 +130,19 @@ function SubCategorySetting() {
         setAddOpen(false);
     };
 
-    const handleAddChange = (e) => {
-        setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+    const onPaginationChange = async (page) => {
+        const a = [];
+        const res = await axiosInstance.get(`subcategory-options-group/list?page=${page}`);
+        res.data.results?.forEach(element => {
+            a.push({
+                key: element.id,
+                id: element.id,
+                category: element.subcategory.category.name_ru,
+                subcategory: element.subcategory.name_ru,
+                option: element.option.name_ru
+            });
+        });
+        setDataSource(a);
     }
 
     return (
@@ -164,24 +162,38 @@ function SubCategorySetting() {
                 <div className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
-                            Название (рус.):
+                            Подкатегория:
                         </div>
                         <div className='add-column'>
-                            Название (туркм.):
-                        </div>
-                        <div className='add-column'>
-                            Навзание (анг.):
+                            Опция:
                         </div>
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Select
+                                value={newItemSubCategory}
+                                mode="multiple"
+                                allowClear
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Выберите подкатегорию"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={subcategoryOptions}
+                            />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
-                        </div>
-                        <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Select
+                                value={newItemOption}
+                                mode="multiple"
+                                allowClear
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Выберите опцию"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={optionOptions}
+                            />
                         </div>
                     </div>
                 </div>
@@ -202,10 +214,15 @@ function SubCategorySetting() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Регионы</h2>
+                    <h2>Группа опций в подактегориях</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent
+                    dataSource={dataSource}
+                    columns={columns}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    active={selectedItem?.id}
+                />
             </div>
         </>
     );
