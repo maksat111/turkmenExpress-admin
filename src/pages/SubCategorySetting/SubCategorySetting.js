@@ -43,6 +43,8 @@ function SubCategorySetting() {
 
     useEffect(() => {
         const a = [];
+        const b = [];
+        const c = [];
         axiosInstance.get('subcategory-options-group/list').then(res => {
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
@@ -55,6 +57,7 @@ function SubCategorySetting() {
                 })
             });
             setDataSource(a);
+            // const subcategories = await axiosInstance.get('')
         }).catch(err => console.log(err));
     }, []);
 
@@ -145,6 +148,14 @@ function SubCategorySetting() {
         setDataSource(a);
     }
 
+    const handleSubcategorySelectChange = (e) => {
+        console.log(e);
+        // let a = [];
+        // optionOptions.forEach(item => {
+        //     e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
+        // });
+    }
+
     return (
         <>
             <Modal
@@ -178,7 +189,7 @@ function SubCategorySetting() {
                                     width: '100%',
                                 }}
                                 placeholder="Выберите подкатегорию"
-                                onChange={(e) => handleUpdateSelectChange(e)}
+                                onChange={(e) => handleSubcategorySelectChange(e)}
                                 options={subcategoryOptions}
                             />
                         </div>
@@ -191,7 +202,7 @@ function SubCategorySetting() {
                                     width: '100%',
                                 }}
                                 placeholder="Выберите опцию"
-                                onChange={(e) => handleUpdateSelectChange(e)}
+                                onChange={(e) => handleSubcategorySelectChange(e)}
                                 options={optionOptions}
                             />
                         </div>
