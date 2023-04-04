@@ -14,8 +14,9 @@ function SubCategorySetting() {
     const [total, setTotal] = useState(null);
     const [newItemSubCategory, setNewItemSubCategory] = useState([]);
     const [newItemOption, setNewItemOption] = useState([]);
-    const [subcategoryOptions, setSubcategoryOptions] = useState(null);
-    const [optionOptions, setOptionOptions] = useState(null);
+    const [subcategoryOptions, setSubcategoryOptions] = useState([]);
+    const [optionOptions, setOptionOptions] = useState([]);
+    const [loading, setLoading] = useState(false);
 
 
     const showModal = (item) => {
@@ -47,18 +48,17 @@ function SubCategorySetting() {
         const a = [];
         const b = [];
         const c = [];
+        setLoading(true);
         axiosInstance.get('subcategory-options-group/list').then(async res => {
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
                 a.push({
                     key: element.id,
                     id: element.id,
-                    category: element.subcategory.category.name_ru,
                     subcategory: `${element.subcategory.category.name_ru} | ${element.subcategory.name_ru}`,
                     option: element.option.name_ru
                 })
             });
-            setDataSource(a);
             //----------------------------getting subcategory options---------------------------------------------//
             const subcategories = await axios.get('https://turkmenexpress.com.tm/api/library/subcategories/list/');
             subcategories.data.forEach(item => {
@@ -68,7 +68,6 @@ function SubCategorySetting() {
                     id: item.id
                 });
             });
-            setSubcategoryOptions(b);
             //---------------------------------------getting Options----------------------------------------------//
             const options = await axiosInstance.get('options-group/list/');
             options.data.forEach(item => {
@@ -78,7 +77,10 @@ function SubCategorySetting() {
                     id: item.id
                 })
             });
+            setSubcategoryOptions(b);
             setOptionOptions(c);
+            setDataSource(a);
+            setLoading(false);
         }).catch(err => console.log(err));
     }, []);
 
@@ -126,7 +128,12 @@ function SubCategorySetting() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
+        if (item.id) {
+            console.log(item)
+            setSelectedItem(item);
+            setNewItemSubCategory(subcategoryOptions?.filter(subcategoryOption => subcategoryOption.value == item.subcategory));
+            console.log(optionOptions?.filter(optionOption => optionOption.value == item.option));
+        }
         setAddOpen(true);
     };
 
@@ -277,6 +284,7 @@ function SubCategorySetting() {
                     columns={columns}
                     pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
                     active={selectedItem?.id}
+                    loading={loading}
                 />
             </div>
         </>

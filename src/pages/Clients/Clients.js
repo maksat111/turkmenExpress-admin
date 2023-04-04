@@ -32,7 +32,7 @@ function Clients() {
                 element.key = index;
                 element.id = index;
                 element.clients_type = element.clients_type.name_ru;
-                element.region = element.region.name_ru;
+                element.region = element.region ? element.region.name_ru : 'null';
             });
             const userType = await axiosInstance.get('users/types/list/');
             userType.data.forEach(element => {
