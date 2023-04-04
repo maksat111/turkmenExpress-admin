@@ -160,14 +160,14 @@ function SubCategorySetting() {
                 setDataSource([...dataSource, ...a]);
             } else {
                 const formData = new FormData();
-                formData.append('subcategory', newItemSubCategory.id);
-                formData.append('option', newItemOption.id);
-                const updated = await axiosInstance.patch(`subcategry-options-group/update/${selectedItem.id}/`);
+                formData.append('subcategory', newItemSubCategory[0].id);
+                formData.append('option', newItemOption[0].id);
+                const updated = await axiosInstance.patch(`subcategory-options-group/update/${selectedItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == selectedItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
-                    a[index].subcategory = newItemSubCategory.value;
-                    a[index].option = newItemOption.value;
+                    a[index].subcategory = newItemSubCategory[0].value;
+                    a[index].option = newItemOption[0].value;
                     return a;
                 })
             }
