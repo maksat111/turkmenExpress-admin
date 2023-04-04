@@ -2,6 +2,8 @@ import { React, useEffect, useState } from 'react';
 import { Modal, message, Select } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
+import axios from 'axios';
+import './SubCategorySetting.css';
 
 function SubCategorySetting() {
     const [dataSource, setDataSource] = useState([]);
@@ -10,8 +12,8 @@ function SubCategorySetting() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
     const [total, setTotal] = useState(null);
-    const [newItemSubCategory, setNewItemSubCategory] = useState(null);
-    const [newItemOption, setNewItemOption] = useState(null);
+    const [newItemSubCategory, setNewItemSubCategory] = useState([]);
+    const [newItemOption, setNewItemOption] = useState([]);
     const [subcategoryOptions, setSubcategoryOptions] = useState(null);
     const [optionOptions, setOptionOptions] = useState(null);
 
@@ -45,7 +47,7 @@ function SubCategorySetting() {
         const a = [];
         const b = [];
         const c = [];
-        axiosInstance.get('subcategory-options-group/list').then(res => {
+        axiosInstance.get('subcategory-options-group/list').then(async res => {
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
                 a.push({
@@ -57,7 +59,26 @@ function SubCategorySetting() {
                 })
             });
             setDataSource(a);
-            // const subcategories = await axiosInstance.get('')
+            //----------------------------getting subcategory options---------------------------------------------//
+            const subcategories = await axios.get('https://turkmenexpress.com.tm/api/library/subcategories/list/');
+            subcategories.data.forEach(item => {
+                b.push({
+                    label: `${item.category.name_ru} | ${item.name_ru}`,
+                    value: `${item.category.name_ru} | ${item.name_ru}`,
+                    id: item.id
+                });
+            });
+            setSubcategoryOptions(b);
+            //---------------------------------------getting Options----------------------------------------------//
+            const options = await axiosInstance.get('options-group/list/');
+            options.data.forEach(item => {
+                c.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                })
+            });
+            setOptionOptions(c);
         }).catch(err => console.log(err));
     }, []);
 
@@ -166,7 +187,7 @@ function SubCategorySetting() {
                 onCancel={handleAddCancel}
                 cancelText={'Отмена'}
                 okText={'Да'}
-                width={'600px'}
+                width={'700px'}
                 okType={'primary'}
                 style={{ top: '150px' }}
             >
@@ -180,7 +201,7 @@ function SubCategorySetting() {
                         </div>
                     </div>
                     <div className='add-right'>
-                        <div className='add-column'>
+                        <div className='subcategory-settings-add-column add-column'>
                             <Select
                                 value={newItemSubCategory}
                                 mode="multiple"
@@ -193,7 +214,7 @@ function SubCategorySetting() {
                                 options={subcategoryOptions}
                             />
                         </div>
-                        <div className='add-column'>
+                        <div className='subcategory-settings-add-column add-column'>
                             <Select
                                 value={newItemOption}
                                 mode="multiple"
