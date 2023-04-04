@@ -171,10 +171,20 @@ function SubCategorySetting() {
 
     const handleSubcategorySelectChange = (e) => {
         console.log(e);
-        // let a = [];
-        // optionOptions.forEach(item => {
-        //     e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
-        // });
+        let a = [];
+        subcategoryOptions?.forEach(item => {
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
+        });
+        setNewItemSubCategory(a);
+    }
+
+    const handleOptionSelectChange = (e) => {
+        console.log(e);
+        let a = [];
+        optionOptions?.forEach(item => {
+            e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
+        });
+        setNewItemOption(a);
     }
 
     return (
@@ -223,7 +233,7 @@ function SubCategorySetting() {
                                     width: '100%',
                                 }}
                                 placeholder="Выберите опцию"
-                                onChange={(e) => handleSubcategorySelectChange(e)}
+                                onChange={(e) => handleOptionSelectChange(e)}
                                 options={optionOptions}
                             />
                         </div>
