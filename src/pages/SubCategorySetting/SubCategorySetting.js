@@ -129,10 +129,11 @@ function SubCategorySetting() {
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
         if (item.id) {
-            console.log(item)
             setSelectedItem(item);
             setNewItemSubCategory(subcategoryOptions?.filter(subcategoryOption => subcategoryOption.value == item.subcategory));
-            console.log(optionOptions?.filter(optionOption => optionOption.value == item.option));
+            setNewItemOption(optionOptions?.filter(optionOption => optionOption.value == item.option));
+        } else {
+            setSelectedItem(null);
         }
         setAddOpen(true);
     };
@@ -140,26 +141,40 @@ function SubCategorySetting() {
     const handleAddOk = async () => {
         setConfirmLoading(true);
         try {
-            const a = [];
-            newItemSubCategory.forEach(subcategory => {
-                newItemOption.forEach(async option => {
-                    const formData = new FormData();
-                    formData.append('subcategory', subcategory.id);
-                    formData.append('option', option.id);
-                    const newAdded = await axiosInstance.post('subcategory-options-group/add/', formData);
-                    a.push({
-                        key: newAdded.data.id,
-                        id: newAdded.data.id,
-                        subcategory: subcategory.label,
-                        option: option.label
-                    });
+            if (!selectedItem?.id) {
+                const a = [];
+                newItemSubCategory.forEach(subcategory => {
+                    newItemOption.forEach(async option => {
+                        const formData = new FormData();
+                        formData.append('subcategory', subcategory.id);
+                        formData.append('option', option.id);
+                        const newAdded = await axiosInstance.post('subcategory-options-group/add/', formData);
+                        a.push({
+                            key: newAdded.data.id,
+                            id: newAdded.data.id,
+                            subcategory: subcategory.label,
+                            option: option.label
+                        });
+                    })
+                });
+                setDataSource([...dataSource, ...a]);
+            } else {
+                const formData = new FormData();
+                formData.append('subcategory', newItemSubCategory.id);
+                formData.append('option', newItemOption.id);
+                const updated = await axiosInstance.patch(`subcategry-options-group/update/${selectedItem.id}/`);
+                const index = dataSource.findIndex(item => item.id == selectedItem.id);
+                setDataSource(previousState => {
+                    const a = previousState;
+                    a[index].subcategory = newItemSubCategory.value;
+                    a[index].option = newItemOption.value;
+                    return a;
                 })
-            });
-            setDataSource([...dataSource, ...a]);
+            }
             setNewItemOption([]);
             setNewItemSubCategory([]);
             setConfirmLoading(false);
-            message.success('Успешно');
+            message.success('Успешно!');
             setAddOpen(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -181,8 +196,7 @@ function SubCategorySetting() {
             a.push({
                 key: element.id,
                 id: element.id,
-                category: element.subcategory.category.name_ru,
-                subcategory: element.subcategory.name_ru,
+                subcategory: `${element.subcategory.category.name_ru} | ${element.subcategory.name_ru}`,
                 option: element.option.name_ru
             });
         });
@@ -190,7 +204,6 @@ function SubCategorySetting() {
     }
 
     const handleSubcategorySelectChange = (e) => {
-        console.log(e);
         let a = [];
         subcategoryOptions?.forEach(item => {
             e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
@@ -199,7 +212,6 @@ function SubCategorySetting() {
     }
 
     const handleOptionSelectChange = (e) => {
-        console.log(e);
         let a = [];
         optionOptions?.forEach(item => {
             e.forEach(selected => item.value == selected && a.push({ id: item.id, label: selected, value: selected }));
