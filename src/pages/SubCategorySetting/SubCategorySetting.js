@@ -54,7 +54,7 @@ function SubCategorySetting() {
                     key: element.id,
                     id: element.id,
                     category: element.subcategory.category.name_ru,
-                    subcategory: element.subcategory.name_ru,
+                    subcategory: `${element.subcategory.category.name_ru} | ${element.subcategory.name_ru}`,
                     option: element.option.name_ru
                 })
             });
@@ -89,11 +89,6 @@ function SubCategorySetting() {
             key: 'id',
             width: '65px',
             style: { alignItems: "center" }
-        },
-        {
-            title: 'Категория',
-            dataIndex: 'category',
-            key: 'category',
         },
         {
             title: 'Подкатегория',
@@ -137,16 +132,32 @@ function SubCategorySetting() {
 
     const handleAddOk = async () => {
         setConfirmLoading(true);
-        const formData = new FormData();
         try {
-
+            const a = [];
+            newItemSubCategory.forEach(subcategory => {
+                newItemOption.forEach(async option => {
+                    const formData = new FormData();
+                    formData.append('subcategory', subcategory.id);
+                    formData.append('option', option.id);
+                    const newAdded = await axiosInstance.post('subcategory-options-group/add/', formData);
+                    a.push({
+                        key: newAdded.data.id,
+                        id: newAdded.data.id,
+                        subcategory: subcategory.label,
+                        option: option.label
+                    });
+                })
+            });
+            setDataSource([...dataSource, ...a]);
+            setNewItemOption([]);
+            setNewItemSubCategory([]);
             setConfirmLoading(false);
-            message.success('Успешно')
+            message.success('Успешно');
             setAddOpen(false);
         } catch (err) {
             setConfirmLoading(false)
-            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
-            console.log(err)
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!');
+            console.log(err);
         }
     };
 
