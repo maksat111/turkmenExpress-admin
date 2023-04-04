@@ -26,10 +26,10 @@ function SubCategorySetting() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`regions/delete/${selectedItem.id}`);
+            await axiosInstance.delete(`subcategory-options-group/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
-            message.success('Успешно удалено')
+            message.success('Успешно удалено!')
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
@@ -162,6 +162,8 @@ function SubCategorySetting() {
     };
 
     const handleAddCancel = () => {
+        setNewItemOption([]);
+        setNewItemSubCategory([]);
         setAddOpen(false);
     };
 
