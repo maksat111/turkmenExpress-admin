@@ -11,14 +11,7 @@ function DeliveryType() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-        delivery_days: '',
-        delivery_amount: null,
-        active: true
-    })
+    const [newItem, setNewItem] = useState(null);
 
 
     const showModal = (item) => {
@@ -112,8 +105,10 @@ function DeliveryType() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
-        item.id && setNewItem(item);
+        if (item.id) {
+            setNewItem(item);
+            setSelectedItem(item);
+        }
         setAddOpen(true);
     };
 
@@ -142,6 +137,7 @@ function DeliveryType() {
                 setDataSource([...dataSource, newItem])
             }
             setConfirmLoading(false);
+            setNewItem(null);
             message.success('Успешно')
             setAddOpen(false);
         } catch (err) {
@@ -152,11 +148,11 @@ function DeliveryType() {
     };
 
     const handleAddCancel = () => {
+        setNewItem(null);
         setAddOpen(false);
     };
 
     const handleAddChange = (e) => {
-        console.log(e.target);
         e.target.name === 'active'
             ? setNewItem({ ...newItem, [e.target.name]: [e.target.checked] })
             : setNewItem({ ...newItem, [e.target.name]: [e.target.value] })
@@ -199,22 +195,22 @@ function DeliveryType() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='delivery_days' placeholder='Срок доставки' value={newItem.delivery_days} onChange={handleAddChange} />
+                            <Input name='delivery_days' placeholder='Срок доставки' value={newItem?.delivery_days} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input type='number' name='delivery_amount' placeholder='Стоимость доставки' value={newItem.delivery_amount} onChange={handleAddChange} />
+                            <Input type='number' name='delivery_amount' placeholder='Стоимость доставки' value={newItem?.delivery_amount} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Checkbox name='active' placeholder='Активный' checked={newItem.active} onChange={(e) => setNewItem({ ...newItem, active: e.target.checked })} />
+                            <Checkbox name='active' placeholder='Активный' checked={newItem?.active} onChange={(e) => setNewItem({ ...newItem, active: e.target.checked })} />
                         </div>
                     </div>
                 </div>
@@ -238,7 +234,7 @@ function DeliveryType() {
                     <h2>Виды доставок</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>
         </>
     );
