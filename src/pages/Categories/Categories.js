@@ -25,7 +25,7 @@ function Categories() {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' })
+    const [newItem, setNewItem] = useState(null);
 
     useEffect(() => {
         axiosInstance.get('categories/list').then(async (res) => {
