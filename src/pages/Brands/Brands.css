@@ -26,3 +26,8 @@
 .add-right {
     min-width: 370px;
 }
+
+.add-picture {
+    display: flex;
+    gap: 25px
+}

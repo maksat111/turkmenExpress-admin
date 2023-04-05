@@ -19,7 +19,6 @@ function Brands() {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    // const [currentPage, setCurrentPage] = useState(2);
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
@@ -197,19 +196,12 @@ function Brands() {
                 if (percent === 100) {
                     setTimeout(() => setProgress(0), 1000);
                 }
-                // onProgress({ percent: (event.loaded / event.total) * 100 });
                 onProgress({ percent: (event.loaded / event.total) * 100 });
             }
         };
         console.log(file)
         fmData.append("image", file);
         try {
-            // const res = await axiosInstance.patch(
-            //     `banners/update/${selectedItem.id}/`,
-            //     fmData,
-            //     config
-            // );
-
             onSuccess("Ok");
         } catch (err) {
             onError('Upload error');
@@ -256,6 +248,8 @@ function Brands() {
     }
 
     const handleUpdateCancel = () => {
+        setNewItemCategory([]);
+        setNewItemName('');
         setUpdateOpen(false);
     };
 
