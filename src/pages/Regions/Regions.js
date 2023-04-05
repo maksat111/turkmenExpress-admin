@@ -124,6 +124,7 @@ function Regions() {
                 })
             } else {
                 const res = await axiosInstance.post('regions/add/', formData);
+                newItem.id = res.data?.id;
                 setDataSource([...dataSource, newItem])
             }
             setNewItem(null);
