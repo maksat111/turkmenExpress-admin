@@ -137,7 +137,6 @@ function Brands() {
 
     //-----------------------------------------Add Modal-------------------------------------------------//
     const showAddModal = (item) => {
-        setSelectedItem(item);
         setAddOpen(true);
     };
 

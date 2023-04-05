@@ -163,7 +163,6 @@ function Banners(props) {
 
     //-----------------------------------------Add Modal-------------------------------------------------//
     const showAddModal = (item) => {
-        setSelectedItem(item);
         setAddOpen(true);
     };
 
@@ -176,7 +175,7 @@ function Banners(props) {
             const res = await axiosInstance.post(`banners/add/`, formData);
             let a = {
                 key: fileList[0].originFileObj.uid,
-                id: 0,
+                id: res.data.id,
                 image: URL.createObjectURL(fileList[0].originFileObj),
                 active: newItemActive
             }

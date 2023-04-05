@@ -28,9 +28,9 @@ function Clients() {
         axiosInstance.get('users/list').then(async res => {
             let a = [];
             let b = [];
-            res.data?.forEach((element, index) => {
-                element.key = index;
-                element.id = index;
+            res.data?.forEach((element) => {
+                element.key = element.id;
+                element.id = element.id;
                 element.clients_type = element.clients_type.name_ru;
                 element.region = element.region ? element.region.name_ru : 'null';
             });
@@ -371,7 +371,7 @@ function Clients() {
                             <Input name='new_password1' placeholder='Новый пароль 1' value={newItem?.new_password1} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='new_password1' placeholder='Новый пароль 2' value={newItem?.new_password1} onChange={handleAddChange} />
+                            <Input name='new_password2' placeholder='Новый пароль 2' value={newItem?.new_password2} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>

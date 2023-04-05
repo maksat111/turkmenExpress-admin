@@ -137,11 +137,12 @@ function SmsTable() {
         },
     ];
 
-    //---------------------------------------------------ADD MODAL-------------------------------------------//
+    //---------------------------------------------------ADD and ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
         if (item.type !== 'click') {
             setToDate(date.format(new Date(item.expire_time), 'YYYY-MM-DD HH:mm:ss'))
             setNewItem(item);
+            setSelectedItem(item);
         };
         setAddOpen(true);
     };
@@ -173,6 +174,7 @@ function SmsTable() {
                 setDataSource([...dataSource, res.data])
             }
             setNewItem(null);
+            setToDate(null);
             message.success('Успешно')
             setAddOpen(false);
             setConfirmLoading(false);
@@ -260,7 +262,7 @@ function SmsTable() {
                     <h2>СМС таблица</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>
         </>
     );
