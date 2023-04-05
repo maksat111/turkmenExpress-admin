@@ -18,11 +18,7 @@ function CouponType() {
     const [addOpen, setAddOpen] = useState(false);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
+    const [newItem, setNewItem] = useState(null);
 
 
     const showModal = (item) => {
@@ -36,7 +32,7 @@ function CouponType() {
             await axiosInstance.delete(`coupon-type/delete/${selectedItem.id}`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
-            message.success('Успешно удалено');
+            message.success('Успешно удалено!');
             setSelectedItem(null);
             setOpen(false);
             setConfirmLoading(false);
@@ -119,11 +115,11 @@ function CouponType() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
         if (item.id) {
-            setFromDate(date.format(new Date(item.from_date), 'YYYY-MM-DD'))
-            setToDate(date.format(new Date(item.to_date), 'YYYY-MM-DD'))
+            setFromDate(date.format(new Date(item.from_date), 'YYYY-MM-DD'));
+            setToDate(date.format(new Date(item.to_date), 'YYYY-MM-DD'));
             setNewItem(item);
+            setSelectedItem(item);
         };
         setAddOpen(true);
     };
@@ -154,11 +150,14 @@ function CouponType() {
                 })
             } else {
                 const res = await axiosInstance.post('coupon-type/add/', formData);
+                newItem.id = res.data?.id;
                 setDataSource([...dataSource, newItem])
             }
             setConfirmLoading(false);
-            setSelectedItem(null);
-            message.success('Успешно')
+            setNewItem(null);
+            setFromDate(null);
+            setToDate(null);
+            message.success('Успешно!');
             setAddOpen(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -171,6 +170,7 @@ function CouponType() {
         setAddOpen(false);
         setToDate(null);
         setFromDate(null);
+        setNewItem(null);
     };
 
     const handleAddChange = (e) => {
@@ -214,16 +214,16 @@ function CouponType() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='number' type='number' placeholder='Номер' value={newItem.number} onChange={handleAddChange} />
+                            <Input name='number' type='number' placeholder='Номер' value={newItem?.number} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <DatePicker value={fromDate && dayjs(fromDate, dateFormat)} onChange={(d, datestring) => setFromDate(date.format(new Date(d), 'YYYY-MM-DD'))} />
@@ -253,7 +253,7 @@ function CouponType() {
                     <h2>Виды купонов</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>
         </>
     );
