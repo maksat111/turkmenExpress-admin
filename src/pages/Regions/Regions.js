@@ -11,12 +11,7 @@ function Regions() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
-
+    const [newItem, setNewItem] = useState(null);
 
     const showModal = (item) => {
         setOpen(true);
@@ -101,8 +96,10 @@ function Regions() {
 
     //---------------------------------------------------ADD MODAL-------------------------------------------//
     const showAddModal = (item) => {
-        // setSelectedItem(item);
-        item.id && setNewItem(item);
+        if (item.id) {
+            setNewItem(item);
+            setSelectedItem(item);
+        }
         setAddOpen(true);
     };
 
@@ -129,6 +126,7 @@ function Regions() {
                 const res = await axiosInstance.post('regions/add/', formData);
                 setDataSource([...dataSource, newItem])
             }
+            setNewItem(null);
             setConfirmLoading(false);
             message.success('Успешно')
             setAddOpen(false);
@@ -140,6 +138,7 @@ function Regions() {
     };
 
     const handleAddCancel = () => {
+        setNewItem(null);
         setAddOpen(false);
     };
 
@@ -175,13 +174,13 @@ function Regions() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Название (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>
@@ -205,7 +204,7 @@ function Regions() {
                     <h2>Регионы</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>
         </>
     );
