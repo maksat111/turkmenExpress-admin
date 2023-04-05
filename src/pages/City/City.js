@@ -10,16 +10,10 @@ function City() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [fromDate, setFromDate] = useState(null);
-    const [toDate, setToDate] = useState(null);
     const [total, setTotal] = useState(null);
     const [selectOptions, setSelectOptions] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
-    const [newItem, setNewItem] = useState({
-        name_ru: '',
-        name_en: '',
-        name_tk: '',
-    })
+    const [newItem, setNewItem] = useState(null);
 
 
     const showModal = (item) => {
@@ -30,13 +24,13 @@ function City() {
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`coupon-type/delete/${selectedItem.id}`);
+            await axiosInstance.delete(`cities/delete/${selectedItem.id}/`);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
             setDataSource(newDataSource);
-            message.success('Успешно удалено');
             setSelectedItem(null);
             setOpen(false);
             setConfirmLoading(false);
+            message.success('Успешно удалено!');
         } catch (err) {
             setConfirmLoading(false)
             message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
@@ -133,7 +127,12 @@ function City() {
         // setSelectedItem(item);
         if (item.id) {
             setNewItem(item);
-        };
+            const filtered = selectOptions.filter(option => option.value == item.region);
+            setSelectedRegion(filtered[0]);
+            setSelectedItem(item);
+        } else {
+            setSelectedItem(null);
+        }
         setAddOpen(true);
     };
 
@@ -160,11 +159,13 @@ function City() {
                 })
             } else {
                 const res = await axiosInstance.post('cities/add/', formData);
+                newItem.region = selectedRegion.value;
+                newItem.id = res.data?.id;
                 setDataSource([...dataSource, newItem])
             }
             setConfirmLoading(false);
-            setSelectedItem(null);
             setSelectedRegion(null);
+            setNewItem(null);
             message.success('Успешно')
             setAddOpen(false);
         } catch (err) {
@@ -176,6 +177,7 @@ function City() {
 
     const handleAddCancel = () => {
         setAddOpen(false);
+        setNewItem(null);
         setSelectedRegion(null);
     };
 
@@ -236,13 +238,13 @@ function City() {
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem.name_ru} onChange={handleAddChange} />
+                            <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem.name_tk} onChange={handleAddChange} />
+                            <Input name='name_tk' placeholder='Название (туркм.)' value={newItem?.name_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='name_en' placeholder='Навзание (анг.)' value={newItem.name_en} onChange={handleAddChange} />
+                            <Input name='name_en' placeholder='Навзание (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Select
@@ -277,7 +279,12 @@ function City() {
                     <h2>Города и этрапы</h2>
                     <div className='add-button' onClick={showAddModal}>Добавлять</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} />
+                <TableComponent
+                    dataSource={dataSource}
+                    columns={columns}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    active={selectedItem?.id}
+                />
             </div>
         </>
     );
