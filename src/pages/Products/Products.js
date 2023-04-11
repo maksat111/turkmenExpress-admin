@@ -21,6 +21,7 @@ function Products() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
+    const [videoList, setVideoList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
     const [newItemSubcategory, setNewItemSubcategory] = useState(null);
     const [subcategoryOptions, setSubcategoryOptions] = useState(null);
@@ -35,14 +36,17 @@ function Products() {
     const [userTypeOptions, setUserTypeOptions] = useState(null);
     const [newItemRegion, setNewItemRegion] = useState(null);
     const [regionOptions, setRegionOptions] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [video, setVideo] = useState(null);
 
 
     useEffect(() => {
+        setLoading(true);
+        const a = [];
+        const b = [];
+        const c = [];
+        const d = [];
         axiosInstance.get('products/list').then(async (res) => {
-            const a = [];
-            const b = [];
-            const c = [];
-            const d = [];
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
                 element.key = element.id;
@@ -62,11 +66,11 @@ function Products() {
             });
 
             //----------------------------getting userType options---------------------------------------------//
-            const regions = await axiosInstance.get('users/types/list/');
+            const regions = await axiosInstance.get('users/list/');
             regions.data.forEach(item => {
                 d.push({
-                    label: item.name_ru,
-                    value: item.name_ru,
+                    label: `${item.surname} ${item.name}`,
+                    value: `${item.surname} ${item.name}`,
                     id: item.id
                 });
             });
@@ -81,9 +85,9 @@ function Products() {
                 });
             });
 
-            //----------------------------getting subcategory options---------------------------------------------//
+            //----------------------------getting brands options---------------------------------------------//
             const brands = await axios.get('https://turkmenexpress.com.tm/api/library/brands/list/');
-            brands.data.results?.forEach(item => {
+            brands.data.results.forEach(item => {
                 c.push({
                     label: item.name,
                     value: item.name,
@@ -95,6 +99,7 @@ function Products() {
             setUserTypeOptions(d);
             setBrandOptions(c);
             setDataSource(res?.data.results);
+            setLoading(false);
         }).catch(err => console.log(err))
     }, [])
 
@@ -194,13 +199,26 @@ function Products() {
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
-        formData.append('name_ru', newItem.name_ru);
-        formData.append('name_en', newItem.name_en);
-        formData.append('name_tk', newItem.name_tk);
+        const keys = Object.keys(newItem);
+        const values = Object.values(newItem);
+        newItem.region = newItemRegion.id;
+        newItem.brand = newItemBrand.id;
+        // newItem.user = newItemBrand.id;
+        newItem.profider = newItemUserType.id;
+        keys.forEach((key, index) => {
+            formData.append(key, values[index]);
+        });
+
         if (fileList.length !== 0) {
-            newItem.image = URL.createObjectURL(fileList[0]?.originFileObj);
-            formData.append("image", fileList[0]?.originFileObj, fileList[0]?.originFileObj.name);
+            newItem.main_image = URL.createObjectURL(fileList[0]?.originFileObj);
+            formData.append("main_image", fileList[0]?.originFileObj, fileList[0]?.originFileObj.name);
         }
+
+        if (videoList.length !== 0) {
+            newItem.main_video = URL.createObjectURL(videoList[0]?.originFileObj);
+            formData.append("main_video", videoList[0]?.originFileObj, videoList[0]?.originFileObj.name);
+        }
+
         try {
             if (newItem.id) {
                 const res = await axiosInstance.patch(`categoris/update/${newItem.id}/`, formData);
@@ -267,6 +285,8 @@ function Products() {
         setPreviewOpen(true);
         setPreviewTitle(file.name);
     };
+    //-----------------------------------------video upload--------------------------------------------//
+    const handleVideoChange = ({ fileList: newFileList }) => setVideoList(newFileList);
 
     const uploadButton = (
         <div>
@@ -282,7 +302,9 @@ function Products() {
     );
 
     const handleAddChange = (e) => {
-        setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
+        e.target.name == 'isset' || e.target.name == 'approved'
+            ? setNewItem({ ...newItem, [e.target.name]: [e.target.checked] })
+            : setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
     }
 
     const onPaginationChange = async (page) => {
@@ -295,11 +317,26 @@ function Products() {
         setDataSource(res.data.results);
     }
 
-    const handleUpdateSelectChange = (e, a) => {
+    const handleUserTypeSelect = (e) => {
+        const filtered = userTypeOptions.filter(item => item.value == e);
+        setNewItemUserType(filtered[0]);
+    }
+
+    const handleBrandSelect = (e) => {
+        const filtered = brandOptions.filter(item => item.value == e);
+        setNewItemBrand(filtered[0]);
+    }
+
+    const handleRegionSelect = (e) => {
+        const filtered = regionOptions.filter(item => item.value == e);
+        setNewItemRegion(filtered[0]);
+    }
+
+    const handleSubcategorySelect = (e) => {
         const filtered = subcategoryOptions.filter(item => item.value == e);
         setNewItemSubcategory(filtered[0]);
-        console.log(a)
     }
+
     return (
         <>
             <Modal
@@ -394,19 +431,19 @@ function Products() {
                             <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='price_china' placeholder='Цена в Китае:' value={newItem?.price_china} onChange={handleAddChange} />
+                            <Input name='price_china' placeholder='Цена в Китае' value={newItem?.price_china} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Input name='price' placeholder='Продажная цена' value={newItem?.price} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='weight' placeholder='Вес:' value={newItem?.weight} onChange={handleAddChange} />
+                            <Input name='weight' placeholder='Вес' value={newItem?.weight} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='count' placeholder='Количество:' value={newItem?.count} onChange={handleAddChange} />
+                            <Input name='count' placeholder='Количество' value={newItem?.count} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Checkbox />
+                            <Checkbox name='isset' value={newItem?.isset} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Select
@@ -416,8 +453,8 @@ function Products() {
                                 style={{
                                     width: '100%',
                                 }}
-                                placeholder="Тип клиентов"
-                                onChange={(e) => handleUpdateSelectChange(e)}
+                                placeholder="Подкатегория"
+                                onChange={(e) => handleSubcategorySelect(e)}
                                 options={subcategoryOptions}
                             />
                         </div>
@@ -438,11 +475,11 @@ function Products() {
                             <Upload
                                 customRequest={handleAddCustomRequest}
                                 listType="picture-card"
-                                fileList={fileList}
+                                fileList={videoList}
                                 onPreview={handlePreview}
-                                onChange={handleChange}
+                                onChange={handleVideoChange}
                             >
-                                {fileList.length == 0 && uploadButton}
+                                {videoList.length == 0 && uploadButton}
                             </Upload>
                         </div>
                         <div className='add-textarea'>
@@ -464,10 +501,10 @@ function Products() {
                             <Input.TextArea name='long_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='count' placeholder='Количество:' value={newItem?.count} onChange={handleAddChange} />
+                            <Input name='link' placeholder='Url адрес' value={newItem?.link} onChange={handleAddChange} />
                         </div>
-                        <div className='add-textarea'>
-                            <Checkbox />
+                        <div className='add-column'>
+                            <Checkbox name='approved' value={newItem?.approved} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Select
@@ -478,7 +515,7 @@ function Products() {
                                     width: '100%',
                                 }}
                                 placeholder="Бренд"
-                                onChange={(e, a) => handleUpdateSelectChange(e, a)}
+                                onChange={(e, a) => handleBrandSelect(e)}
                                 options={brandOptions}
                             />
                         </div>
@@ -491,7 +528,7 @@ function Products() {
                                     width: '100%',
                                 }}
                                 placeholder="Поставщик"
-                                onChange={(e) => handleUpdateSelectChange(e)}
+                                onChange={(e) => handleUserTypeSelect(e)}
                                 options={userTypeOptions}
                             />
                         </div>
@@ -504,7 +541,7 @@ function Products() {
                                     width: '100%',
                                 }}
                                 placeholder="Регион"
-                                onChange={(e) => handleUpdateSelectChange(e)}
+                                onChange={(e) => handleRegionSelect(e)}
                                 options={regionOptions}
                             />
                         </div>
@@ -535,6 +572,7 @@ function Products() {
                     columns={columns}
                     dataSource={dataSource}
                     pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    loading={loading}
                 />
             </div>
         </>
