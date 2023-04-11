@@ -2,3 +2,17 @@
     height: 120px;
     width: 200px;
 }
+
+.add-picture {
+    display: flex;
+    align-items: center;
+    height: 110px;
+}
+
+.add-textarea {
+    height: 70px;
+}
+
+.product-add-right {
+    min-width: 500px;
+}

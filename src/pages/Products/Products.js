@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { Modal, message, Upload, Checkbox, Select, Input } from 'antd'
@@ -26,12 +27,22 @@ function Products() {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const [newItem, setNewItem] = useState({ name_ru: '', name_en: '', name_tk: '' });
+    const [newItem, setNewItem] = useState(null);
     const [total, setTotal] = useState(null);
+    const [newItemBrand, setNewItemBrand] = useState(null);
+    const [brandOptions, setBrandOptions] = useState(null);
+    const [newItemUserType, setNewItemUserType] = useState(null);
+    const [userTypeOptions, setUserTypeOptions] = useState(null);
+    const [newItemRegion, setNewItemRegion] = useState(null);
+    const [regionOptions, setRegionOptions] = useState(null);
 
 
     useEffect(() => {
         axiosInstance.get('products/list').then(async (res) => {
+            const a = [];
+            const b = [];
+            const c = [];
+            const d = [];
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
                 element.key = element.id;
@@ -39,6 +50,50 @@ function Products() {
                 element.subcategory = element.subcategory.name_ru;
                 element.brand = element.brand.name;
             });
+
+            //----------------------------getting subcategory options---------------------------------------------//
+            const subcategories = await axios.get('https://turkmenexpress.com.tm/api/library/subcategories/list/');
+            subcategories.data.forEach(item => {
+                b.push({
+                    label: `${item.category.name_ru} | ${item.name_ru}`,
+                    value: `${item.category.name_ru} | ${item.name_ru}`,
+                    id: item.id
+                });
+            });
+
+            //----------------------------getting userType options---------------------------------------------//
+            const regions = await axiosInstance.get('users/types/list/');
+            regions.data.forEach(item => {
+                d.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                });
+            });
+
+            //----------------------------getting Regions options---------------------------------------------//
+            const userType = await axiosInstance.get('regions/list/');
+            userType.data.forEach(item => {
+                a.push({
+                    label: item.name_ru,
+                    value: item.name_ru,
+                    id: item.id
+                });
+            });
+
+            //----------------------------getting subcategory options---------------------------------------------//
+            const brands = await axios.get('https://turkmenexpress.com.tm/api/library/brands/list/');
+            brands.data.results?.forEach(item => {
+                c.push({
+                    label: item.name,
+                    value: item.name,
+                    id: item.id
+                });
+            });
+            setRegionOptions(a);
+            setSubcategoryOptions(b);
+            setUserTypeOptions(d);
+            setBrandOptions(c);
             setDataSource(res?.data.results);
         }).catch(err => console.log(err))
     }, [])
@@ -240,9 +295,10 @@ function Products() {
         setDataSource(res.data.results);
     }
 
-    const handleUpdateSelectChange = (e) => {
+    const handleUpdateSelectChange = (e, a) => {
         const filtered = subcategoryOptions.filter(item => item.value == e);
         setNewItemSubcategory(filtered[0]);
+        console.log(a)
     }
     return (
         <>
@@ -254,7 +310,7 @@ function Products() {
                 onCancel={handleAddCancel}
                 cancelText={'Отмена'}
                 okText={'Да'}
-                width={'750px'}
+                width={'850px'}
                 okType={'primary'}
                 style={{ top: '0px' }}
             >
@@ -293,22 +349,22 @@ function Products() {
                         <div className='add-picture'>
                             Видео:
                         </div>
-                        <div className='add-column'>
+                        <div className='add-textarea'>
                             Короткое описание (рус.):
                         </div>
-                        <div className='add-column'>
+                        <div className='add-textarea'>
                             Короткое описание (анг.):
                         </div>
-                        <div className='add-column'>
+                        <div className='add-textarea'>
                             Короткое описание (туркм.):
                         </div>
-                        <div className='add-column'>
+                        <div className='add-textarea'>
                             Полное описание (рус.):
                         </div>
-                        <div className='add-column'>
+                        <div className='add-textarea'>
                             Полное описание (анг.):
                         </div>
-                        <div className='add-column'>
+                        <div className='add-textarea'>
                             Полное описание (туркм.):
                         </div>
                         <div className='add-column'>
@@ -327,7 +383,7 @@ function Products() {
                             Регион:
                         </div>
                     </div>
-                    <div className='add-right'>
+                    <div className='product-add-right'>
                         <div className='add-column'>
                             <Input name='name_ru' placeholder='Название (рус.)' value={newItem?.name_ru} onChange={handleAddChange} />
                         </div>
@@ -338,16 +394,16 @@ function Products() {
                             <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='price_china' placeholder='Цена в Китае:' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Input name='price_china' placeholder='Цена в Китае:' value={newItem?.price_china} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='price' placeholder='Продажная цена' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Input name='price' placeholder='Продажная цена' value={newItem?.price} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='weight' placeholder='Вес:' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Input name='weight' placeholder='Вес:' value={newItem?.weight} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='count' placeholder='Количество:' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Input name='count' placeholder='Количество:' value={newItem?.count} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Checkbox />
@@ -377,14 +433,80 @@ function Products() {
                                 {fileList.length == 0 && uploadButton}
                             </Upload>
                         </div>
-                        <div className='add-column'>
-                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.name_en} onChange={handleAddChange} />
+                        <div className='add-picture'>
+                            {newItem?.id && <img className='product-image' src={newItem?.main_image} alt={newItem?.name_ru} />}
+                            <Upload
+                                customRequest={handleAddCustomRequest}
+                                listType="picture-card"
+                                fileList={fileList}
+                                onPreview={handlePreview}
+                                onChange={handleChange}
+                            >
+                                {fileList.length == 0 && uploadButton}
+                            </Upload>
+                        </div>
+                        <div className='add-textarea'>
+                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.short_desc_ru} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-textarea'>
+                            <Input.TextArea name='short_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.short_desc_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-textarea'>
+                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.short_desc_ru} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-textarea'>
+                            <Input.TextArea name='long_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-textarea'>
+                            <Input.TextArea name='long_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.long_desc_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-textarea'>
+                            <Input.TextArea name='long_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input.TextArea name='short_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Input name='count' placeholder='Количество:' value={newItem?.count} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-textarea'>
+                            <Checkbox />
                         </div>
                         <div className='add-column'>
-                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.name_en} onChange={handleAddChange} />
+                            <Select
+                                showSearch
+                                aria-required={true}
+                                value={newItemBrand}
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Бренд"
+                                onChange={(e, a) => handleUpdateSelectChange(e, a)}
+                                options={brandOptions}
+                            />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                showSearch
+                                aria-required={true}
+                                value={newItemUserType}
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Поставщик"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={userTypeOptions}
+                            />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                showSearch
+                                aria-required={true}
+                                value={newItemRegion}
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Регион"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={regionOptions}
+                            />
                         </div>
                     </div>
                 </div>
