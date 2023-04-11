@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { getDecodedToken } from '../../utils/getDecodedToken';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { Modal, message, Upload, Checkbox, Select, Input } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
 import './Products.css';
+import { NoStyleItemContext } from 'antd/es/form/context';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -38,7 +40,7 @@ function Products() {
     const [regionOptions, setRegionOptions] = useState(null);
     const [loading, setLoading] = useState(false);
     const [video, setVideo] = useState(null);
-
+    const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
         setLoading(true);
@@ -46,13 +48,14 @@ function Products() {
         const b = [];
         const c = [];
         const d = [];
+        setCurrentUser(getDecodedToken());
         axiosInstance.get('products/list').then(async (res) => {
             setTotal(res.data.count)
             res.data?.results.forEach(element => {
                 element.key = element.id;
                 element.category = element.subcategory.category.name_ru;
                 element.subcategory = element.subcategory.name_ru;
-                element.brand = element.brand.name;
+                element.brand = element.brand ? element.brand.name : 'null';
             });
 
             //----------------------------getting subcategory options---------------------------------------------//
@@ -171,9 +174,9 @@ function Products() {
         try {
             setConfirmLoading(true);
             const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-            await axiosInstance.delete(`categoris/delete/${selectedItem.id}/`);
+            await axiosInstance.delete(`products/delete/${selectedItem.id}/`);
             setDataSource(newDataSource);
-            message.success('Успешно удалено')
+            message.success('Успешно удалено!')
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
@@ -192,6 +195,17 @@ function Products() {
         if (item.id) {
             setSelectedItem(item);
             setNewItem(item);
+            const provider = userTypeOptions.filter(i => i.id == item.provider);
+            setNewItemUserType(provider[0]);
+
+            const brand = brandOptions.filter(i => i.value == item.brand);
+            setNewItemBrand(brand[0]);
+
+            const region = regionOptions.filter(i => i.id == item.region);
+            setNewItemRegion(region[0]);
+
+            const subcategory = subcategoryOptions.filter(i => i.value == item.subcategory);
+            setNewItemSubcategory(subcategory[0]);
         }
         setAddOpen(true);
     };
@@ -203,8 +217,9 @@ function Products() {
         const values = Object.values(newItem);
         newItem.region = newItemRegion.id;
         newItem.brand = newItemBrand.id;
-        // newItem.user = newItemBrand.id;
-        newItem.profider = newItemUserType.id;
+        newItem.user = currentUser?.user_id;
+        newItem.provider = newItemUserType.id;
+        newItem.subcategory = newItemSubcategory.id;
         keys.forEach((key, index) => {
             formData.append(key, values[index]);
         });
@@ -218,27 +233,32 @@ function Products() {
             newItem.main_video = URL.createObjectURL(videoList[0]?.originFileObj);
             formData.append("main_video", videoList[0]?.originFileObj, videoList[0]?.originFileObj.name);
         }
-
+        console.log(formData)
         try {
             if (newItem.id) {
-                const res = await axiosInstance.patch(`categoris/update/${newItem.id}/`, formData);
+                const res = await axiosInstance.patch(`products/update/${newItem.id}/`, formData);
                 const index = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
-                    a[index].name_ru = newItem.name_ru;
-                    a[index].name_en = newItem.name_en;
-                    a[index].name_tk = newItem.name_tk;
-                    a[index].image = newItem.image;
+                    keys.forEach((key, i) => {
+                        a[index][key] = values[i];
+                    })
                     return a;
                 })
             } else {
-                const res = await axiosInstance.post('categories/add/', formData);
+                const res = await axiosInstance.post('products/add/', formData);
+                console.log(res.data)
                 setDataSource([...dataSource, newItem])
             }
             setNewItem(null);
-            message.success('Успешно!')
-            setAddOpen(false);
+            setNewItemBrand(null);
+            setNewItemSubcategory(null);
+            setNewItemUserType(null);
+            setNewItemRegion(null);
+            // setAddOpen(false);
             setFileList([]);
+            setVideoList([]);
+            message.success('Успешно!');
             setConfirmLoading(false);
         } catch (err) {
             setConfirmLoading(false)
@@ -248,9 +268,14 @@ function Products() {
     };
 
     const handleAddCancel = () => {
-        setFileList([]);
         setNewItem(null);
+        setNewItemBrand(null);
+        setNewItemSubcategory(null);
+        setNewItemUserType(null);
+        setNewItemRegion(null);
         setAddOpen(false);
+        setFileList([]);
+        setVideoList([]);
     };
 
     const handleAddCustomRequest = async (options) => {
@@ -313,6 +338,7 @@ function Products() {
             element.key = element.id;
             element.category = element.subcategory.category.name_ru;
             element.subcategory = element.subcategory.name_ru;
+            element.brand = element.brand ? element.brand.name : 'null';
         });
         setDataSource(res.data.results);
     }
@@ -489,7 +515,7 @@ function Products() {
                             <Input.TextArea name='short_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.short_desc_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.short_desc_ru} onChange={handleAddChange} />
+                            <Input.TextArea name='short_desc_tk' placeholder='Короткое описание (туркм.):' value={newItem?.short_desc_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
                             <Input.TextArea name='long_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
@@ -498,7 +524,7 @@ function Products() {
                             <Input.TextArea name='long_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.long_desc_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='long_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
+                            <Input.TextArea name='long_desc_tk' placeholder='Короткое описание (туркм.):' value={newItem?.long_desc_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Input name='link' placeholder='Url адрес' value={newItem?.link} onChange={handleAddChange} />
