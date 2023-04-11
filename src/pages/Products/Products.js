@@ -193,12 +193,10 @@ function Products() {
     //-----------------------------------------Add Modal-------------------------------------------------//
     const showAddModal = (item) => {
         if (item.id) {
-            setSelectedItem(item);
-            setNewItem(item);
             const provider = userTypeOptions.filter(i => i.id == item.provider);
             setNewItemUserType(provider[0]);
 
-            const brand = brandOptions.filter(i => i.value == item.brand);
+            const brand = brandOptions.filter(i => i.label == item.brand);
             setNewItemBrand(brand[0]);
 
             const region = regionOptions.filter(i => i.id == item.region);
@@ -206,6 +204,9 @@ function Products() {
 
             const subcategory = subcategoryOptions.filter(i => i.value == item.subcategory);
             setNewItemSubcategory(subcategory[0]);
+            setNewItem(item);
+            console.log(item)
+            setSelectedItem(item);
         }
         setAddOpen(true);
     };
