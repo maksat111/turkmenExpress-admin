@@ -191,9 +191,9 @@ function Products() {
     };
 
     //-----------------------------------------Add Modal-------------------------------------------------//
-    const showAddModal = (item) => {
+    const showAddModal = async (item) => {
         if (item.id) {
-            const provider = userTypeOptions.filter(i => i.id == item.provider);
+            const provider = await userTypeOptions.filter(i => i.id == item.provider);
             setNewItemUserType(provider[0]);
 
             const brand = brandOptions.filter(i => i.label == item.brand);
