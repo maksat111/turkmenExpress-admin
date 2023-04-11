@@ -223,21 +223,39 @@ function Clients() {
                 const foundedIndex = dataSource.findIndex(item => item.id == newItem.id);
                 setDataSource(previousState => {
                     const a = previousState;
-                    keys.forEach((key, index) => {
-                        a[foundedIndex][key] = values[index];
-                    });
+                    a[foundedIndex].name = newItem.name;
+                    a[foundedIndex].surname = newItem.surname;
+                    a[foundedIndex].email = newItem.email;
+                    a[foundedIndex].phone_number = newItem.phone_number;
+                    a[foundedIndex].birthday = newItem.birthday;
+                    a[foundedIndex].clients_type = newItemUserType.value;
+                    a[foundedIndex].region = newItemRegion.value;
+                    a[foundedIndex].is_staff = newItem.is_staff;
+                    a[foundedIndex].is_admin = newItem.is_admin;
+                    a[foundedIndex].registered_date = newItem.registered_date;
                     return a;
                 })
             } else {
                 const res = await axiosInstance.post('users/add/', formData);
-                res.data.key = res.data.id;
-                setDataSource([...dataSource, res.data])
+                const added = {
+                    name: newItem.name,
+                    surname: newItem.surname,
+                    email: newItem.email,
+                    phone_number: newItem.phone_number,
+                    birthday: newItem.birthday,
+                    clients_type: newItemUserType.value,
+                    region: newItemRegion.value,
+                    is_staff: newItem.is_staff,
+                    is_admin: newItem.is_admin,
+                    registered_date: today,
+                }
+                setDataSource([...dataSource, added]);
             }
             setNewItem(null);
             setNewItemRegion(null);
             setNewItemUserType(null);
             setBirthday(null);
-            message.success('Успешно')
+            message.success('Успешно!')
             setConfirmLoading(false);
             setAddOpen(false);
         } catch (err) {
@@ -285,7 +303,7 @@ function Clients() {
                 okType={'primary'}
                 centered
             >
-                <div className='banner-add-container'>
+                <form className='banner-add-container'>
                     <div className='add-left'>
                         <div className='add-column'>
                             Имя:
@@ -315,31 +333,32 @@ function Clients() {
                             Admin
                         </div>}
                         <div className='add-column'>
-                            Новый пароль 1:
+                            Пароль:
                         </div>
                         <div className='add-column'>
-                            Новый пароль 2:
+                            Пароль 2:
                         </div>
                     </div>
                     <div className='add-right'>
                         <div className='add-column'>
-                            <Input name='name' placeholder='Имя' value={newItem?.name} onChange={handleAddChange} />
+                            <Input name='name' placeholder='Имя' required value={newItem?.name} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='surname' placeholder='Фамилия' value={newItem?.surname} onChange={handleAddChange} />
+                            <Input name='surname' placeholder='Фамилия' required value={newItem?.surname} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='email' type='email' placeholder='Электронная почта' value={newItem?.email} onChange={handleAddChange} />
+                            <Input name='email' type='email' required placeholder='Электронная почта' value={newItem?.email} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='phone_number' type='number' placeholder='Номер телефона' value={newItem?.phone_number} onChange={handleAddChange} />
+                            <Input name='phone_number' type='number' required placeholder='Номер телефона' value={newItem?.phone_number} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <DatePicker allowClear value={birthday && dayjs(birthday, dateFormat)} onChange={(d) => setBirthday(date.format(new Date(d), 'YYYY-MM-DD'))} />
+                            <DatePicker allowClear required value={birthday && dayjs(birthday, dateFormat)} onChange={(d) => setBirthday(date.format(new Date(d), 'YYYY-MM-DD'))} />
                         </div>
                         <div className='add-column'>
                             <Select
                                 showSearch
+                                aria-required={true}
                                 value={newItemUserType}
                                 style={{
                                     width: '100%',
@@ -351,6 +370,7 @@ function Clients() {
                         </div>
                         <div className='add-column'>
                             <Select
+                                aria-required={true}
                                 showSearch
                                 value={newItemRegion}
                                 style={{
@@ -362,19 +382,19 @@ function Clients() {
                             />
                         </div>
                         {!newItem?.id && <div className='add-column'>
-                            <Checkbox value={newItem?.is_staff} onChange={handleAddChange} />
+                            <Checkbox name='is_staff' value={newItem?.is_staff} onChange={handleAddChange} />
                         </div>}
                         {!newItem?.id && <div className='add-column'>
-                            <Checkbox value={newItem?.is_admin} onChange={handleAddChange} />
+                            <Checkbox name='is_admin' value={newItem?.is_admin} onChange={handleAddChange} />
                         </div>}
                         <div className='add-column'>
-                            <Input name='new_password1' placeholder='Новый пароль 1' value={newItem?.new_password1} onChange={handleAddChange} />
+                            <Input name='password' placeholder='Новый пароль' value={newItem?.password} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
-                            <Input name='new_password2' placeholder='Новый пароль 2' value={newItem?.new_password2} onChange={handleAddChange} />
+                            <Input name='password2' placeholder='Новый пароль 2' value={newItem?.password2} onChange={handleAddChange} />
                         </div>
                     </div>
-                </div>
+                </form>
             </Modal>
             <Modal
                 title={!newItem ? "Вы уверены, что хотите удалить?" : 'Вы уверены, что хотите изменить активност?'}

@@ -21,6 +21,8 @@ function Products() {
     const [progress, setProgress] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
+    const [newItemSubcategory, setNewItemSubcategory] = useState(null);
+    const [subcategoryOptions, setSubcategoryOptions] = useState(null);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -35,6 +37,7 @@ function Products() {
                 element.key = element.id;
                 element.category = element.subcategory.category.name_ru;
                 element.subcategory = element.subcategory.name_ru;
+                element.brand = element.brand.name;
             });
             setDataSource(res?.data.results);
         }).catch(err => console.log(err))
@@ -63,11 +66,16 @@ function Products() {
             key: 'subcategory',
         },
         {
+            title: 'Бренд',
+            dataIndex: 'brand',
+            key: 'brand',
+        },
+        {
             title: 'Главная картинка',
             dataIndex: 'main_image',
             key: 'main_image',
             render: (_, record) => (
-                <img className='brand-image' src={record.main_image} alt={record.name_ru} />
+                <img className='product-image' src={record.main_image} alt={record.name_ru} />
             ),
         },
         {
@@ -232,6 +240,10 @@ function Products() {
         setDataSource(res.data.results);
     }
 
+    const handleUpdateSelectChange = (e) => {
+        const filtered = subcategoryOptions.filter(item => item.value == e);
+        setNewItemSubcategory(filtered[0]);
+    }
     return (
         <>
             <Modal
@@ -242,9 +254,9 @@ function Products() {
                 onCancel={handleAddCancel}
                 cancelText={'Отмена'}
                 okText={'Да'}
-                width={'600px'}
+                width={'750px'}
                 okType={'primary'}
-                style={{ top: '100px' }}
+                style={{ top: '0px' }}
             >
                 <div className='banner-add-container'>
                     <div className='add-left'>
@@ -257,8 +269,62 @@ function Products() {
                         <div className='add-column'>
                             Навзание (анг.):
                         </div>
+                        <div className='add-column'>
+                            Цена в Китае:
+                        </div>
+                        <div className='add-column'>
+                            Продажная цена:
+                        </div>
+                        <div className='add-column'>
+                            Вес:
+                        </div>
+                        <div className='add-column'>
+                            Количество:
+                        </div>
+                        <div className='add-column'>
+                            В наличии:
+                        </div>
+                        <div className='add-column'>
+                            Подкатегория:
+                        </div>
                         <div className='add-picture'>
-                            Logo
+                            Главная картинка:
+                        </div>
+                        <div className='add-picture'>
+                            Видео:
+                        </div>
+                        <div className='add-column'>
+                            Короткое описание (рус.):
+                        </div>
+                        <div className='add-column'>
+                            Короткое описание (анг.):
+                        </div>
+                        <div className='add-column'>
+                            Короткое описание (туркм.):
+                        </div>
+                        <div className='add-column'>
+                            Полное описание (рус.):
+                        </div>
+                        <div className='add-column'>
+                            Полное описание (анг.):
+                        </div>
+                        <div className='add-column'>
+                            Полное описание (туркм.):
+                        </div>
+                        <div className='add-column'>
+                            Url адрес:
+                        </div>
+                        <div className='add-column'>
+                            Обработан:
+                        </div>
+                        <div className='add-column'>
+                            Бренд:
+                        </div>
+                        <div className='add-column'>
+                            Поставщик:
+                        </div>
+                        <div className='add-column'>
+                            Регион:
                         </div>
                     </div>
                     <div className='add-right'>
@@ -271,8 +337,36 @@ function Products() {
                         <div className='add-column'>
                             <Input name='name_en' placeholder='Название (анг.)' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
+                        <div className='add-column'>
+                            <Input name='price_china' placeholder='Цена в Китае:' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='price' placeholder='Продажная цена' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='weight' placeholder='Вес:' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input name='count' placeholder='Количество:' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Checkbox />
+                        </div>
+                        <div className='add-column'>
+                            <Select
+                                showSearch
+                                aria-required={true}
+                                value={newItemSubcategory}
+                                style={{
+                                    width: '100%',
+                                }}
+                                placeholder="Тип клиентов"
+                                onChange={(e) => handleUpdateSelectChange(e)}
+                                options={subcategoryOptions}
+                            />
+                        </div>
                         <div className='add-picture'>
-                            {newItem?.id && <img className='brand-image' src={newItem?.main_image} alt={newItem?.name_ru} />}
+                            {newItem?.id && <img className='product-image' src={newItem?.main_image} alt={newItem?.name_ru} />}
                             <Upload
                                 customRequest={handleAddCustomRequest}
                                 listType="picture-card"
@@ -282,6 +376,15 @@ function Products() {
                             >
                                 {fileList.length == 0 && uploadButton}
                             </Upload>
+                        </div>
+                        <div className='add-column'>
+                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input.TextArea name='short_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.name_en} onChange={handleAddChange} />
+                        </div>
+                        <div className='add-column'>
+                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (туркм.):' value={newItem?.name_en} onChange={handleAddChange} />
                         </div>
                     </div>
                 </div>
