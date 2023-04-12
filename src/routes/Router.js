@@ -2,7 +2,6 @@ import { React, lazy, Suspense } from 'react';
 import { Navigate, useRoutes } from "react-router-dom";
 import Loading from '../components/Loading';
 import PageLoading from '../components/PageLoading';
-import Test from './Test';
 
 const Login = lazy(() => import('../pages/Login/Login'));
 const Banners = lazy(() => import('../pages/Banners/Banners'));
@@ -28,31 +27,27 @@ const SideBarNavbar = lazy(() => import('./SidebarNavbar'));
 function Router() {
     let routes = useRoutes([
         {
-            element: <PageLoading />,
-            path: '/loading',
-        },
-        {
             element: <Suspense fallback={<PageLoading />}><Login /></Suspense>,
-            path: '/',
+            path: '/administrator',
         },
         {
             element: <Suspense fallback={<PageLoading />}><SideBarNavbar /></Suspense>,
             children: [
                 {
                     element: <Suspense fallback={<Loading />}><Dashboard /></Suspense>,
-                    path: '/dashboard'
+                    path: '/administrator/dashboard'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Banners /></Suspense>,
-                    path: '/banners'
+                    path: '/administrator/banners'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Brands /></Suspense>,
-                    path: '/brands'
+                    path: '/administrator/brands'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Categories /></Suspense>,
-                    path: '/categories'
+                    path: '/administrator/categories'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><City /></Suspense>,
@@ -60,62 +55,58 @@ function Router() {
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Clients /></Suspense>,
-                    path: '/clients'
+                    path: '/administrator/clients'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><ClientType /></Suspense>,
-                    path: '/clientType'
+                    path: '/administrator/clientType'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><CouponType /></Suspense>,
-                    path: '/couponType'
+                    path: '/administrator/couponType'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><DiscountList /></Suspense>,
-                    path: '/discountList'
+                    path: '/administrator/discountList'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><GroupSettings /></Suspense>,
-                    path: '/groupSettings'
+                    path: '/administrator/groupSettings'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Products /></Suspense>,
-                    path: '/products'
+                    path: '/administrator/products'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Regions /></Suspense>,
-                    path: '/regions'
+                    path: '/administrator/regions'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><SettingsList /></Suspense>,
-                    path: '/settingsList'
+                    path: '/administrator/settingsList'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><SmsTable /></Suspense>,
-                    path: '/smsTable'
+                    path: '/administrator/smsTable'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Subcategories /></Suspense>,
-                    path: '/subcategories'
+                    path: '/administrator/subcategories'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><SubCategorySetting /></Suspense>,
-                    path: '/subcategorySettings'
+                    path: '/administrator/subcategorySettings'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><DeliveryType /></Suspense>,
-                    path: '/deliveryType'
+                    path: '/administrator/deliveryType'
                 },
             ]
         },
-        {
-            element: <Test />,
-            path: '/test'
-        },
-        {
-            element: <Navigate to='/' />,
-            path: '*'
-        }
+        // {
+        //     element: <Navigate to='/administrator' />,
+        //     path: '*'
+        // }
     ]);
     return routes;
 }

@@ -1,23 +1,23 @@
 {
   "short_name": "TurkmenExpress",
-  "name": "TukrmenExpress e-commerce",
+  "name": "TukrkmenExpress e-commerce",
   "icons": [{
-      "src": "logo.ico",
+      "src": "/administrator/logo.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "logo.png",
-      "type": "image/png",
+      "src": "/administrator/logo.png",
+      "type": "/administratorimage/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo.png",
+      "src": "/administrator/logo.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/administrator",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
