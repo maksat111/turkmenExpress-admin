@@ -51,7 +51,7 @@ function Router() {
                 },
                 {
                     element: <Suspense fallback={<Loading />}><City /></Suspense>,
-                    path: '/city'
+                    path: '/administrator/city'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Clients /></Suspense>,
@@ -103,10 +103,10 @@ function Router() {
                 },
             ]
         },
-        // {
-        //     element: <Navigate to='/administrator' />,
-        //     path: '*'
-        // }
+        {
+            element: <Navigate to='/administrator' />,
+            path: '*'
+        }
     ]);
     return routes;
 }
