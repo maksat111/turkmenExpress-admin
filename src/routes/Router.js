@@ -35,7 +35,8 @@ function Router() {
             children: [
                 {
                     element: <Suspense fallback={<Loading />}><Dashboard /></Suspense>,
-                    path: '/administrator/dashboard'
+                    path: '/administrator/dashboard',
+
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Banners /></Suspense>,

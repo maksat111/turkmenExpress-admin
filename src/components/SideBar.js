@@ -23,89 +23,89 @@ function SideBar() {
             group: 'БИБЛИОНТЕКА',
             icon: <TfiDashboard style={iconStyle} />,
             title: 'Dashboard',
-            href: '/dashboard'
+            href: '/administrator/dashboard'
         },
         {
             icon: <BsImages style={iconStyle} />,
             title: 'Баннеры',
-            href: '/banners'
+            href: '/administrator/banners'
         },
         {
             icon: <AiOutlineTag style={iconStyle} />,
             title: 'Бренды',
-            href: '/brands'
+            href: '/administrator/brands'
         },
         {
             icon: <TbTruckDelivery style={iconStyle} />,
             title: 'Виды доставок',
-            href: '/deliveryType'
+            href: '/administrator/deliveryType'
         },
         {
             icon: <RiCoupon2Line style={iconStyle} />,
             title: 'Виды купонов',
-            href: '/couponType'
+            href: '/administrator/couponType'
         },
         {
             icon: <MdMapsHomeWork style={iconStyle} />,
             title: 'Города и этрапы',
-            href: '/city'
+            href: '/administrator/city'
         },
         {
             icon: <BiCategory style={iconStyle} />,
             title: 'Категории',
-            href: '/categories'
+            href: '/administrator/categories'
         },
         {
             icon: <TbSubtask style={iconStyle} />,
             title: 'Подкатегории',
-            href: '/subcategories'
+            href: '/administrator/subcategories'
         },
         {
             icon: <FaCity style={iconStyle} />,
             title: 'Регионы',
-            href: '/regions'
+            href: '/administrator/regions'
         },
         {
             icon: <TbMessageChatbot style={iconStyle} />,
             title: 'СМС таблица',
-            href: '/smsTable'
+            href: '/administrator/smsTable'
         },
         {
             group: 'КЛИЕНТЫ',
             icon: <TbUsers style={iconStyle} />,
             title: 'Клиенты',
-            href: '/clients'
+            href: '/administrator/clients'
         },
         {
             icon: <AiOutlineShoppingCart style={iconStyle} />,
             title: 'Типы покупателей',
-            href: '/clientType'
+            href: '/administrator/clientType'
         },
         {
             group: 'ТОВАРЫ',
             icon: <TbDiscount2 style={toggled ? { fontSize: '26px', marginBottom: '-5px' } : { fontSize: '23px', marginLeft: '-2px' }} />,
             title: 'Виды скидок',
-            href: '/discountList'
+            href: '/administrator/discountList'
         },
         {
             icon: <FiSettings style={iconStyle} />,
             title: 'Группа опций',
-            href: '/groupSettings'
+            href: '/administrator/groupSettings'
         },
         {
             icon: <RiListSettingsLine style={toggled ? { fontSize: '25px', marginBottom: "-8px" } : { fontSize: '24px' }} />,
             title: toggled ? 'Груп. опц. в подактегориях' : 'Группа опций в подактегориях',
-            href: '/subcategorySettings'
+            href: '/administrator/subcategorySettings'
         },
         {
             icon: <VscSettings style={iconStyle} />,
             title: 'Список опций',
-            href: '/settingsList'
+            href: '/administrator/settingsList'
         },
         {
             icon: <BsInboxes style={iconStyle} />,
             title: 'Товары',
-            href: '/products'
+            href: '/administrator/products'
         },
     ]
 

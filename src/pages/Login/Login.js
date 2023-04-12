@@ -20,7 +20,7 @@ const Login = () => {
             localStorage.setItem('turkmenExpress-admin', JSON.stringify(res.data));
             message.success('Successfully!');
             setLoading(false);
-            window.location.pathname = '/dashboard';
+            window.location.pathname = '/administrator/dashboard';
         } catch (err) {
             err.response?.data?.detail ? message.error(err.response.data.detail) : message.error('ошибка, попробуйте еще раз, пожалуйста');
             setLoading(false);
