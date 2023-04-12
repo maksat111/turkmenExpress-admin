@@ -3,7 +3,6 @@ import { Navigate, useRoutes } from "react-router-dom";
 import Loading from '../components/Loading';
 import PageLoading from '../components/PageLoading';
 import Test from './Test';
-// import App from './test';
 
 const Login = lazy(() => import('../pages/Login/Login'));
 const Banners = lazy(() => import('../pages/Banners/Banners'));
