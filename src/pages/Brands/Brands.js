@@ -100,7 +100,7 @@ function Brands() {
             title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
-            width: '120px',
+            width: '125px',
             render: (_, record) => (
                 <div className='update-icon' onClick={() => showUpdateModal(record)} >
                     Изменить
@@ -443,7 +443,7 @@ function Brands() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Бренды</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>добавить</div>
                 </div>
                 <TableComponent
                     rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'}

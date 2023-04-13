@@ -117,7 +117,7 @@ function SubCategorySetting() {
             title: 'Изменить',
             dataIndex: 'active',
             key: 'active',
-            width: '120px',
+            width: '125px',
             render: (_, record) => (
                 <div className='update-icon' onClick={() => showAddModal(record)}>
                     Изменить
