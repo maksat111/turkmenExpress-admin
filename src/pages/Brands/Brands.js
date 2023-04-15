@@ -30,6 +30,8 @@ function Brands() {
     const [selectOptions, setSelectOptions] = useState(null);
     const [total, setTotal] = useState(null);
     const [updateOpen, setUpdateOpen] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({});
 
 
     useEffect(() => {
@@ -43,7 +45,7 @@ function Brands() {
                     id: item.id,
                     name: item.name,
                     logo: item.logo,
-                    category: item.category ? item.category.name_ru : 'null'
+                    category: item.category ? item.category.name_ru : '-'
                 })
             });
             setDataSource(a);
@@ -65,15 +67,13 @@ function Brands() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+            // onSorter: (value, record) => handleIdSorting(value, record)
+            // onChange: () => console.log('salam')
         },
         {
-            title: 'Название',
-            dataIndex: 'name',
-            key: 'name',
-            width: '300px'
-        },
-        {
-            title: 'Logo',
+            title: 'Логотип',
             dataIndex: 'logo',
             key: 'logo',
             render: (_, record) => (
@@ -81,9 +81,19 @@ function Brands() {
             ),
         },
         {
+            title: 'Название',
+            dataIndex: 'name',
+            key: 'name',
+            width: '300px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+        },
+        {
             title: 'Категория',
             dataIndex: 'category',
             key: 'category',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Удалить',
@@ -312,6 +322,63 @@ function Brands() {
         setDataSource(a);
     }
 
+    //-------------------------------------------------------filter -----------------------------------------//
+    const handleSearchChange = async (e) => {
+        try {
+
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `brands/list?ordering=${c.field}`;
+            } else {
+                var query = `brands/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                console.log(res.data)
+                res.data.results?.forEach(item => {
+                    data.push({
+                        key: item.id,
+                        id: item.id,
+                        name: item.name,
+                        logo: item.logo,
+                        category: item.category ? item.category.name_ru : '-'
+                    })
+                });
+
+                setDataSource(data);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        const founded = axiosInstance.get(`brands/list?search=${searchValue}`).then(res => {
+            let a = [];
+            setTotal(res.data.count)
+            res.data.results?.forEach(item => {
+                a.push({
+                    key: item.id,
+                    id: item.id,
+                    name: item.name,
+                    logo: item.logo,
+                    category: item.category ? item.category.name_ru : '-'
+                })
+            });
+            setDataSource(a);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -443,14 +510,28 @@ function Brands() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Бренды</h2>
-                    <div className='add-button' onClick={showAddModal}>добавить</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
+                </div>
+                <div className='brands-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                    <Select
+                        value={newItemCategory}
+                        allowClear
+                        style={{
+                            width: '100%',
+                        }}
+                        placeholder="Выберите категорию"
+                        onChange={(e) => handleSearchChange(e)}
+                        options={selectOptions}
+                    />
                 </div>
                 <TableComponent
+                    onChange={handleTableChange}
                     rowClassName={(record, rowIndex) => rowIndex == 2 && 'salam'}
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                 />
             </div>
         </>

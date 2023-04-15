@@ -114,6 +114,14 @@ function Products() {
             width: '65px',
         },
         {
+            title: 'Главная картинка',
+            dataIndex: 'main_image',
+            key: 'main_image',
+            render: (_, record) => (
+                <img className='product-image' src={record.main_image} alt={record.name_ru} />
+            ),
+        },
+        {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
@@ -132,14 +140,6 @@ function Products() {
             title: 'Бренд',
             dataIndex: 'brand',
             key: 'brand',
-        },
-        {
-            title: 'Главная картинка',
-            dataIndex: 'main_image',
-            key: 'main_image',
-            render: (_, record) => (
-                <img className='product-image' src={record.main_image} alt={record.name_ru} />
-            ),
         },
         {
             title: 'Удалить',
@@ -592,13 +592,13 @@ function Products() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Товары</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <TableComponent
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                     loading={loading}
                 />
             </div>

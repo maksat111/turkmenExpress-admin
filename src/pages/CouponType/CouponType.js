@@ -251,7 +251,7 @@ function CouponType() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Виды купонов</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>

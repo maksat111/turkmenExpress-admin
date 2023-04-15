@@ -14,22 +14,36 @@ function DeliveryType() {
     const [newItem, setNewItem] = useState(null);
 
 
-    const showModal = (item) => {
-        setOpen(true);
+    const showModal = (item, item2) => {
+        if (item2) {
+            setNewItem(item2);
+        }
         setSelectedItem(item);
-    };
+        setOpen(true);
+    }
 
     const handleOk = async () => {
         try {
             setConfirmLoading(true);
-            await axiosInstance.delete(`delivery-type/delete/${selectedItem.id}`);
-            const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
-            setDataSource(newDataSource);
-            message.success('Успешно удалено')
+            if (newItem) {
+                const res = await axiosInstance.patch(`delivery-type/update/${newItem.id}/`, { active: !newItem.active });
+                setDataSource(previousState => {
+                    let a = previousState;
+                    const index = a.findIndex(element => element.id === newItem.id);
+                    a[index].active = !a[index].active
+                    return a
+                });
+                message.success('Успешно изменено!')
+            } else {
+                await axiosInstance.delete(`delivery-type/delete/${selectedItem.id}`);
+                const newDataSource = dataSource.filter(element => element.id !== selectedItem.id);
+                setDataSource(newDataSource);
+                message.success('Успешно удалено!')
+            }
             setOpen(false);
             setConfirmLoading(false);
         } catch (err) {
-            setConfirmLoading(false)
+            setConfirmLoading(false);
             message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
             console.log(err)
         }
@@ -76,7 +90,7 @@ function DeliveryType() {
             dataIndex: 'active',
             key: 'active',
             render: (_, record) => (
-                <Checkbox checked={record.active} />
+                <Checkbox checked={record.active} onChange={() => showModal(_, record)} />
             ),
         },
         {
@@ -216,7 +230,7 @@ function DeliveryType() {
                 </div>
             </Modal>
             <Modal
-                title="Вы уверены, что хотите удалить?"
+                title={!newItem ? "Вы уверены, что хотите удалить?" : 'Вы уверены, что хотите изменить статус отправки?'}
                 open={open}
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
@@ -224,7 +238,7 @@ function DeliveryType() {
                 cancelText={'Отмена'}
                 okText={'Да'}
                 okType={'primary'}
-                okButtonProps={{ danger: true }}
+                okButtonProps={!newItem && { danger: true }}
                 style={{
                     top: '200px'
                 }}
@@ -232,7 +246,7 @@ function DeliveryType() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Виды доставок</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
             </div>

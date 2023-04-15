@@ -380,13 +380,13 @@ function Subcategories() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Подкатегории</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <TableComponent
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }} />
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }} />
             </div>
         </>
     );

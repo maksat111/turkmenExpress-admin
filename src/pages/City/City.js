@@ -277,12 +277,12 @@ function City() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Города и этрапы</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <TableComponent
                     dataSource={dataSource}
                     columns={columns}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20 }}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                     active={selectedItem?.id}
                 />
             </div>

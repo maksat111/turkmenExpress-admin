@@ -31,3 +31,10 @@
     display: flex;
     gap: 25px
 }
+
+.brands-header-filters {
+    display: flex;
+    flex-direction: row;
+    width: 500px;
+    gap: 25px;
+}

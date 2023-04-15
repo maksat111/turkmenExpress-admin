@@ -286,13 +286,13 @@ function SettingsList() {
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>Список опций</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавлять</div>
+                    <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <TableComponent
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: pageSize, showQuickJumper: true }}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: pageSize, position: ['topRight', 'bottomRight'] }}
                 />
             </div>
         </>
