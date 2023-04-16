@@ -27,8 +27,10 @@ function Subcategories() {
     const [selectOptions, setSelectOptions] = useState(null);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const [newItemCategory, setNewItemCategory] = useState([])
-    const [newItem, setNewItem] = useState(null)
+    const [newItemCategory, setNewItemCategory] = useState([]);
+    const [newItem, setNewItem] = useState(null);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({})
 
     useEffect(() => {
         axiosInstance.get('subcategories/list').then(async (res) => {
@@ -65,26 +67,36 @@ function Subcategories() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (туркм.)',
             dataIndex: 'name_tk',
             key: 'name_tk',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Навзание (анг.)',
             dataIndex: 'name_en',
             key: 'name_en',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Категория',
             dataIndex: 'category',
             key: 'category',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Logo',
@@ -293,6 +305,47 @@ function Subcategories() {
         setNewItemCategory(a);
     }
 
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `subcategories/list?ordering=${c.field}`;
+            } else {
+                var query = `subcategories/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                setTotal(res.data.count);
+                res.data?.results.forEach(element => {
+                    data.push({
+                        id: element.id,
+                        key: element.id,
+                        name_ru: element.name_ru,
+                        name_en: element.name_en,
+                        name_tk: element.name_tk,
+                        image: element.image,
+                        category: element.category.name_ru
+                    })
+                });
+                setDataSource(data);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`categories/list?search=${searchValue}`).then(res => {
+            res.data?.forEach(element => {
+                element.key = element.id
+            });
+            setDataSource(res.data);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -382,11 +435,16 @@ function Subcategories() {
                     <h2>Подкатегории</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
+                <div className='subcategories-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
                 <TableComponent
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }} />
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
+                    onChange={handleTableChange}
+                />
             </div>
         </>
     );
