@@ -67,7 +67,6 @@ function Clients() {
             width: '65px',
             sorter: true,
             sortDirections: ['ascend', 'descend', 'ascend'],
-
         },
         // {
         //     title: 'Имя',
