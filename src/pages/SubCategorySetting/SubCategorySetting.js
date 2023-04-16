@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react';
-import { Modal, message, Select } from 'antd';
+import { Modal, message, Select, Input } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import axios from 'axios';
@@ -92,17 +92,23 @@ function SubCategorySetting() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
-            style: { alignItems: "center" }
+            style: { alignItems: "center" },
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Подкатегория',
             dataIndex: 'subcategory',
             key: 'subcategory',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Опция',
             dataIndex: 'option',
             key: 'option',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Удалить',
@@ -221,6 +227,50 @@ function SubCategorySetting() {
         setNewItemOption(a);
     }
 
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `subcategory-options-group/list?ordering=${c.field}`;
+            } else {
+                var query = `subcategory-options-group/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data?.results.forEach(element => {
+                    data.push({
+                        key: element.id,
+                        id: element.id,
+                        subcategory: `${element.subcategory.category.name_ru} | ${element.subcategory.name_ru}`,
+                        option: element.option.name_ru
+                    })
+                });
+                setDataSource(data);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`options-group/list?search=${searchValue}`).then(res => {
+            setTotal(res.data.count);
+            const a = [];
+            res.data?.results.forEach(element => {
+                a.push({
+                    key: element.id,
+                    id: element.id,
+                    subcategory: `${element.subcategory.category.name_ru} | ${element.subcategory.name_ru}`,
+                    option: element.option.name_ru
+                })
+            });
+            setDataSource(a);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -293,12 +343,16 @@ function SubCategorySetting() {
                     <h2>Группа опций в подактегориях</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
+                <div className='group-settings-option-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
                 <TableComponent
                     dataSource={dataSource}
                     columns={columns}
                     pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                     active={selectedItem?.id}
                     loading={loading}
+                    onChange={handleTableChange}
                 />
             </div>
         </>
