@@ -1,9 +1,9 @@
 import { React, useEffect, useState } from 'react';
 import { Modal } from 'antd';
-import { Checkbox, message } from 'antd';
+import { Checkbox, message, Input } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
-import Input from 'antd/es/input/Input';
+import './GroupSettings.css';
 
 function GroupSettings() {
     const [dataSource, setDataSource] = useState([]);
@@ -12,6 +12,9 @@ function GroupSettings() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
     const [newItem, setNewItem] = useState();
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({});
+    const [total, setTotal] = useState(null);
 
 
     const showModal = (item) => {
@@ -41,10 +44,11 @@ function GroupSettings() {
 
     useEffect(() => {
         axiosInstance.get('options-group/list/').then(res => {
-            res.data?.forEach(element => {
+            setTotal(res.data.count)
+            res.data.results?.forEach(element => {
                 element.key = element.id
             });
-            setDataSource(res?.data);
+            setDataSource(res?.data.results);
         }).catch(err => console.log(err));
     }, []);
 
@@ -54,22 +58,30 @@ function GroupSettings() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
-            style: { alignItems: "center" }
+            style: { alignItems: "center" },
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (туркм.)',
             dataIndex: 'name_tk',
             key: 'name_tk',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Навзание (анг.)',
             dataIndex: 'name_en',
             key: 'name_en',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Удалить',
@@ -148,6 +160,48 @@ function GroupSettings() {
         setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
     }
 
+    const onPaginationChange = async (page) => {
+        let a = [];
+        const res = await axiosInstance.get(`options-group/list?page=${page}`);
+        res.data.results?.forEach(element => {
+            element.key = element.id
+        });
+        setDataSource(res?.data.results);
+    }
+
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `options-group/list?ordering=${c.field}`;
+            } else {
+                var query = `options-group/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data.results?.forEach(element => {
+                    element.key = element.id
+                });
+                setDataSource(res?.data.results);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`options-group/list?search=${searchValue}`).then(res => {
+            setTotal(res.data.count);
+            res.data.results?.forEach(element => {
+                element.key = element.id
+            });
+            setDataSource(res?.data.results);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -206,7 +260,17 @@ function GroupSettings() {
                     <h2>Группа опций</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
+                <div className='group-option-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
+                <TableComponent
+                    dataSource={dataSource}
+                    columns={columns}
+                    pagination={false}
+                    active={selectedItem?.id}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
+                    onChange={handleTableChange}
+                />
             </div>
         </>
     );
