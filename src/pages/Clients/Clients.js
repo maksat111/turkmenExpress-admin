@@ -1,12 +1,11 @@
 import { React, useEffect, useState } from 'react';
-import { DatePicker, Modal, message, Select } from 'antd';
+import { DatePicker, Modal, message, Select, Checkbox, Input } from 'antd';
 import dayjs from 'dayjs';
 import date from 'date-and-time';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
-import Input from 'antd/es/input/Input';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import Checkbox from 'antd/es/checkbox/Checkbox';
+import './Clients.css';
 dayjs.extend(customParseFormat);
 
 function Clients() {
@@ -23,6 +22,8 @@ function Clients() {
     const [regionOption, setRegionOption] = useState(null);
     const [newItemUserType, setNewItemUserType] = useState(null);
     const [newItemRegion, setNewItemRegion] = useState(null);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({})
 
     useEffect(() => {
         axiosInstance.get('users/list').then(async res => {
@@ -32,7 +33,8 @@ function Clients() {
                 element.key = element.id;
                 element.id = element.id;
                 element.clients_type = element.clients_type.name_ru;
-                element.region = element.region ? element.region.name_ru : 'null';
+                element.region = element.region ? element.region.name_ru : '-';
+                element.surname = element.surname + " " + element.name;
             });
             const userType = await axiosInstance.get('users/types/list/');
             userType.data.forEach(element => {
@@ -63,72 +65,94 @@ function Clients() {
             key: 'id',
             display: 'none',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
-        {
-            title: 'Имя',
-            dataIndex: 'name',
-            key: 'name',
-        },
+        // {
+        //     title: 'Имя',
+        //     dataIndex: 'name',
+        //     key: 'name',
+        //     sorter: true,
+        //     sortDirections: ['ascend', 'descend', 'ascend'],
+
+        // },
         {
             title: 'Фамилия',
             dataIndex: 'surname',
             key: 'surname',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
         {
             title: 'Электронная почта',
             dataIndex: 'email',
             key: 'email',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
         {
             title: 'Номер телефона',
             dataIndex: 'phone_number',
             key: 'phone_number',
-            width: '100px'
+            width: '100px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
-        {
-            title: 'День рождения',
-            dataIndex: 'birthday',
-            key: 'birthday',
-            width: '120px',
-            render: (_, record) => (
-                <p>{record.birthday ? date.format(new Date(record.birthday), 'YYYY-MM-DD') : 'null'}</p>
-            ),
-        },
+        // {
+        //     title: 'День рождения',
+        //     dataIndex: 'birthday',
+        //     key: 'birthday',
+        //     width: '120px',
+        //     render: (_, record) => (
+        //         <p>{record.birthday ? date.format(new Date(record.birthday), 'YYYY-MM-DD') : 'null'}</p>
+        //     ),
+        // },
         {
             title: 'Тип клиентов',
             dataIndex: 'clients_type',
             key: 'clients_type',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
         {
             title: 'Регион',
             dataIndex: 'region',
             key: 'region',
+            width: '120px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
-        {
-            title: 'Staff',
-            dataIndex: 'is_staff',
-            key: 'is_staff',
-            render: (_, record) => (
-                <Checkbox checked={record.is_staff} onChange={() => showModal(_, record)} />
-            ),
-        },
-        {
-            title: 'Admin',
-            dataIndex: 'is_admin',
-            key: 'is_admin',
-            render: (_, record) => (
-                <Checkbox checked={record.is_admin} onChange={() => showModal(_, record)} />
-            ),
-        },
-        {
-            title: 'Дата регистрации',
-            dataIndex: 'registered_date',
-            key: 'registered_date',
-            width: '110px',
-            render: (_, record) => (
-                <p>{date.format(new Date(record.registered_date), 'YYYY-MM-DD')}</p>
-            ),
-        },
+        // {
+        //     title: 'Staff',
+        //     dataIndex: 'is_staff',
+        //     key: 'is_staff',
+        //     render: (_, record) => (
+        //         <Checkbox checked={record.is_staff} onChange={() => showModal(_, record)} />
+        //     ),
+        // },
+        // {
+        //     title: 'Admin',
+        //     dataIndex: 'is_admin',
+        //     key: 'is_admin',
+        //     render: (_, record) => (
+        //         <Checkbox checked={record.is_admin} onChange={() => showModal(_, record)} />
+        //     ),
+        // },
+        // {
+        //     title: 'Дата регистрации',
+        //     dataIndex: 'registered_date',
+        //     key: 'registered_date',
+        //     width: '110px',
+        //     render: (_, record) => (
+        //         <p>{date.format(new Date(record.registered_date), 'YYYY-MM-DD')}</p>
+        //     ),
+        // },
         {
             title: 'Удалить',
             dataIndex: 'active',
@@ -289,6 +313,46 @@ function Clients() {
         setNewItemRegion(filtered[0]);
     }
 
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `users/list?ordering=${c.field}`;
+            } else {
+                var query = `users/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data?.forEach((element) => {
+                    element.key = element.id;
+                    element.id = element.id;
+                    element.clients_type = element.clients_type.name_ru;
+                    element.region = element.region ? element.region.name_ru : '-';
+                    element.surname = element.surname + " " + element.name;
+                });
+                setDataSource(res.data);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`users/list?search=${searchValue}`).then(res => {
+            res.data?.forEach((element) => {
+                element.key = element.id;
+                element.id = element.id;
+                element.clients_type = element.clients_type.name_ru;
+                element.region = element.region ? element.region.name_ru : '-';
+                element.surname = element.surname + " " + element.name;
+            });
+            setDataSource(res.data);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -415,7 +479,10 @@ function Clients() {
                     <h2>Клиенты</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
-                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} />
+                <div className='users-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
+                <TableComponent dataSource={dataSource} columns={columns} pagination={false} active={selectedItem?.id} onChange={handleTableChange} />
             </div>
         </>
     );
