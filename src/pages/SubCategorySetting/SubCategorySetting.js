@@ -17,6 +17,8 @@ function SubCategorySetting() {
     const [subcategoryOptions, setSubcategoryOptions] = useState([]);
     const [optionOptions, setOptionOptions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({});
 
 
     const showModal = (item) => {
@@ -69,7 +71,7 @@ function SubCategorySetting() {
                 });
             });
             //---------------------------------------getting Options----------------------------------------------//
-            const options = await axiosInstance.get('options-group/list/');
+            const options = await axiosInstance.get('options-group/all/list/');
             options.data.forEach(item => {
                 c.push({
                     label: item.name_ru,

@@ -41,6 +41,8 @@ function Products() {
     const [loading, setLoading] = useState(false);
     const [video, setVideo] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({});
 
     useEffect(() => {
         setLoading(true);
@@ -112,6 +114,8 @@ function Products() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Главная картинка',
@@ -125,21 +129,29 @@ function Products() {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Категория',
             dataIndex: 'category',
             key: 'category',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Подкатегория',
             dataIndex: 'subcategory',
             key: 'subcategory',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Бренд',
             dataIndex: 'brand',
             key: 'brand',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Удалить',
@@ -181,7 +193,7 @@ function Products() {
             setConfirmLoading(false);
         } catch (err) {
             setConfirmLoading(false)
-            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!');
             console.log(err)
         }
     };
@@ -363,6 +375,45 @@ function Products() {
         const filtered = subcategoryOptions.filter(item => item.value == e);
         setNewItemSubcategory(filtered[0]);
     }
+
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `products/list?ordering=${c.field}`;
+            } else {
+                var query = `products/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data?.results.forEach(element => {
+                    element.key = element.id;
+                    element.category = element.subcategory.category.name_ru;
+                    element.subcategory = element.subcategory.name_ru;
+                    element.brand = element.brand ? element.brand.name : 'null';
+                });
+                setDataSource(res?.data.results);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`products/list?search=${searchValue}`).then(res => {
+            setTotal(res.data.count);
+            res.data?.results.forEach(element => {
+                element.key = element.id;
+                element.category = element.subcategory.category.name_ru;
+                element.subcategory = element.subcategory.name_ru;
+                element.brand = element.brand ? element.brand.name : 'null';
+            });
+            setDataSource(res?.data.results);
+        })
+    }, [searchValue])
 
     return (
         <>
@@ -594,12 +645,16 @@ function Products() {
                     <h2>Товары</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
+                <div className='product-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
                 <TableComponent
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
                     pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                     loading={loading}
+                    onChange={handleTableChange}
                 />
             </div>
         </>
