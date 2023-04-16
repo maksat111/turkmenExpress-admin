@@ -17,6 +17,8 @@ function SettingsList() {
     const [selectedGroupOption, setSelectedGroupOption] = useState([])
     const [newItem, setNewItem] = useState(null);
     const [pageSize, setPageSize] = useState(null);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({});
 
     useEffect(() => {
         axiosInstance.get('options/list').then(async (res) => {
@@ -53,26 +55,36 @@ function SettingsList() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (туркм.)',
             dataIndex: 'name_tk',
             key: 'name_tk',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Навзание (анг.)',
             dataIndex: 'name_en',
             key: 'name_en',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Группа опций',
             dataIndex: 'option_group',
             key: 'option_group',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Удалить',
@@ -192,7 +204,8 @@ function SettingsList() {
     //-------------------------------------------------------pagination -----------------------------------------//
     const onPaginationChange = async (page) => {
         let a = [];
-        const res = await axiosInstance.get(`options/list?page=${page}`);
+        const res = await axiosInstance.get(`options/list?page=${page}&search=${searchValue}`);
+        setTotal(res.data.count);
         res.data.results?.forEach(element => {
             a.push({
                 id: element.id,
@@ -213,6 +226,54 @@ function SettingsList() {
         });
         setSelectedGroupOption(a);
     }
+
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `options/list?ordering=${c.field}`;
+            } else {
+                var query = `options/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data.results.forEach(element => {
+                    data.push({
+                        id: element.id,
+                        key: element.id,
+                        name_ru: element.name_ru,
+                        name_en: element.name_en,
+                        name_tk: element.name_tk,
+                        option_group: element.option_group.name_ru
+                    })
+                })
+                setDataSource(data);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`options/list?search=${searchValue}`).then(res => {
+            const data = [];
+            setTotal(res.data.count);
+            res.data.results.forEach(element => {
+                data.push({
+                    id: element.id,
+                    key: element.id,
+                    name_ru: element.name_ru,
+                    name_en: element.name_en,
+                    name_tk: element.name_tk,
+                    option_group: element.option_group.name_ru
+                })
+            })
+            setDataSource(data);
+        })
+    }, [searchValue])
 
     return (
         <>
@@ -288,11 +349,15 @@ function SettingsList() {
                     <h2>Список опций</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
+                <div className='option-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
                 <TableComponent
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
                     pagination={{ onChange: onPaginationChange, total: total, pageSize: pageSize, position: ['topRight', 'bottomRight'] }}
+                    onChange={handleTableChange}
                 />
             </div>
         </>
