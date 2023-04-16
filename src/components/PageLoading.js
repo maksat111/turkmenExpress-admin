@@ -8,7 +8,7 @@ import './PageLoading.css';
 function PageLoading() {
     const location = useLocation();
     if (!isLogin() && window.location.pathname !== '/') {
-        return <Navigate to="/" replace state={{ from: location }} />;
+        return <Navigate to="/administrator" replace state={{ from: location }} />;
     }
     return (
         <div className='pageLoading-container'>
