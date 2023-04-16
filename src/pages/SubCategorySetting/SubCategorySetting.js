@@ -256,7 +256,7 @@ function SubCategorySetting() {
     }
 
     useEffect(() => {
-        axiosInstance.get(`options-group/list?search=${searchValue}`).then(res => {
+        axiosInstance.get(`subcategory-options-group/list?search=${searchValue}`).then(res => {
             setTotal(res.data.count);
             const a = [];
             res.data?.results.forEach(element => {
