@@ -1,0 +1,6 @@
+.cities-header-filters {
+    display: flex;
+    flex-direction: row;
+    width: 500px;
+    gap: 25px;
+}

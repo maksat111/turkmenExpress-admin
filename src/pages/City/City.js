@@ -1,9 +1,8 @@
 import { React, useEffect, useState } from 'react';
-import { Modal, message, Select } from 'antd';
+import { Modal, message, Select, Input } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
-import Input from 'antd/es/input/Input';
-import { DatabaseFilled } from '@ant-design/icons';
+import './City.css';
 
 function City() {
     const [dataSource, setDataSource] = useState([]);
@@ -16,6 +15,7 @@ function City() {
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [newItem, setNewItem] = useState(null);
     const [ordering, setOrdering] = useState({});
+    const [searchValue, setSearchValue] = useState('');
 
 
     const showModal = (item) => {
@@ -249,6 +249,24 @@ function City() {
         }
     }
 
+    useEffect(() => {
+        axiosInstance.get(`cities/list?search=${searchValue}`).then(res => {
+            let data = [];
+            setTotal(res.data.count)
+            res.data.results?.forEach(element => {
+                data.push({
+                    key: element.id,
+                    id: element.id,
+                    name_en: element.name_en,
+                    name_tk: element.name_tk,
+                    name_ru: element.name_ru,
+                    region: element.region?.name_ru
+                })
+            });
+            setDataSource(data);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -320,6 +338,9 @@ function City() {
                 <div className='page-header-content'>
                     <h2>Города и этрапы</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
+                </div>
+                <div className='cities-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
                 </div>
                 <TableComponent
                     dataSource={dataSource}
