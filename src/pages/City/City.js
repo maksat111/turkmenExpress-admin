@@ -3,6 +3,7 @@ import { Modal, message, Select } from 'antd';
 import { axiosInstance } from '../../config/axios';
 import TableComponent from '../../components/TableComponent';
 import Input from 'antd/es/input/Input';
+import { DatabaseFilled } from '@ant-design/icons';
 
 function City() {
     const [dataSource, setDataSource] = useState([]);
@@ -14,6 +15,7 @@ function City() {
     const [selectOptions, setSelectOptions] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [newItem, setNewItem] = useState(null);
+    const [ordering, setOrdering] = useState({});
 
 
     const showModal = (item) => {
@@ -77,26 +79,36 @@ function City() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (туркм.)',
             dataIndex: 'name_tk',
             key: 'name_tk',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Навзание (анг.)',
             dataIndex: 'name_en',
             key: 'name_en',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Регион',
             dataIndex: 'region',
             key: 'region',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Удалить',
@@ -207,6 +219,36 @@ function City() {
         setSelectedRegion(filtered[0]);
     }
 
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `cities/list?ordering=${c.field}`;
+            } else {
+                var query = `cities/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data?.results.forEach(element => {
+                    data.push({
+                        key: element.id,
+                        id: element.id,
+                        name_en: element.name_en,
+                        name_tk: element.name_tk,
+                        name_ru: element.name_ru,
+                        region: element.region?.name_ru
+                    })
+                });
+                setDataSource(data);
+            }).catch(err => console.log(err));
+        }
+    }
+
     return (
         <>
             <Modal
@@ -284,6 +326,7 @@ function City() {
                     columns={columns}
                     pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                     active={selectedItem?.id}
+                    onChange={handleTableChange}
                 />
             </div>
         </>

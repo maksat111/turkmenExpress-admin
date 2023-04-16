@@ -317,13 +317,13 @@ function Brands() {
                 name: item.name,
                 logo: item.logo,
                 category: item.category ? item.category.name_ru : 'null'
-            })
+            });
         });
         setDataSource(a);
     }
 
     //-------------------------------------------------------filter -----------------------------------------//
-    const handleSearchChange = async (e) => {
+    const handleFilterChange = async (e) => {
         try {
 
         } catch (err) {
@@ -363,7 +363,7 @@ function Brands() {
     }
 
     useEffect(() => {
-        const founded = axiosInstance.get(`brands/list?search=${searchValue}`).then(res => {
+        axiosInstance.get(`brands/list?search=${searchValue}`).then(res => {
             let a = [];
             setTotal(res.data.count)
             res.data.results?.forEach(item => {
@@ -521,7 +521,7 @@ function Brands() {
                             width: '100%',
                         }}
                         placeholder="Выберите категорию"
-                        onChange={(e) => handleSearchChange(e)}
+                        onChange={(e) => handleFilterChange(e)}
                         options={selectOptions}
                     />
                 </div>
