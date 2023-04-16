@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
-import { Modal, message, Upload, Checkbox, Select } from 'antd'
+import { Modal, message, Upload, Select, Input } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
 import './Categories.css';
-import Input from 'antd/es/input/Input';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -26,6 +25,8 @@ function Categories() {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [newItem, setNewItem] = useState(null);
+    const [searchValue, setSearchValue] = useState('');
+    const [ordering, setOrdering] = useState({})
 
     useEffect(() => {
         axiosInstance.get('categories/list').then(async (res) => {
@@ -42,21 +43,30 @@ function Categories() {
             dataIndex: 'id',
             key: 'id',
             width: '65px',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
+
         },
         {
             title: 'Название (рус.)',
             dataIndex: 'name_ru',
             key: 'name_ru',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Название (туркм.)',
             dataIndex: 'name_tk',
             key: 'name_tk',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Навзание (анг.)',
             dataIndex: 'name_en',
             key: 'name_en',
+            sorter: true,
+            sortDirections: ['ascend', 'descend', 'ascend'],
         },
         {
             title: 'Logo',
@@ -218,6 +228,38 @@ function Categories() {
         setNewItem({ ...newItem, [e.target.name]: [e.target.value] });
     }
 
+    const handleTableChange = async (a, b, c) => {
+        const data = [];
+        if (c.field !== ordering?.field || c.order !== ordering?.order) {
+            setOrdering(previousState => {
+                let a = previousState;
+                a.field = c.field;
+                a.order = c.order;
+                return a;
+            });
+            if (c.order == 'ascend') {
+                var query = `categories/list?ordering=${c.field}`;
+            } else {
+                var query = `categories/list?ordering=-${c.field}`;
+            }
+            axiosInstance.get(query).then(res => {
+                res.data?.forEach(element => {
+                    element.key = element.id
+                });
+                setDataSource(res.data);
+            }).catch(err => console.log(err));
+        }
+    }
+
+    useEffect(() => {
+        axiosInstance.get(`categories/list?search=${searchValue}`).then(res => {
+            res.data?.forEach(element => {
+                element.key = element.id
+            });
+            setDataSource(res.data);
+        })
+    }, [searchValue])
+
     return (
         <>
             <Modal
@@ -291,7 +333,10 @@ function Categories() {
                     <h2>Категории</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
-                <TableComponent active={selectedItem?.id} columns={columns} dataSource={dataSource} pagination={false} />
+                <div className='categories-header-filters'>
+                    <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />
+                </div>
+                <TableComponent active={selectedItem?.id} columns={columns} dataSource={dataSource} pagination={false} onChange={handleTableChange} />
             </div>
         </>
     );
