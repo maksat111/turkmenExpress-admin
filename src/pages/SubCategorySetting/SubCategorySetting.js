@@ -61,6 +61,9 @@ function SubCategorySetting() {
                     option: element.option.name_ru
                 })
             });
+            setDataSource(a);
+            setLoading(false);
+        }).then(async () => {
             //----------------------------getting subcategory options---------------------------------------------//
             const subcategories = await axios.get('https://turkmenexpress.com.tm/api/library/subcategories/list/');
             subcategories.data.forEach(item => {
@@ -81,8 +84,6 @@ function SubCategorySetting() {
             });
             setSubcategoryOptions(b);
             setOptionOptions(c);
-            setDataSource(a);
-            setLoading(false);
         }).catch(err => console.log(err));
     }, []);
 
@@ -340,7 +341,7 @@ function SubCategorySetting() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Группа опций в подактегориях</h2>
+                    <h2>{`Группа опций в подактегориях (${total})`}</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <div className='group-settings-option-header-filters'>

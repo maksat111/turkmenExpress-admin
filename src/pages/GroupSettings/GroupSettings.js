@@ -257,7 +257,7 @@ function GroupSettings() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Группа опций</h2>
+                    <h2>{`Группа опций (${total})`}</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <div className='group-option-header-filters'>

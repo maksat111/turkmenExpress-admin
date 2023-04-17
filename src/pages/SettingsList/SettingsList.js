@@ -37,8 +37,8 @@ function SettingsList() {
                 })
             });
             setDataSource(a);
-            const groupOptions = await axiosInstance.get('options-group/list/');
-            groupOptions.data?.forEach(item => {
+            const groupOptions = await axiosInstance.get('options-group/all/list/');
+            groupOptions?.data.forEach(item => {
                 b.push({
                     label: item.name_ru,
                     value: item.name_ru,
@@ -346,7 +346,7 @@ function SettingsList() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Список опций</h2>
+                    <h2>{`Список опций (${total})`}</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <div className='option-header-filters'>

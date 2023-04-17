@@ -6,7 +6,6 @@ import { axiosInstance } from '../../config/axios';
 import { Modal, message, Upload, Checkbox, Select, Input } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
 import './Products.css';
-import { NoStyleItemContext } from 'antd/es/form/context';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -59,7 +58,9 @@ function Products() {
                 element.subcategory = element.subcategory.name_ru;
                 element.brand = element.brand ? element.brand.name : 'null';
             });
-
+            setDataSource(res?.data.results);
+            setLoading(false);
+        }).then(async () => {
             //----------------------------getting subcategory options---------------------------------------------//
             const subcategories = await axios.get('https://turkmenexpress.com.tm/api/library/subcategories/list/');
             subcategories.data.forEach(item => {
@@ -91,8 +92,8 @@ function Products() {
             });
 
             //----------------------------getting brands options---------------------------------------------//
-            const brands = await axios.get('https://turkmenexpress.com.tm/api/library/brands/list/');
-            brands.data.results.forEach(item => {
+            const brands = await axiosInstance.get('brands/all/list/');
+            brands.data.forEach(item => {
                 c.push({
                     label: item.name,
                     value: item.name,
@@ -103,8 +104,6 @@ function Products() {
             setSubcategoryOptions(b);
             setUserTypeOptions(d);
             setBrandOptions(c);
-            setDataSource(res?.data.results);
-            setLoading(false);
         }).catch(err => console.log(err))
     }, [])
 
@@ -226,13 +225,13 @@ function Products() {
     const handleAddOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
-        const keys = Object.keys(newItem);
-        const values = Object.values(newItem);
         newItem.region = newItemRegion.id;
         newItem.brand = newItemBrand.id;
         newItem.user = currentUser?.user_id;
         newItem.provider = newItemUserType.id;
         newItem.subcategory = newItemSubcategory.id;
+        const keys = Object.keys(newItem);
+        const values = Object.values(newItem);
         keys.forEach((key, index) => {
             formData.append(key, values[index]);
         });
@@ -246,7 +245,7 @@ function Products() {
             newItem.main_video = URL.createObjectURL(videoList[0]?.originFileObj);
             formData.append("main_video", videoList[0]?.originFileObj, videoList[0]?.originFileObj.name);
         }
-        console.log(formData)
+
         try {
             if (newItem.id) {
                 const res = await axiosInstance.patch(`products/update/${newItem.id}/`, formData);
@@ -268,14 +267,13 @@ function Products() {
             setNewItemSubcategory(null);
             setNewItemUserType(null);
             setNewItemRegion(null);
-            // setAddOpen(false);
             setFileList([]);
             setVideoList([]);
             message.success('Успешно!');
             setConfirmLoading(false);
         } catch (err) {
             setConfirmLoading(false)
-            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+            message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!');
             console.log(err)
         }
     };
@@ -642,7 +640,7 @@ function Products() {
             />
             <div className='page'>
                 <div className='page-header-content'>
-                    <h2>Товары</h2>
+                    <h2>{`Товары (${total})`}</h2>
                     <div className='add-button' onClick={showAddModal}>Добавить</div>
                 </div>
                 <div className='product-header-filters'>
