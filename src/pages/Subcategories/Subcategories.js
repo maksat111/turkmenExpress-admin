@@ -338,7 +338,7 @@ function Subcategories() {
     }
 
     useEffect(() => {
-        axiosInstance.get(`categories/list?search=${searchValue}`).then(res => {
+        axiosInstance.get(`subcategories/list?search=${searchValue}`).then(res => {
             res.data?.forEach(element => {
                 element.key = element.id
             });
