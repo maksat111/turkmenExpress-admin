@@ -83,7 +83,7 @@ function Dashboard(props) {
                 {data.map((item, index) => <InfoCard title={item.title} number={item.count} icon={item.icon} prasent={item.prasent} key={index} />)}
             </div>
             <div className='dashboard-table-title'>
-                <h2>Products table</h2>
+                <h2>Таблица товаров по добавление</h2>
                 <RangePicker placeholder={['Дата начала', 'Дата окончания']} onChange={(e) => console.log(e)} />
             </div>
             <TableComponent dataSource={dataSource} columns={columns} pagination={false} />

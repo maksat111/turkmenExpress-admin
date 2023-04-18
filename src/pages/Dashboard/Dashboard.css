@@ -1,6 +1,7 @@
 .main-title {
     text-align: center;
     margin: 10px 0 30px;
+    font-size: 27px;
 }
 
 .info-container {
@@ -59,4 +60,9 @@
     align-items: center;
     height: 100px;
     padding: 0 25px;
+}
+
+.dashboard-table-title h2 {
+    font-weight: 500;
+    font-size: 21px;
 }
