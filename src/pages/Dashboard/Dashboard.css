@@ -8,7 +8,7 @@
     align-items: center;
     gap: 20px;
     box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px;
-    padding: 25px 15px;
+    padding: 25px 20px;
     border-radius: 7px;
 }
 
@@ -48,6 +48,7 @@
 
 .statistics-card-container {
     display: flex;
-    /* justify-content: space-between; */
     gap: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
