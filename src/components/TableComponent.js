@@ -5,7 +5,7 @@ function TableComponent({ dataSource, columns, pagination, active, loading, onCh
     return (
         <Table
             onChange={onChange}
-            rowClassName={(record, rowIndex) => record.id == active && 'active-row'}
+            rowClassName={(record, rowIndex) => record?.id == active && 'active-row'}
             dataSource={dataSource}
             columns={columns}
             pagination={pagination}
