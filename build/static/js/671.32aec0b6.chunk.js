@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkturkmenexpressadmin=self.webpackChunkturkmenexpressadmin||[]).push([[671],{8671:function(e,s,n){n.r(s);n(2791);var u=n(184);s.default=function(e){return(0,u.jsx)("div",{className:"page"})}}}]);
-//# sourceMappingURL=671.32aec0b6.chunk.js.map
