@@ -16,7 +16,6 @@ function SettingsList() {
     const [selectOptions, setSelectOptions] = useState(null);
     const [selectedGroupOption, setSelectedGroupOption] = useState([])
     const [newItem, setNewItem] = useState(null);
-    const [pageSize, setPageSize] = useState(null);
     const [searchValue, setSearchValue] = useState('');
     const [ordering, setOrdering] = useState({});
 
@@ -25,7 +24,6 @@ function SettingsList() {
             let a = [];
             let b = [];
             setTotal(res.data.count);
-            setPageSize(res.data.results.length);
             res.data?.results.forEach(element => {
                 a.push({
                     id: element.id,
@@ -356,7 +354,7 @@ function SettingsList() {
                     active={selectedItem?.id}
                     columns={columns}
                     dataSource={dataSource}
-                    pagination={{ onChange: onPaginationChange, total: total, pageSize: pageSize, position: ['topRight', 'bottomRight'] }}
+                    pagination={{ onChange: onPaginationChange, total: total, pageSize: 20, position: ['topRight', 'bottomRight'] }}
                     onChange={handleTableChange}
                 />
             </div>
