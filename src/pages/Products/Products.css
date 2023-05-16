@@ -26,3 +26,8 @@
     width: 500px;
     gap: 25px;
 }
+
+.buttons-container {
+    display: flex;
+    gap: 20px;
+}

@@ -5,6 +5,7 @@ import TableComponent from '../../components/TableComponent';
 import { axiosInstance } from '../../config/axios';
 import { Modal, message, Upload, Checkbox, Select, Input } from 'antd'
 import { PlusOutlined } from '@ant-design/icons';
+import { getTokenLink } from '../../utils/getToken';
 import './Products.css';
 
 const getBase64 = (file) =>
@@ -18,6 +19,7 @@ const getBase64 = (file) =>
 function Products() {
     const [dataSource, setDataSource] = useState([]);
     const [open, setOpen] = useState(false);
+    const [openLink, setOpenLink] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [progress, setProgress] = useState(0);
@@ -41,6 +43,7 @@ function Products() {
     const [video, setVideo] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
     const [searchValue, setSearchValue] = useState('');
+    const [link, setLink] = useState('');
     const [ordering, setOrdering] = useState({});
 
     useEffect(() => {
@@ -413,6 +416,44 @@ function Products() {
         })
     }, [searchValue])
 
+    const showLink = () => {
+        setOpenLink(true)
+    }
+
+    const handleLinkOk = () => {
+        setConfirmLoading(true);
+        const formData = new FormData();
+        formData.append('link', link);
+        axios.post('http://216.250.10.179/core/add-link/', formData,
+            { headers: { Authorization: `Bearer ${getTokenLink()}` } }).then(async res => {
+                setOpenLink(false);
+                setConfirmLoading(false);
+
+                res.data.name_ru = res.data.title_ru;
+                res.data.name_en = res.data.title_en;
+                res.data.name_tk = res.data.title_tk;
+
+                delete res.data.title_en;
+                delete res.data.title_tk;
+                delete res.data.title_ru;
+
+                if (res.data.main_image.length > 0) {
+                    console.log('salam')
+                }
+
+                setNewItem(res.data);
+                message.success("Успешно!");
+            }).catch(err => {
+                message.error('Произошла ошибка. Пожалуйста, попробуйте еще раз!')
+                console.log(err)
+                setConfirmLoading(false);
+            });
+    }
+
+    const handleLinkCancel = () => {
+        setOpenLink(false)
+    }
+
     return (
         <>
             <Modal
@@ -538,6 +579,7 @@ function Products() {
                             {newItem?.id && <img className='product-image' src={newItem?.main_image} alt={newItem?.name_ru} />}
                             <Upload
                                 customRequest={handleAddCustomRequest}
+                                type='file'
                                 listType="picture-card"
                                 fileList={fileList}
                                 onPreview={handlePreview}
@@ -638,10 +680,40 @@ function Products() {
                     top: '200px'
                 }}
             />
+            <Modal
+                title="Дополните детали для добавления"
+                open={openLink}
+                onOk={handleLinkOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleLinkCancel}
+                cancelText={'Отмена'}
+                okText={'Да'}
+                okType={'primary'}
+                width='800px'
+                style={{
+                    top: '200px'
+                }}
+            >
+                <div className='banner-add-container'>
+                    <div className='add-left'>
+                        <div className='add-column'>
+                            Ссылка:
+                        </div>
+                    </div>
+                    <div className='product-add-right'>
+                        <div className='add-column'>
+                            <Input name='link' placeholder='Ссылка' value={link} onChange={(e) => setLink(e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+            </Modal>
             <div className='page'>
                 <div className='page-header-content'>
                     <h2>{`Товары (${total})`}</h2>
-                    <div className='add-button' onClick={showAddModal}>Добавить</div>
+                    <div className='buttons-container'>
+                        <div className='add-button' onClick={showLink}>Добавить ссылку</div>
+                        <div className='add-button' onClick={showAddModal}>Добавить</div>
+                    </div>
                 </div>
                 <div className='product-header-filters'>
                     <Input placeholder='Search' size='middle' value={searchValue} allowClear onChange={(e) => setSearchValue(e.target.value)} />

@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import { axiosInstance } from '../../config/axios';
-import TableComponent from '../../components/TableComponent';
-import InfoCard from './components/InfoCard';
 import { FaUser } from 'react-icons/fa';
 import { BsFillCheckCircleFill } from 'react-icons/bs';
 import { MdOutlineProductionQuantityLimits, MdDoNotTouch } from 'react-icons/md';
+import date from 'date-and-time';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { axiosInstance } from '../../config/axios';
+import TableComponent from '../../components/TableComponent';
+import InfoCard from './components/InfoCard';
 import './Dashboard.css';
 const { RangePicker } = DatePicker;
+dayjs.extend(customParseFormat);
 
 function Dashboard(props) {
+    const dateFormat = 'YYYY-MM-DD';
     const [data, setData] = useState([]);
     const [dataSource, setDataSource] = useState([]);
+    const [first_date, setFirst_date] = useState(null);
+    const [second_date, setSecond_date] = useState(null);
 
     useEffect(() => {
         const a = [];
@@ -42,13 +49,20 @@ function Dashboard(props) {
                 prasent: Math.floor(notapproved.data.answer * 100 / product.data.answer)
             });
             setData(a);
-            const data = await axiosInstance.get('dashboard/products/by-user/');
+        }).catch(err => console.log(err))
+    }, [])
+
+    useEffect(() => {
+        const formData = new FormData();
+        formData.append('first_date', '2023-04-04');
+        formData.append('second_date', '2023-04-11');
+        const data = axiosInstance.get('dashboard/products/by-user', formData).then(res => {
             data.data.answer.forEach((element, index) => {
                 element.id = index;
                 element.key = index;
             });
-            setDataSource(data.data.answer)
-        }).catch(err => console.log(err))
+            setDataSource(data.data.answer);
+        }).catch(err => console.log(err));
     }, [])
 
     const columns = [
@@ -76,6 +90,14 @@ function Dashboard(props) {
         },
     ];
 
+    const handleDateChange = (e) => {
+        const first = date.format(e[0].$d, 'YYYY-MM-DD');
+        const second = date.format(e[1].$d, 'YYYY-MM-DD');
+        setFirst_date(first);
+        setFirst_date(second);
+        console.log(first, second)
+    }
+
     return (
         <div className='page dashboard-page-container'>
             <h2 className='main-title'>Добро пожаловать в панель администратора!</h2>
@@ -84,7 +106,8 @@ function Dashboard(props) {
             </div>
             <div className='dashboard-table-title'>
                 <h2>Таблица товаров по добавление</h2>
-                <RangePicker placeholder={['Дата начала', 'Дата окончания']} onChange={(e) => console.log(e)} />
+                {/* <RangePicker value={[first_date && dayjs(first_date, dateFormat), second_date && dayjs(second_date, dateFormat)]} placeholder={['Дата начала', 'Дата окончания']} onChange={handleDateChange} /> */}
+                <RangePicker placeholder={['Дата начала', 'Дата окончания']} onChange={handleDateChange} />
             </div>
             <TableComponent dataSource={dataSource} columns={columns} pagination={false} />
         </div>

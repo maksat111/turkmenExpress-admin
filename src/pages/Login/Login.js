@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineLoading, AiOutlineUser, AiOutlineEye, AiOutlineEyeInvisible, AiOutlineLock } from 'react-icons/ai';
 import './Login.css'
-import { loginPost } from '../../config/axios';
+import { linkLogin, loginPost } from '../../config/axios';
 import { message } from 'antd';
 import Logo from '../../images/logo.png';
 
@@ -17,7 +17,9 @@ const Login = () => {
         setLoading(true);
         try {
             const res = await loginPost(username, password);
+            const link = await linkLogin();
             localStorage.setItem('turkmenExpress-admin', JSON.stringify(res.data));
+            localStorage.setItem('turkmenExpress-adminlink', JSON.stringify(link.data));
             message.success('Successfully!');
             setLoading(false);
             window.location.pathname = '/administrator/dashboard';

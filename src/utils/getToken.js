@@ -6,3 +6,12 @@ export const getToken = () => {
         return null
     }
 }
+
+export const getTokenLink = () => {
+    let data = JSON.parse(localStorage.getItem('turkmenExpress-adminlink'));
+    if (data) {
+        return data.access
+    } else {
+        return null
+    }
+}
