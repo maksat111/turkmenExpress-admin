@@ -209,7 +209,6 @@ function Brands() {
                 onProgress({ percent: (event.loaded / event.total) * 100 });
             }
         };
-        console.log(file)
         fmData.append("image", file);
         try {
             onSuccess("Ok");

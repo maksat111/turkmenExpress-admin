@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
     baseURL: BASE_URL,
     timeout: 60000,
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
         'Accept': "*/*",
         "Authorization": `Bearer ${token}`
     }

@@ -25,13 +25,7 @@ function Banners(props) {
     const [addOpen, setAddOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const [fileList, setFileList] = useState([{
-        uid: '-1',
-        name: 'yyy.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        thumbUrl: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    },]);
+    const [fileList, setFileList] = useState([]);
     const [progress, setProgress] = useState(0);
     const [newItemActive, setNewItemActive] = useState(true);
     const [openActive, setOpenActive] = useState(false);
@@ -178,7 +172,7 @@ function Banners(props) {
             setConfirmLoading(true);
             console.log(fileList[0])
             const formData = new FormData();
-            formData.append("image", fileList[0].url, fileList[0].name);
+            formData.append("image", fileList[0].originFileObj, fileList[0].originFileObj.name);
             formData.append("active", newItemActive);
             const res = await axiosInstance.post(`banners/add/`, formData);
             let a = {
