@@ -601,22 +601,22 @@ function Products() {
                             </Upload>
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='short_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.short_desc_ru} onChange={handleAddChange} />
+                            <Input.TextArea rows={5} name='short_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.short_desc_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='short_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.short_desc_en} onChange={handleAddChange} />
+                            <Input.TextArea rows={5} name='short_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.short_desc_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='short_desc_tk' placeholder='Короткое описание (туркм.):' value={newItem?.short_desc_tk} onChange={handleAddChange} />
+                            <Input.TextArea rows={5} name='short_desc_tk' placeholder='Короткое описание (туркм.):' value={newItem?.short_desc_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='long_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
+                            <Input.TextArea rows={5} name='long_desc_ru' placeholder='Короткое описание (рус.):' value={newItem?.long_desc_ru} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='long_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.long_desc_en} onChange={handleAddChange} />
+                            <Input.TextArea rows={5} name='long_desc_en' placeholder='Короткое описание (анг.):' value={newItem?.long_desc_en} onChange={handleAddChange} />
                         </div>
                         <div className='add-textarea'>
-                            <Input.TextArea name='long_desc_tk' placeholder='Короткое описание (туркм.):' value={newItem?.long_desc_tk} onChange={handleAddChange} />
+                            <Input.TextArea rows={5} name='long_desc_tk' placeholder='Короткое описание (туркм.):' value={newItem?.long_desc_tk} onChange={handleAddChange} />
                         </div>
                         <div className='add-column'>
                             <Input name='link' placeholder='Url адрес' value={newItem?.link} onChange={handleAddChange} />

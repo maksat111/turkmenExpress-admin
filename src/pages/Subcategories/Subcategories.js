@@ -339,11 +339,11 @@ function Subcategories() {
 
     useEffect(() => {
         axiosInstance.get(`subcategories/list?search=${searchValue}`).then(res => {
-            res.data?.forEach(element => {
+            res?.data.results.forEach(element => {
                 element.key = element.id
             });
-            setDataSource(res.data);
-        })
+            setDataSource(res.data.results);
+        }).catch(err => console.log(err));
     }, [searchValue])
 
     return (
