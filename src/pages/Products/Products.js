@@ -426,10 +426,10 @@ function Products() {
         formData.append('link', link);
         axios.post('http://216.250.10.179/core/add-link/', formData,
             { headers: { Authorization: `Bearer ${getTokenLink()}` } }).then(async res => {
+                res.data.name_ru = res.data.title_ru;
                 setOpenLink(false);
                 setConfirmLoading(false);
 
-                res.data.name_ru = res.data.title_ru;
                 res.data.name_en = res.data.title_en;
                 res.data.name_tk = res.data.title_tk;
 
@@ -438,7 +438,23 @@ function Products() {
                 delete res.data.title_ru;
 
                 if (res.data.main_image.length > 0) {
-                    console.log('salam')
+                    const image = await axios.get(res.data.main_image);
+                    const blobFile = (file) => new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            resolve(event.target.result)
+                        };
+                        reader.readAsDataURL(file);
+                    })
+                    blobFile(res.data)
+                    setFileList([
+                        {
+                            uid: '-1',
+                            name: 'image.png',
+                            status: 'done',
+                            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+                        },
+                    ])
                 }
 
                 setNewItem(res.data);
