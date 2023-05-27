@@ -241,7 +241,7 @@ function Products() {
 
         if (fileList.length !== 0) {
             newItem.main_image = URL.createObjectURL(fileList[0]?.originFileObj);
-            formData.append("main_image", fileList[0]?.originFileObj, fileList[0]?.originFileObj.name);
+            formData.append("main_image", fileList[0]?.originFileObj, fileList[0]?.originFileObj.name ? fileList[0]?.originFileObj.name : fileList[0]?.name);
         }
 
         if (videoList.length !== 0) {
@@ -420,16 +420,16 @@ function Products() {
         setOpenLink(true)
     }
 
-    const handleLinkOk = () => {
+    const handleLinkOk = async () => {
         setConfirmLoading(true);
         const formData = new FormData();
         formData.append('link', link);
         axios.post('http://216.250.10.179/core/add-link/', formData,
             { headers: { Authorization: `Bearer ${getTokenLink()}` } }).then(async res => {
-                res.data.name_ru = res.data.title_ru;
                 setOpenLink(false);
                 setConfirmLoading(false);
 
+                res.data.name_ru = res.data.title_ru;
                 res.data.name_en = res.data.title_en;
                 res.data.name_tk = res.data.title_tk;
 
@@ -438,21 +438,15 @@ function Products() {
                 delete res.data.title_ru;
 
                 if (res.data.main_image.length > 0) {
-                    const image = await axios.get(res.data.main_image);
-                    const blobFile = (file) => new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            resolve(event.target.result)
-                        };
-                        reader.readAsDataURL(file);
-                    })
-                    blobFile(res.data)
+                    const image = await axios.get(res.data.main_image, { responseType: 'blob' });
+                    console.log(res.data.main_image.substring(res.data.main_image.lastIndexOf('/') + 1));
                     setFileList([
                         {
                             uid: '-1',
-                            name: 'image.png',
+                            name: res.data.main_image.substring(res.data.main_image.lastIndexOf('/') + 1),
                             status: 'done',
-                            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+                            url: res.data.main_image,
+                            originFileObj: image.data
                         },
                     ])
                 }
