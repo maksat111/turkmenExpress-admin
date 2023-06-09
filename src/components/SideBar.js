@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 
 function SideBar() {
     const [toggled, setToggled] = useState(false);
+    const [active, setActive] = useState(false);
     const navigate = useNavigate();
     const iconStyle = toggled ? { fontSize: '22px', marginBottom: '-8px' } : { fontSize: '20px' };
     const items = [
@@ -23,94 +24,95 @@ function SideBar() {
             group: 'БИБЛИОНТЕКА',
             icon: <TfiDashboard style={iconStyle} />,
             title: 'Dashboard',
-            href: '/administrator/dashboard'
+            href: '/dashboard'
         },
         {
             icon: <BsImages style={iconStyle} />,
             title: 'Баннеры',
-            href: '/administrator/banners'
+            href: '/banners'
         },
         {
             icon: <AiOutlineTag style={iconStyle} />,
             title: 'Бренды',
-            href: '/administrator/brands'
+            href: '/brands'
         },
         {
             icon: <TbTruckDelivery style={iconStyle} />,
             title: 'Виды доставок',
-            href: '/administrator/deliveryType'
+            href: '/deliveryType'
         },
         {
             icon: <RiCoupon2Line style={iconStyle} />,
             title: 'Виды купонов',
-            href: '/administrator/couponType'
+            href: '/couponType'
         },
         {
             icon: <MdMapsHomeWork style={iconStyle} />,
             title: 'Города и этрапы',
-            href: '/administrator/city'
+            href: '/city'
         },
         {
             icon: <BiCategory style={iconStyle} />,
             title: 'Категории',
-            href: '/administrator/categories'
+            href: '/categories'
         },
         {
             icon: <TbSubtask style={iconStyle} />,
             title: 'Подкатегории',
-            href: '/administrator/subcategories'
+            href: '/subcategories'
         },
         {
             icon: <FaCity style={iconStyle} />,
             title: 'Регионы',
-            href: '/administrator/regions'
+            href: '/regions'
         },
         {
             icon: <TbMessageChatbot style={iconStyle} />,
             title: 'СМС таблица',
-            href: '/administrator/smsTable'
+            href: '/smsTable'
         },
         {
             group: 'КЛИЕНТЫ',
             icon: <TbUsers style={iconStyle} />,
             title: 'Клиенты',
-            href: '/administrator/clients'
+            href: '/clients'
         },
         {
             icon: <AiOutlineShoppingCart style={iconStyle} />,
             title: 'Типы покупателей',
-            href: '/administrator/clientType'
+            href: '/clientType'
         },
         {
             group: 'ТОВАРЫ',
             icon: <TbDiscount2 style={toggled ? { fontSize: '26px', marginBottom: '-5px' } : { fontSize: '23px', marginLeft: '-2px' }} />,
             title: 'Виды скидок',
-            href: '/administrator/discountList'
+            href: '/discountList'
         },
         {
             icon: <FiSettings style={iconStyle} />,
             title: 'Группа опций',
-            href: '/administrator/groupSettings'
+            href: '/groupSettings'
         },
         {
             icon: <RiListSettingsLine style={toggled ? { fontSize: '25px', marginBottom: "-8px" } : { fontSize: '24px' }} />,
             title: toggled ? 'Груп. опц. в подактегориях' : 'Группа опций в подактегориях',
-            href: '/administrator/subcategorySettings'
+            href: '/subcategorySettings'
         },
         {
             icon: <VscSettings style={iconStyle} />,
             title: 'Список опций',
-            href: '/administrator/settingsList'
+            href: '/settingsList'
         },
         {
             icon: <BsInboxes style={iconStyle} />,
             title: 'Товары',
-            href: '/administrator/products'
+            href: '/products'
         },
     ]
 
     const handleSidebarClick = (href) => {
         navigate(href);
+        setActive(href);
     }
 
     const hanldeToggle = () => {
@@ -122,7 +124,7 @@ function SideBar() {
             {items.map((item, index) => <div className='sidebar-items' key={index}>
                 {item.group && <p className={`${toggled ? 'sidebar-toggled-group' : 'sidebar-group'}`}>{item.group}</p>}
                 <div
-                    className={`${toggled ? 'toggled-sidebar-item' : 'sidebar-item'} ${window.location.pathname === item.href ? 'active-sidebar' : ''}`}
+                    className={`${toggled ? 'toggled-sidebar-item' : 'sidebar-item'} ${active === item.href ? 'active-sidebar' : ''}`}
                     onClick={() => handleSidebarClick(item.href)}
                 >
                     {item.icon}

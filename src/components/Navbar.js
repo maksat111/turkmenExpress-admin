@@ -26,7 +26,7 @@ function Navbar() {
 
     const handleOk = () => {
         localStorage.removeItem('turkmenExpress-admin');
-        navigate('/administrator');
+        navigate('/');
     };
 
     const handleCancel = () => {

@@ -28,84 +28,84 @@ function Router() {
     let routes = useRoutes([
         {
             element: <Suspense fallback={<PageLoading />}><Login /></Suspense>,
-            path: '/administrator',
+            path: '/',
         },
         {
             element: <Suspense fallback={<PageLoading />}><SideBarNavbar /></Suspense>,
             children: [
                 {
                     element: <Suspense fallback={<Loading />}><Dashboard /></Suspense>,
-                    path: '/administrator/dashboard',
+                    path: '/dashboard',
 
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Banners /></Suspense>,
-                    path: '/administrator/banners'
+                    path: '/banners'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Brands /></Suspense>,
-                    path: '/administrator/brands'
+                    path: '/brands'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Categories /></Suspense>,
-                    path: '/administrator/categories'
+                    path: '/categories'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><City /></Suspense>,
-                    path: '/administrator/city'
+                    path: '/city'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Clients /></Suspense>,
-                    path: '/administrator/clients'
+                    path: '/clients'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><ClientType /></Suspense>,
-                    path: '/administrator/clientType'
+                    path: '/clientType'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><CouponType /></Suspense>,
-                    path: '/administrator/couponType'
+                    path: '/couponType'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><DiscountList /></Suspense>,
-                    path: '/administrator/discountList'
+                    path: '/discountList'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><GroupSettings /></Suspense>,
-                    path: '/administrator/groupSettings'
+                    path: '/groupSettings'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Products /></Suspense>,
-                    path: '/administrator/products'
+                    path: '/products'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Regions /></Suspense>,
-                    path: '/administrator/regions'
+                    path: '/regions'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><SettingsList /></Suspense>,
-                    path: '/administrator/settingsList'
+                    path: '/settingsList'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><SmsTable /></Suspense>,
-                    path: '/administrator/smsTable'
+                    path: '/smsTable'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><Subcategories /></Suspense>,
-                    path: '/administrator/subcategories'
+                    path: '/subcategories'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><SubCategorySetting /></Suspense>,
-                    path: '/administrator/subcategorySettings'
+                    path: '/subcategorySettings'
                 },
                 {
                     element: <Suspense fallback={<Loading />}><DeliveryType /></Suspense>,
-                    path: '/administrator/deliveryType'
+                    path: '/deliveryType'
                 },
             ]
         },
         {
-            element: <Navigate to='/administrator' />,
+            element: <Navigate to='/' />,
             path: '*'
         }
     ]);
