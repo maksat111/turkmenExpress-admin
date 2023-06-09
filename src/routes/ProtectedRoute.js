@@ -4,7 +4,7 @@ import { isLogin } from '../utils/isLogin';
 const ProtectedRoute = ({ children }) => {
 
     if (!isLogin()) {
-        return <Navigate to="/administrator" />;
+        return <Navigate to="/" />;
     }
 
     return children;
