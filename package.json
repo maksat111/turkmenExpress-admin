@@ -2,7 +2,7 @@
   "name": "turkmenexpressadmin",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/administrator",
+  "homepage": "www.turkmenexpress.com.tm/administrator",
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
     "@testing-library/jest-dom": "^5.14.1",
